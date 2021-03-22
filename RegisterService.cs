@@ -1,0 +1,67 @@
+﻿namespace HECSFramework.Core
+{
+    public partial class RegisterService : IRegisterService
+    {
+        public void RegisterSystem(ISystem system)
+        {
+            if (system is IUpdatable updatable)
+                system.Owner.World.RegisterUpdatable(updatable, true);
+
+            if (system is IFixedUpdatable fixedUpdatable)
+                system.Owner.World.RegisterUpdatable(fixedUpdatable, true);
+
+            if (system is ILateUpdatable lateUpdatable)
+                system.Owner.World.RegisterUpdatable(lateUpdatable, true);
+
+            if (system is IAsyncUpdatable asyncupdate)
+                system.Owner.World.RegisterUpdatable(asyncupdate, true);
+
+            if (system is IReactEntity enitiesChanges)
+                system.Owner.World.AddEntityListener(enitiesChanges, true);
+
+            if (system is IReactComponent componentsChanges)
+                system.Owner.World.AddGlobalReactComponent(componentsChanges);
+
+            RegisterAdditionalSystems(system);
+            BindSystem(system);
+        }
+
+        public void UnRegisterSystem(ISystem system)
+        {
+            if (system is IUpdatable updatable)
+                system.Owner.World.RegisterUpdatable(updatable, false);
+
+            if (system is IFixedUpdatable fixedUpdatable)
+                system.Owner.World.RegisterUpdatable(fixedUpdatable, false);
+
+            if (system is ILateUpdatable lateUpdatable)
+                system.Owner.World.RegisterUpdatable(lateUpdatable, false);
+
+            if (system is IAsyncUpdatable asyncupdate)
+                system.Owner.World.RegisterUpdatable(asyncupdate, false);
+
+            if (system is IReactEntity enitiesChanges)
+                system.Owner.World.AddEntityListener(enitiesChanges, false);
+
+            if (system is IReactComponent componentsChanges)
+                system.Owner.World.RemoveGlobalReactComponent(componentsChanges);
+
+            UnRegisterAdditionalSystems(system);
+            UnBindSystem(system);
+        }
+
+        partial void RegisterAdditionalSystems(ISystem system);
+        partial void BindSystem(ISystem system);
+        partial void UnBindSystem(ISystem system);
+        partial void UnRegisterAdditionalSystems(ISystem system);
+    }
+}
+
+namespace HECSFramework.Core
+{
+    public interface IRegisterService
+    {
+        void RegisterSystem(ISystem system);
+        void UnRegisterSystem(ISystem system);
+    }
+}
