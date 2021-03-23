@@ -2,31 +2,14 @@
 {
     public partial struct HECSMask
     {
-        public static HECSMask Empty => TypesMap.Empty;
+        public static HECSMask Empty => TypesMap.MaskProvider.Empty();
 
         public int Index;
         public ulong Mask01;
 
-        public static HECSMask operator +(HECSMask l, HECSMask r)
-        {
-            return new HECSMask
-            {
-                Mask01 = l.Mask01 | r.Mask01,
-            };
-        }
-
-        public static HECSMask operator -(HECSMask l, HECSMask r)
-        {
-            return new HECSMask
-            {
-                Mask01 = l.Mask01 ^ r.Mask01,
-            };
-        }
-
-        public bool Contain(ref HECSMask mask)
-        {
-            return (Mask01 & mask.Mask01) == mask.Mask01;
-        }
+        public static HECSMask operator +(HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetPlus(l, r);
+        public static HECSMask operator -(HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetMinus(l, r);
+        public bool Contain(ref HECSMask mask) => TypesMap.MaskProvider.Contains(ref this, ref mask);
 
         public override bool Equals(object obj)
         {

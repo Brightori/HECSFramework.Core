@@ -6,13 +6,12 @@ namespace HECSFramework.Core
     public static class TypesMap
     {
         public static readonly int SizeOfComponents = 64;
-        public static HECSMask Empty;
+        public static IMaskProvider MaskProvider;
 
         private static readonly Dictionary<int, ComponentMaskAndIndex> MapIndexes;
         private static readonly Dictionary<Type, int> TypeToComponentIndex;
         private static readonly Dictionary<int, Type> componentHashToType;
         private static IComponentFactory componentFactory;
-        
 
         static TypesMap()
         {
@@ -20,6 +19,7 @@ namespace HECSFramework.Core
             MapIndexes = typeProvider.MapIndexes;
             TypeToComponentIndex = typeProvider.TypeToComponentIndex;
             SizeOfComponents = typeProvider.Count;
+            MaskProvider = new MaskProvider();
         }
 
         public static bool GetComponentInfo(int hashTypeCode, out ComponentMaskAndIndex mask)

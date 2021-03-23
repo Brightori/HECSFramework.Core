@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEditor;
 using UnityEngine;
 
 namespace HECSFramework.Core.Generator
 {
-    class HECSCodogen
+    class HECSParserExperimental
     {
         /*private static string test = @"using System.Collections.Generic;
 

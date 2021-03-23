@@ -1,29 +1,42 @@
-﻿using System;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
-    public class MaskProvider : IMaskProvider
+    public delegate bool ContainsMask(ref HECSMask original, ref HECSMask other);
+    public delegate HECSMask MaskOperation(HECSMask left, HECSMask right);
+    public delegate HECSMask GetMask();
+
+    public partial class MaskProvider : IMaskProvider
     {
-        public bool Contain(ref HECSMask original, ref HECSMask other)
+        public MaskOperation GetPlus { get; private set; }
+        public MaskOperation GetMinus { get; private set; }
+        public ContainsMask Contains { get; private set; }
+        public GetMask Empty { get; private set; }
+    }
+
+    public partial class MaskProvider
+    {
+        public MaskProvider()
         {
-            throw new NotImplementedException();
+            Contains = ContainsFunc;
+            GetMinus = GetMinusFunc;
         }
 
-        public HECSMask GetMinus(HECSMask l, HECSMask r)
+        public HECSMask GetMinusFunc(HECSMask left, HECSMask right)
         {
-            throw new NotImplementedException();
+            return default;
         }
 
-        public HECSMask GetPlus(HECSMask l, HECSMask r)
+        private bool ContainsFunc(ref HECSMask original, ref HECSMask other)
         {
-            throw new NotImplementedException();
+            return default;
         }
     }
 
+
     public interface IMaskProvider
     {
-        HECSMask GetPlus(HECSMask l, HECSMask r);
-        HECSMask GetMinus(HECSMask l, HECSMask r);
-        bool Contain(ref HECSMask original, ref HECSMask other);
+        GetMask Empty { get; }
+        MaskOperation GetPlus { get; }
+        MaskOperation GetMinus { get; }
+        ContainsMask Contains { get; }
     }
 }

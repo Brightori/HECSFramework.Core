@@ -31,7 +31,7 @@ namespace HECSFramework.Core
         public void StartGeneration()
         {
             GatherAssembly();
-            GenerateComponentMask();
+            GenerateMaskProvider();
             GenerateTypesMap();
             GenerateComponentContext();
         }
@@ -406,9 +406,13 @@ namespace HECSFramework.Core
         #endregion
 
         #region GenerateComponentMask
-        private string GenerateComponentMask()
+        private string GenerateMaskProvider()
         {
-            var componentMaskName = "ComponentsMask";
+            var className = typeof(MaskProvider).Name;
+            var hecsMaskname = typeof(HECSMask).Name;
+
+            var hecsMaskPart = new TreeSyntaxNode();
+
             var componentsPeriodCount = ComponentsCount();
 
 
@@ -423,15 +427,18 @@ namespace HECSFramework.Core
             var operatorMinus = new TreeSyntaxNode();
             var isHaveBody = new TreeSyntaxNode();
 
-            tree.FlatRoot.Add(new NameSpaceSyntax(DefaultNameSpace));
+            var maskClassConstructor = new TreeSyntaxNode();
+
+
+            tree.Add(new NameSpaceSyntax(DefaultNameSpace));
             tree.Add(new LeftScopeSyntax());
 
-            //className
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(),
-                new ModificatorSyntax(CParse.Public), new SimpleSyntax(CParse.Struct), new SimpleSyntax(componentMaskName), new ParagraphSyntax()));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(), new LeftScopeSyntax()));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax("public static ComponentsMask Empty => new ComponentsMask"), new ParagraphSyntax()));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new LeftScopeSyntax()));
+            tree.Add(new TabSimpleSyntax(1, $"public partial class {className}"));
+            tree.Add(new LeftScopeSyntax(1));
+            tree.Add(new TabSimpleSyntax(2, "public MaskProvider()"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(maskClassConstructor);
+            tree.Add(new RightScopeSyntax(2));
 
             //here we insert mask later
             tree.Add(new CompositeSyntax(maskDefault));
@@ -452,9 +459,9 @@ namespace HECSFramework.Core
             tree.Add(new RightScopeSyntax(2));
 
             tree.Add(new ParagraphSyntax());
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax("public static ComponentsMask operator -(ComponentsMask l, ComponentsMask r)"), new ParagraphSyntax()));
+            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public {hecsMaskname} GetMinusFunc({hecsMaskname} left, {hecsMaskname} right)"), new ParagraphSyntax()));
             tree.Add(new LeftScopeSyntax(2));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax("return new ComponentsMask"), new ParagraphSyntax()));
+            tree.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"return new {hecsMaskname}"), new ParagraphSyntax()));
             tree.Add(new LeftScopeSyntax(3));
             tree.Add(operatorMinus);
             tree.Add(new RightScopeSyntax(3, true));
@@ -469,6 +476,7 @@ namespace HECSFramework.Core
             tree.Add(new ParagraphSyntax());
             tree.Add(new RightScopeSyntax(2));
             tree.Add(new RightScopeSyntax(1));
+            tree.Add(hecsMaskPart);
             tree.Add(new RightScopeSyntax());
 
             //fill trees
