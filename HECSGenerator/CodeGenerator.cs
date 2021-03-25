@@ -406,7 +406,7 @@ namespace HECSFramework.Core
         #endregion
 
         #region GenerateComponentMask
-        private string GenerateMaskProvider()
+        public string GenerateMaskProvider()
         {
             var className = typeof(MaskProvider).Name;
             var hecsMaskname = typeof(HECSMask).Name;
@@ -420,46 +420,55 @@ namespace HECSFramework.Core
             var tree = new TreeSyntaxNode();
 
             //defaultMask
+            var maskFunc = new TreeSyntaxNode();
             var maskDefault = new TreeSyntaxNode();
 
             var fields = new TreeSyntaxNode();
             var operatorPlus = new TreeSyntaxNode();
             var operatorMinus = new TreeSyntaxNode();
             var isHaveBody = new TreeSyntaxNode();
+            
+            var equalityBody = new TreeSyntaxNode();
+            var getHashCodeBody = new TreeSyntaxNode();
 
             var maskClassConstructor = new TreeSyntaxNode();
-
 
             tree.Add(new NameSpaceSyntax(DefaultNameSpace));
             tree.Add(new LeftScopeSyntax());
 
             tree.Add(new TabSimpleSyntax(1, $"public partial class {className}"));
             tree.Add(new LeftScopeSyntax(1));
+
+            //constructor
             tree.Add(new TabSimpleSyntax(2, "public MaskProvider()"));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(maskClassConstructor);
             tree.Add(new RightScopeSyntax(2));
 
-            //here we insert mask later
-            tree.Add(new CompositeSyntax(maskDefault));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new RightScopeSyntax { StringValue = CParse.RightScope + CParse.Semicolon }));
-
-            //here we insertFields
+            //Get Empty Mask
             tree.Add(new ParagraphSyntax());
-            tree.Add(new CompositeSyntax(fields));
-            tree.Add(new ParagraphSyntax());
+            tree.Add(new CompositeSyntax(maskFunc));
+            maskFunc.Add(new TabSimpleSyntax(2, "public HECSMask GetEmptyMaskFunc()"));
+            maskFunc.Add(new LeftScopeSyntax(2));
+            maskFunc.Add(new TabSimpleSyntax(3, "return new HECSMask"));
+            maskFunc.Add(new LeftScopeSyntax(3));
+            maskFunc.Add(maskDefault);
+            maskDefault.Add(new TabSimpleSyntax(4, "Index = 0,"));
+            maskFunc.Add(new RightScopeSyntax(3, true));
+            maskFunc.Add(new RightScopeSyntax(2));
 
             //plus operator
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax("public static ComponentsMask operator +(ComponentsMask l, ComponentsMask r)"), new ParagraphSyntax()));
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new CompositeSyntax(new TabSimpleSyntax(2, $"public {hecsMaskname} GetPlusFunc({hecsMaskname} l, {hecsMaskname} r)")));
             tree.Add(new LeftScopeSyntax(2));
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax("return new ComponentsMask"), new ParagraphSyntax()));
+            tree.Add(new CompositeSyntax(new TabSimpleSyntax(3, $"return new {hecsMaskname}")));
             tree.Add(new LeftScopeSyntax(3));
             tree.Add(operatorPlus);
             tree.Add(new RightScopeSyntax(3, true));
             tree.Add(new RightScopeSyntax(2));
 
             tree.Add(new ParagraphSyntax());
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public {hecsMaskname} GetMinusFunc({hecsMaskname} left, {hecsMaskname} right)"), new ParagraphSyntax()));
+            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public {hecsMaskname} GetMinusFunc({hecsMaskname} l, {hecsMaskname} r)"), new ParagraphSyntax()));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"return new {hecsMaskname}"), new ParagraphSyntax()));
             tree.Add(new LeftScopeSyntax(3));
@@ -467,11 +476,20 @@ namespace HECSFramework.Core
             tree.Add(new RightScopeSyntax(3, true));
             tree.Add(new RightScopeSyntax(2));
 
+            //Equal part
+            tree.Add(new ParagraphSyntax());
+            tree.Add(EqualMask(equalityBody));
+
+            //HashCodePart part
+            tree.Add(new ParagraphSyntax());
+            tree.Add(GetHashCode(getHashCodeBody));
+
             //bool IsHave
             tree.Add(new ParagraphSyntax());
-            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax("public bool IsHave(ref ComponentsMask mask)"), new ParagraphSyntax()));
+            tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public bool ContainsFunc(ref {hecsMaskname} original, ref {hecsMaskname} other)"), new ParagraphSyntax()));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(isHaveBody);
+            tree.Add(new SimpleSyntax(CParse.Semicolon));
             isHaveBody.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax(CParse.Return), new SpaceSyntax()));
             tree.Add(new ParagraphSyntax());
             tree.Add(new RightScopeSyntax(2));
@@ -479,27 +497,76 @@ namespace HECSFramework.Core
             tree.Add(hecsMaskPart);
             tree.Add(new RightScopeSyntax());
 
+            maskClassConstructor.Add(GetMaskProviderConstructorBody());
+
             //fill trees
             for (int i = 0; i < componentsPeriodCount; i++)
             {
-                maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"Mask0{i + 1} = 1 << 1,"), new ParagraphSyntax()));
+                maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = 1 << 1,"), new ParagraphSyntax()));
+                equalityBody.Add( new SimpleSyntax($"{CParse.Space}&& mask.Mask0{i+1} == otherMask.Mask0{i+1}"));
                 fields.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public ulong Mask0{i + 1};"), new ParagraphSyntax()));
                 operatorPlus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} | r.Mask0{i + 1},"), new ParagraphSyntax()));
                 operatorMinus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} ^ r.Mask0{i + 1},"), new ParagraphSyntax()));
+                getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += (-{i+1} * (int)mask.Mask0{i+1});"));
 
                 if (i == 0)
-                    isHaveBody.Add(new SimpleSyntax($"(Mask0{i + 1} & mask.Mask0{i + 1}) == mask.Mask0{i + 1}"));
+                    isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i + 1}"));
                 else
-                    isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6), new SimpleSyntax("&&"), new SimpleSyntax($"(Mask0{i + 1} & mask.Mask0{i + 1}) == mask.Mask0{i + 1}")));
+                    isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6), 
+                        new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i + 1}")));
             }
 
-            //add final semicolon
-            isHaveBody.Add(new SimpleSyntax(CParse.Semicolon));
-
-            var result = tree.ToString();
-            return result;
+            return tree.ToString();
         }
         #endregion
+
+        private ISyntax GetHashCode(ISyntax body)
+        {
+            var tree = new TreeSyntaxNode();
+            var maskType = typeof(HECSMask).Name;
+            tree.Add(new TabSimpleSyntax(2, $"public int GetHashCodeFunc(ref {maskType} mask)"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(new TabSimpleSyntax(3, "unchecked"));
+            tree.Add(new LeftScopeSyntax(3));
+            tree.Add(new TabSimpleSyntax(4, "int hash = -2134847229;"));
+            tree.Add(body);
+            tree.Add(new TabSimpleSyntax(4, "return hash;"));
+            tree.Add(new RightScopeSyntax(3));
+            tree.Add(new RightScopeSyntax(2));
+            return tree;
+        }
+
+        private ISyntax EqualMask(ISyntax body)
+        {
+            var tree = new TreeSyntaxNode();
+            var maskSyntax = typeof(HECSMask).Name;
+
+            tree.Add(new TabSimpleSyntax(2, $"public bool GetEqualityOfMasksFunc(ref {maskSyntax} mask, object other)"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"return other is {maskSyntax} otherMask")));
+            tree.Add(body);
+            tree.Add(new SimpleSyntax(CParse.Semicolon));
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new RightScopeSyntax(2));
+
+            return tree;
+        }
+
+        private ISyntax GetMaskProviderConstructorBody()
+        {
+            var tree = new TreeSyntaxNode();
+            tree.Add(new TabSimpleSyntax(3, "GetPlus = GetPlusFunc;"));
+            tree.Add(new TabSimpleSyntax(3, "GetMinus = GetMinusFunc;"));
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(3, "Empty = GetEmptyMaskFunc;"));
+            tree.Add(new TabSimpleSyntax(3, "Contains = ContainsFunc;"));
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(3, "GetMaskIsEqual = GetEqualityOfMasksFunc;"));
+            tree.Add(new TabSimpleSyntax(3, "GetMaskHashCode = GetHashCodeFunc;"));
+
+            return tree;
+        }
+
 
         #region Helpers
         private int ComponentsCount()

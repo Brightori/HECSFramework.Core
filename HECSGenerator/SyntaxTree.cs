@@ -88,7 +88,7 @@ namespace HECSFramework.Core.Generator
 
         public override string ToString()
         {
-            return Data + CParse.Space;
+            return Data;
         }
     }
 
