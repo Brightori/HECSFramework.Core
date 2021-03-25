@@ -15,11 +15,11 @@ namespace HECSFramework.Core
 
         static TypesMap()
         {
+            MaskProvider = new MaskProvider();
             var typeProvider = new TypesProvider();
             MapIndexes = typeProvider.MapIndexes;
             TypeToComponentIndex = typeProvider.TypeToComponentIndex;
             SizeOfComponents = typeProvider.Count;
-            MaskProvider = new MaskProvider();
         }
 
         public static bool GetComponentInfo(int hashTypeCode, out ComponentMaskAndIndex mask)

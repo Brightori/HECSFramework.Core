@@ -453,7 +453,7 @@ namespace HECSFramework.Core
             maskFunc.Add(new TabSimpleSyntax(3, "return new HECSMask"));
             maskFunc.Add(new LeftScopeSyntax(3));
             maskFunc.Add(maskDefault);
-            maskDefault.Add(new TabSimpleSyntax(4, "Index = 0,"));
+            maskDefault.Add(new TabSimpleSyntax(4, "Index = -999,"));
             maskFunc.Add(new RightScopeSyntax(3, true));
             maskFunc.Add(new RightScopeSyntax(2));
 
@@ -494,15 +494,16 @@ namespace HECSFramework.Core
             tree.Add(new ParagraphSyntax());
             tree.Add(new RightScopeSyntax(2));
             tree.Add(new RightScopeSyntax(1));
-            tree.Add(hecsMaskPart);
+            tree.Add(HecsMaskPart(hecsMaskPart));
             tree.Add(new RightScopeSyntax());
 
+            //costructor for mask provider class
             maskClassConstructor.Add(GetMaskProviderConstructorBody());
 
             //fill trees
-            for (int i = 0; i < componentsPeriodCount; i++)
+            for (int i = 0; i < 3; i++)
             {
-                maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = 1 << 1,"), new ParagraphSyntax()));
+                maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = 0,"), new ParagraphSyntax()));
                 equalityBody.Add( new SimpleSyntax($"{CParse.Space}&& mask.Mask0{i+1} == otherMask.Mask0{i+1}"));
                 fields.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public ulong Mask0{i + 1};"), new ParagraphSyntax()));
                 operatorPlus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} | r.Mask0{i + 1},"), new ParagraphSyntax()));
@@ -510,15 +511,36 @@ namespace HECSFramework.Core
                 getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += (-{i+1} * (int)mask.Mask0{i+1});"));
 
                 if (i == 0)
-                    isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i + 1}"));
+                    isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0"));
                 else
                     isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6), 
-                        new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i + 1}")));
+                        new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0")));
+
+                if (i > 0)
+                    hecsMaskPart.Add(new TabSimpleSyntax(2, $"public ulong Mask0{i+1};"));
             }
 
             return tree.ToString();
         }
         #endregion
+
+        private ISyntax HecsMaskPart(ISyntax body)
+        {
+            var tree = new TreeSyntaxNode();
+            var maskType = typeof(HECSMask).Name;
+
+            //tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
+            //tree.Add(new LeftScopeSyntax());
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new SimpleSyntax("#pragma warning disable"+CParse.Paragraph));
+            tree.Add(new TabSimpleSyntax(1, $"public partial struct {maskType}"));
+            tree.Add(new LeftScopeSyntax(1));
+            tree.Add(body);
+            tree.Add(new RightScopeSyntax(1));
+            tree.Add(new SimpleSyntax("#pragma warning enable" + CParse.Paragraph));
+            return tree;
+        }
+
 
         private ISyntax GetHashCode(ISyntax body)
         {
