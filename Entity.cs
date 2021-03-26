@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,9 +39,9 @@ namespace HECSFramework.Core
         public bool IsPaused { get; private set; }
         public bool IsLoaded { get; set; }
         public HECSMask ComponentsMask { get; private set; }
-        
+
         public Entity() { }
-        
+
         public Entity(string id, int worldIndex)
         {
             ID = id;
@@ -122,7 +123,7 @@ namespace HECSFramework.Core
         private void InitComponentsAndSystems()
         {
             ComponentsMask = HECSMask.Empty;
-            
+
             foreach (var component in components)
             {
                 if (component is IInitable init)
@@ -156,6 +157,7 @@ namespace HECSFramework.Core
 
             components[component.ComponentsMask.Index] = null;
             ComponentContext.RemoveComponent(component);
+            ComponentsMask -= component.ComponentsMask;
             World.AddOrRemoveComponentEvent(component, false);
         }
 
@@ -305,9 +307,10 @@ namespace HECSFramework.Core
 
         public void GenerateID()
         {
-            EntityGuid = Guid.NewGuid(); 
+            EntityGuid = Guid.NewGuid();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsMask(ref HECSMask mask)
         {
             return ComponentsMask.Contain(ref mask);

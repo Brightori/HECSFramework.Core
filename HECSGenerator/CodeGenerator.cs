@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace HECSFramework.Core
 {
@@ -30,10 +31,10 @@ namespace HECSFramework.Core
 
         public void StartGeneration()
         {
-            GatherAssembly();
-            GenerateMaskProvider();
-            GenerateTypesMap();
-            GenerateComponentContext();
+            //GatherAssembly();
+            //GenerateMaskProvider();
+            //GenerateTypesMap();
+            //GenerateComponentContext();
         }
 
 
@@ -90,16 +91,7 @@ namespace HECSFramework.Core
 
             return tree.ToString();
         }
-
-        private string GetComponentID(Type component)
-        {
-            //исключение, так как мы уже это везде используем, но не хочется получать IDID на конце
-            if (component.Name.Contains("ActorContainerID"))
-                return "ActorContainerID";
-
-            return $"{component.Name}ID";
-        }
-
+      
         private ISyntax GetComponentForTypeMap(int index, int fieldCount, Type c)
         {
             var composite = new TreeSyntaxNode();
@@ -169,6 +161,42 @@ namespace HECSFramework.Core
         }
         #endregion
 
+        #region HECSMasks
+        public string GenerateHecsMasks()
+        {
+            var tree = new TreeSyntaxNode();
+
+            tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
+            tree.Add(new LeftScopeSyntax());
+            tree.Add(new TabSimpleSyntax(1, "public static class HECSMasks"));
+            tree.Add(new LeftScopeSyntax(1));
+            tree.Add(GetHecsMasksFields());
+            tree.Add(GetHecsMasksConstructor());
+            tree.Add(new RightScopeSyntax(1));
+            tree.Add(new RightScopeSyntax());
+
+            return tree.ToString();
+        }
+
+        private ISyntax GetHecsMasksConstructor()
+        {
+            var tree = new TreeSyntaxNode();
+            var hecsMaskname = typeof(HECSMask).Name;
+
+            for (int i = 0; i < componentTypes.Count; i++)
+                tree.Add(new TabSimpleSyntax(2, $"public static {hecsMaskname} {componentTypes[i].Name};"));
+
+            return tree;
+        }
+
+        private ISyntax GetHecsMasksFields()
+        {
+            var tree = new TreeSyntaxNode();
+
+
+            return tree;
+        }
+        #endregion 
 
         #region ComponentContext
         private string GenerateComponentContext()
@@ -401,8 +429,6 @@ namespace HECSFramework.Core
 
             tree.Add(new RightScopeSyntax(2));
         }
-
-
         #endregion
 
         #region GenerateComponentMask
@@ -501,7 +527,7 @@ namespace HECSFramework.Core
             maskClassConstructor.Add(GetMaskProviderConstructorBody());
 
             //fill trees
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < ComponentsCount(); i++)
             {
                 maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = 0,"), new ParagraphSyntax()));
                 equalityBody.Add( new SimpleSyntax($"{CParse.Space}&& mask.Mask0{i+1} == otherMask.Mask0{i+1}"));
