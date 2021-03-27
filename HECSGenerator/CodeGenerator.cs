@@ -178,6 +178,35 @@ namespace HECSFramework.Core
             return tree.ToString();
         }
 
+        private ISyntax GetNewComponentSolved(Type c, int index, int fieldCount)
+        {
+            var tree = new TreeSyntaxNode();
+            var maskBody = new TreeSyntaxNode();
+
+
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(4, $"new {typeof(HECSMask).Name}"));
+            tree.Add(new LeftScopeSyntax(4));
+            tree.Add(maskBody);
+            tree.Add(new RightScopeSyntax(4, true));
+
+            maskBody.Add(new TabSimpleSyntax(5, $"Index = {index},"));
+            
+            var maskSplitToArray = CalculateIndexesForMask(index, fieldCount);
+
+            for (int i = 0; i < fieldCount; i++)
+            {
+                maskBody.Add(new CompositeSyntax(new TabSpaceSyntax(5), new SimpleSyntax($"Mask0{i + 1} = 1ul << {maskSplitToArray[i]},")));
+
+                if (i > fieldCount - 1)
+                    continue;
+
+                maskBody.Add(new ParagraphSyntax());
+            }
+
+            return tree;
+        }
+
         private ISyntax GetHecsMasksConstructor()
         {
             var tree = new TreeSyntaxNode();
@@ -199,11 +228,7 @@ namespace HECSFramework.Core
                 var className = componentTypes[i].Name;
                 var classType = componentTypes[i];
                 var hash = IndexGenerator.GetIndexForType(classType);
-
-                tree.Add(new TabSimpleSyntax(3, $"if (TypesMap.GetComponentInfo({hash}, out var mask{i}))"));
-                tree.Add(new TabSimpleSyntax(4, $"{className} = mask{i}.ComponentsMask;"));
-                tree.Add(new TabSimpleSyntax(3, $"else"));
-                tree.Add(new TabSimpleSyntax(4, $"throw new System.Exception({CParse.Quote}we need componentInfo for {CParse.Quote} + {hash});"));
+                tree.Add(new TabSimpleSyntax(4, $"{className} = {GetNewComponentSolved(classType, i, ComponentsCount())}"));
             }     
             
             return tree;

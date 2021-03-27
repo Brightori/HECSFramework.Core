@@ -32,13 +32,18 @@ namespace HECSFramework.Core
 
 
         private IRegisterService RegisterService = new RegisterService();
+        private HECSMask componentsMask;
+
         public ICommandService EntityCommandService { get; } = new EntityCommandService();
 
         public bool IsInited { get; protected set; }
         public bool IsAlive { get; private set; } = true;
         public bool IsPaused { get; private set; }
         public bool IsLoaded { get; set; }
-        public HECSMask ComponentsMask { get; private set; }
+
+        public HECSMask ComponentsMask { get => componentsMask; private set => componentsMask = value; }
+
+        private ref HECSMask refToMask => ref componentsMask;
 
         public Entity() { }
 
@@ -310,10 +315,9 @@ namespace HECSFramework.Core
             EntityGuid = Guid.NewGuid();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ContainsMask(ref HECSMask mask)
         {
-            return ComponentsMask.Contain(ref mask);
+            return refToMask.Contain(ref mask);
         }
 
         public void HecsDestroy()
