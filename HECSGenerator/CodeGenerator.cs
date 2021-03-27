@@ -168,7 +168,7 @@ namespace HECSFramework.Core
 
             tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
             tree.Add(new LeftScopeSyntax());
-            tree.Add(new TabSimpleSyntax(1, "public static class HECSMasks"));
+            tree.Add(new TabSimpleSyntax(1, "public static class HMasks"));
             tree.Add(new LeftScopeSyntax(1));
             tree.Add(GetHecsMasksFields());
             tree.Add(GetHecsMasksConstructor());
@@ -181,18 +181,47 @@ namespace HECSFramework.Core
         private ISyntax GetHecsMasksConstructor()
         {
             var tree = new TreeSyntaxNode();
-            var hecsMaskname = typeof(HECSMask).Name;
-
-            for (int i = 0; i < componentTypes.Count; i++)
-                tree.Add(new TabSimpleSyntax(2, $"public static {hecsMaskname} {componentTypes[i].Name};"));
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(2, "static HMasks()"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(GetHMaskBody());
+            tree.Add(new RightScopeSyntax(2));
 
             return tree;
+        }
+
+        private ISyntax GetHMaskBody()
+        {
+            var tree = new TreeSyntaxNode();
+
+            for (int i = 0; i < componentTypes.Count; i++)
+            {
+                var className = componentTypes[i].Name;
+                var classType = componentTypes[i];
+                var hash = IndexGenerator.GetIndexForType(classType);
+
+                tree.Add(new TabSimpleSyntax(3, $"if (TypesMap.GetComponentInfo({hash}, out var mask{i}))"));
+                tree.Add(new TabSimpleSyntax(4, $"{className} = mask{i}.ComponentsMask;"));
+                tree.Add(new TabSimpleSyntax(3, $"else"));
+                tree.Add(new TabSimpleSyntax(4, $"throw new System.Exception({CParse.Quote}we need componentInfo for {CParse.Quote} + {hash});"));
+            }     
+            
+            return tree;
+        }
+
+        private string GetHECSMaskName()
+        {
+            return typeof(HECSMask).Name;
         }
 
         private ISyntax GetHecsMasksFields()
         {
             var tree = new TreeSyntaxNode();
+            
+            var hecsMaskname = typeof(HECSMask).Name;
 
+            for (int i = 0; i < componentTypes.Count; i++)
+                tree.Add(new TabSimpleSyntax(2, $"public readonly static {hecsMaskname} {componentTypes[i].Name};"));
 
             return tree;
         }
