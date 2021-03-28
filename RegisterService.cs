@@ -50,9 +50,11 @@
             UnBindSystem(system);
         }
 
-        partial void RegisterAdditionalSystems(ISystem system);
         partial void BindSystem(ISystem system);
         partial void UnBindSystem(ISystem system);
+        
+        //for different custom systems on unity or server side
+        partial void RegisterAdditionalSystems(ISystem system);
         partial void UnRegisterAdditionalSystems(ISystem system);
     }
 }

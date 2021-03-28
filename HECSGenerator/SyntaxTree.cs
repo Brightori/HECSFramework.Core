@@ -166,7 +166,7 @@ namespace HECSFramework.Core.Generator
     public class UsingSyntax : SyntaxNode
     {
         public string Name;
-        private int paragraphCount;
+        private int paragraphCount = 1;
 
         public UsingSyntax(string name)
         {
@@ -175,7 +175,7 @@ namespace HECSFramework.Core.Generator
 
         public UsingSyntax(string name, int paragraphAfter) : this(name)
         {
-            paragraphCount = paragraphAfter;
+            paragraphCount += paragraphAfter;
         }
 
         public override string StringValue { get; set; } = CParse.Using;

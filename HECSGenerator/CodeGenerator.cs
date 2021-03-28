@@ -2,11 +2,7 @@
 using HECSFramework.Core.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace HECSFramework.Core
 {
@@ -29,6 +25,9 @@ namespace HECSFramework.Core
         private List<Type> componentTypes;
         private List<Type> componentTypesByClass;
 
+        private List<Type> localSystemBind;
+        private List<Type> globalSystemBind;
+
         public void StartGeneration()
         {
             //GatherAssembly();
@@ -37,6 +36,62 @@ namespace HECSFramework.Core
             //GenerateComponentContext();
         }
 
+        #region SystemBind
+        public string GetSystemBinds()
+        {
+            var tree = new TreeSyntaxNode();
+            var bindSystemFunc = new TreeSyntaxNode();
+            tree.Add(new UsingSyntax("Commands", 1));
+            tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
+            tree.Add(new LeftScopeSyntax());
+            tree.Add(new TabSimpleSyntax(1, "public partial class RegisterService"));
+            tree.Add(new LeftScopeSyntax(1));
+            tree.Add(bindSystemFunc);
+            tree.Add(new RightScopeSyntax(1));
+            tree.Add(new RightScopeSyntax());
+
+            bindSystemFunc.Add(new TabSimpleSyntax(2, "partial void BindSystem(ISystem system)"));
+            bindSystemFunc.Add(new LeftScopeSyntax(2));
+            bindSystemFunc.Add(GetGlobalBindings());
+            bindSystemFunc.Add(GetLocalBindings());
+            bindSystemFunc.Add(new RightScopeSyntax(2));
+
+            return tree.ToString();
+        }
+
+        private ISyntax GetGlobalBindings()
+        {
+            var tree = new TreeSyntaxNode();
+
+            for (int i = 0; i < globalSystemBind.Count; i++)
+            {
+                Type t = globalSystemBind[i];
+                
+                if (i != 0)
+                    tree.Add(new ParagraphSyntax());
+                
+                tree.Add(new TabSimpleSyntax(3, $"if (system is IReactGlobalCommand<{t.Name}> {t.Name}GlobalCommandsReact)"));
+                tree.Add(new TabSimpleSyntax(4, $"system.Owner.World.AddGlobalReactCommand<{t.Name}>(system, {t.Name}GlobalCommandsReact.CommandGlobalReact);"));
+            }
+
+            return tree;
+        }     
+        
+        private ISyntax GetLocalBindings()
+        {
+            var tree = new TreeSyntaxNode();
+            
+
+            foreach (var t in localSystemBind)
+            {
+                tree.Add(new ParagraphSyntax());
+                tree.Add(new TabSimpleSyntax(3, $"if (system is IReactCommand<{t.Name}> {t.Name}CommandsReact)"));
+                tree.Add(new TabSimpleSyntax(4, $"system.Owner.EntityCommandService.AddListener<{t.Name}>(system, {t.Name}CommandsReact.CommandReact);"));
+            }
+
+            return tree;
+        }
+        #endregion
 
         #region GenerateTypesMap
         public string GenerateTypesMap()
@@ -44,10 +99,10 @@ namespace HECSFramework.Core
             var tree = new TreeSyntaxNode();
             var componentsSegment = new TreeSyntaxNode();
 
-            tree.Add(new CompositeSyntax(new UsingSyntax("System.Collections.Generic"), new ParagraphSyntax()));
-            tree.Add(new CompositeSyntax(new UsingSyntax("Components"), new ParagraphSyntax()));
-            tree.Add(new CompositeSyntax(new UsingSyntax("HECSFramework.Core"), new ParagraphSyntax()));
-            tree.Add(new ParagraphSyntax());
+            tree.Add(new UsingSyntax("System.Collections.Generic"));
+            tree.Add(new UsingSyntax("Components"));
+            tree.Add(new UsingSyntax("HECSFramework.Core", 1));
+
             tree.Add(new NameSpaceSyntax(DefaultNameSpace));
             tree.Add(new LeftScopeSyntax());
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(1), new SimpleSyntax($"public partial class {typeof(TypesProvider).Name}"), new ParagraphSyntax()));
@@ -602,7 +657,6 @@ namespace HECSFramework.Core
 
             return tree.ToString();
         }
-        #endregion
 
         private ISyntax HecsMaskPart(ISyntax body)
         {
@@ -612,7 +666,7 @@ namespace HECSFramework.Core
             //tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
             //tree.Add(new LeftScopeSyntax());
             tree.Add(new ParagraphSyntax());
-            tree.Add(new SimpleSyntax("#pragma warning disable"+CParse.Paragraph));
+            tree.Add(new SimpleSyntax("#pragma warning disable" + CParse.Paragraph));
             tree.Add(new TabSimpleSyntax(1, $"public partial struct {maskType}"));
             tree.Add(new LeftScopeSyntax(1));
             tree.Add(body);
@@ -620,7 +674,6 @@ namespace HECSFramework.Core
             tree.Add(new SimpleSyntax("#pragma warning enable" + CParse.Paragraph));
             return tree;
         }
-
 
         private ISyntax GetHashCode(ISyntax body)
         {
@@ -668,7 +721,7 @@ namespace HECSFramework.Core
 
             return tree;
         }
-
+        #endregion
 
         #region Helpers
         private int ComponentsCount()
@@ -686,11 +739,19 @@ namespace HECSFramework.Core
         public void GatherAssembly()
         {
             var componentType = typeof(IComponent);
+            var sysGlobalReactType = typeof(IGlobalCommand);
+            var sysLocalReactType = typeof(ICommand);
 
             var asses = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
             componentTypes = asses.Where(p => componentType.IsAssignableFrom(p) && !p.IsGenericType && !p.IsAbstract && !p.IsInterface).ToList();
 
             componentTypesByClass = asses.Where(p => p.Name != "BaseComponent" && componentType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsGenericType && !p.IsInterface && p.IsSubclassOf(typeof(BaseComponent))).ToList();
+
+            var localreact = typeof(IReactCommand<>);
+            var globalReact = typeof(IReactGlobalCommand<>);
+
+            globalSystemBind = asses.Where(p => sysGlobalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
+            localSystemBind = asses.Where(p => sysLocalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
         }
         #endregion
     }

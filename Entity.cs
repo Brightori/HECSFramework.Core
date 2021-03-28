@@ -43,8 +43,6 @@ namespace HECSFramework.Core
 
         public HECSMask ComponentsMask { get => componentsMask; private set => componentsMask = value; }
 
-        private ref HECSMask refToMask => ref componentsMask;
-
         public Entity() { }
 
         public Entity(string id, int worldIndex)
@@ -317,7 +315,7 @@ namespace HECSFramework.Core
 
         public bool ContainsMask(ref HECSMask mask)
         {
-            return refToMask.Contain(ref mask);
+            return componentsMask.Contain(ref mask);
         }
 
         public void HecsDestroy()
