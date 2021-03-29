@@ -1,17 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace HECSFramework.Core
 {
     public class World
     {
+        public int Index { get; private set; }
+
         private ComponentsService componentsService = new ComponentsService();
         private EntityService entityService = new EntityService();
         private EntityCommandService commandService = new EntityCommandService();
-
         private GlobalUpdateSystem globalUpdateSystem = new GlobalUpdateSystem();
+        private EntityFilter entityFilter;
+
+        public World(int index)
+        {
+            Index = index;
+            entityFilter = new EntityFilter(this);
+        }
 
         public IEntity[] Entities => entityService.Entities;
+        public int EntitiesCount => entityService.Count;
+
+        public List<IEntity> Filter(HECSMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
+        public List<IEntity> Filter(HECSMask include) => entityFilter.GetFilter(include);
 
         public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
         {

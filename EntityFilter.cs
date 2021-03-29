@@ -1,60 +1,106 @@
 ﻿using HECSFramework.Core.Helpers;
+using System;
 using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public class EntityFilter : IReactComponent
+    public class EntityFilter : IDisposable
     {
-        private List<IEntity> entities = new List<IEntity>(32);
-        
-        private HECSMask mask;
-        private HECSMask excludeMask;
+        private Dictionary<int, Filter> filters = new Dictionary<int, Filter>(16);
+        private World world;
 
-        public System.Guid ListenerGuid { get; }
-
-        public EntityFilter (World world, HECSMask includeComponents)
+        public EntityFilter(World world)
         {
-            mask = includeComponents;
-            excludeMask = HECSMask.Empty;
-
-            GatherEntities(world);
+            this.world = world;
         }
 
-        public EntityFilter (World world, HECSMask includeComponents, HECSMask excludeComponents)
+        public void Dispose()
         {
-            mask = includeComponents;
-            excludeMask = excludeComponents;
-
-            GatherEntities(world);
+            foreach (var f in filters)
+                f.Value.Dispose();
         }
 
-        private void GatherEntities(World world)
+        public List<IEntity> GetFilter(HECSMask include)
         {
-            lock (world.Entities)
+            return GetFilter(include, HECSMask.Empty);
+        }
+
+        public List<IEntity> GetFilter(HECSMask include, HECSMask exclude)
+        {
+            var sumMask = include.GetHashCode() - exclude.GetHashCode();
+
+            if (filters.TryGetValue(sumMask, out var filter))
+                return filter.Entities;
+
+            var nf = new Filter(world, include, exclude);
+
+            filters.Add(sumMask, nf);
+            return nf.Entities;
+        }
+
+        private class Filter : IReactComponent, IDisposable
+        {
+            private List<IEntity> entities = new List<IEntity>(32);
+            private readonly World world;
+            private HECSMask mask;
+            private HECSMask excludeMask;
+
+            public List<IEntity> Entities => entities;
+
+            public System.Guid ListenerGuid { get; }
+
+            public Filter(World world, HECSMask includeComponents)
             {
-                var worldEntities = world.Entities;
-                var count = worldEntities.Length;
+                this.world = world;
+                mask = includeComponents;
+                excludeMask = HECSMask.Empty;
+                world.AddGlobalReactComponent(this);
+                GatherEntities(world);
+            }
 
-                for (int i = 0; i < count; i++)
+            public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
+            {
+                mask = includeComponents;
+                excludeMask = excludeComponents;
+
+                GatherEntities(world);
+            }
+
+            private void GatherEntities(World world)
+            {
+                lock (world.Entities)
                 {
-                    if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
-                        entities.Add(worldEntities[i]);
+                    var worldEntities = world.Entities;
+                    var count = world.EntitiesCount;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
+                            entities.Add(worldEntities[i]);
+                    }
                 }
             }
-        }
 
-        public void ComponentReact(IComponent component, bool isAdded)
-        {
-            if (!component.Owner.ContainsMask(ref mask))
-                return;
-
-            if (component.Owner.ContainsMask(ref excludeMask))
-                return;
-
-            lock (entities)
+            public void ComponentReact(IComponent component, bool isAdded)
             {
-                entities.AddOrRemoveElement(component.Owner, isAdded);
+                if (!component.Owner.ContainsMask(ref mask))
+                    return;
+
+                if (component.Owner.ContainsMask(ref excludeMask))
+                    return;
+
+                lock (entities)
+                {
+                    entities.AddOrRemoveElement(component.Owner, isAdded);
+                }
+            }
+
+            public void Dispose()
+            {
+                world.RemoveGlobalReactComponent(this);
             }
         }
     }
+
+
 }

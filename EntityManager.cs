@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
@@ -16,7 +17,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < worldsCount; i++)
             {
-                worlds[i] = new World();
+                worlds[i] = new World(i);
             }
 
             Instance = this;
@@ -31,6 +32,9 @@ namespace HECSFramework.Core
         {
             Instance.worlds[entity.WorldId].RegisterEntity(entity, add);
         }
+
+        public static List<IEntity> Filter(HECSMask include, HECSMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
+        public static List<IEntity> Filter(HECSMask include, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include);
 
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты

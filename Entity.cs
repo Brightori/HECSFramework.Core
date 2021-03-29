@@ -122,7 +122,7 @@ namespace HECSFramework.Core
 
         private void InitComponentsAndSystems()
         {
-            ComponentsMask = HECSMask.Empty;
+            //ComponentsMask = HECSMask.Empty;
 
             foreach (var component in components)
             {

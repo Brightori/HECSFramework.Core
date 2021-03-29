@@ -10,6 +10,8 @@ namespace HECSFramework.Core
         private IEntity[] entitiesFastIterate = new IEntity[128];
         private int currentIndex = 0;
 
+        public int Count => currentIndex;
+
         public IEntity[] Entities => entitiesFastIterate;
 
         private List<IReactEntity> reactEntities = new List<IReactEntity>(16);
