@@ -9,6 +9,7 @@ namespace HECSFramework.Core
         public  Dictionary<int, ComponentMaskAndIndex> MapIndexes { get; private set; }
         public  Dictionary<Type, int> TypeToComponentIndex { get; private set; }
         public  Dictionary<int, Type> HashToType { get; private set; }
+        public  Dictionary<Type, int> TypeToHash { get; private set; }
 
         public IComponentFactory ComponentFactory { get; private set; }
     }

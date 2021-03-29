@@ -113,9 +113,12 @@ namespace HECSFramework.Core
             tree.Add(new TabSimpleSyntax(3, $"MapIndexes = GetMapIndexes();"));
             tree.Add(new TabSimpleSyntax(3, $"TypeToComponentIndex = GetTypeToComponentIndexes();"));
             tree.Add(new TabSimpleSyntax(3, $"HashToType = GetHashToTypeDictionary();"));
+            tree.Add(new TabSimpleSyntax(3, $"TypeToHash = GetTypeToHash();"));
+            tree.Add(new TabSimpleSyntax(3, $"ComponentFactory = new HECSComponentFactory();"));
             tree.Add(new RightScopeSyntax(2));
 
             tree.Add(GetTypeToComponentIndexes());
+            tree.Add(GetTypeToHash());
             tree.Add(GetHashToTypeDictionary());
 
             //dictionary
@@ -129,6 +132,7 @@ namespace HECSFramework.Core
             tree.Add(new RightScopeSyntax(3, true));
             tree.Add(new RightScopeSyntax(2));
             tree.Add(new RightScopeSyntax(1));
+            tree.Add(GetHECSComponentFactory());
             tree.Add(new RightScopeSyntax());
 
             //default stroke in dictionary
@@ -147,6 +151,56 @@ namespace HECSFramework.Core
             }
 
             return tree.ToString();
+        }
+
+        private ISyntax GetHECSComponentFactory()
+        {
+            var tree = new TreeSyntaxNode();
+            var constructor = new TreeSyntaxNode();
+            var getComponentFunc = new TreeSyntaxNode();
+            
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(1, "public partial class HECSComponentFactory"));
+            tree.Add(new LeftScopeSyntax(1));
+            tree.Add(constructor);
+            tree.Add(getComponentFunc);
+            tree.Add(new RightScopeSyntax(1));
+
+            constructor.Add(new TabSimpleSyntax(2, "public HECSComponentFactory()"));
+            constructor.Add(new LeftScopeSyntax(2));
+            constructor.Add(new TabSimpleSyntax(3, "getComponentFromFactoryByHash = GetComponentFromFactoryFunc;"));
+            constructor.Add(new RightScopeSyntax(2));
+
+            getComponentFunc.Add(new ParagraphSyntax());
+            getComponentFunc.Add(new TabSimpleSyntax(2, "private IComponent GetComponentFromFactoryFunc(int hashCodeType)"));
+            getComponentFunc.Add(new LeftScopeSyntax(2));
+            getComponentFunc.Add(new TabSimpleSyntax(3, "switch (hashCodeType)"));
+            getComponentFunc.Add(new LeftScopeSyntax(3));
+            getComponentFunc.Add(GetComponentsByHashCode());
+            getComponentFunc.Add(new RightScopeSyntax(3));
+            getComponentFunc.Add(new ParagraphSyntax());
+            getComponentFunc.Add(new TabSimpleSyntax(3, "return default;"));
+            getComponentFunc.Add(new RightScopeSyntax(2));
+            
+            return tree;
+        }
+
+        private ISyntax GetComponentsByHashCode()
+        {
+            var tree = new TreeSyntaxNode();
+
+            for (int i = 0; i < componentTypes.Count; i++)
+            {
+                if (i > 0)
+                    tree.Add(new ParagraphSyntax());
+
+                var component = componentTypes[i];
+
+                tree.Add(new TabSimpleSyntax(4, $"case {IndexGenerator.GetIndexForType(component)}:"));
+                tree.Add(new TabSimpleSyntax(5, $"return new {component.Name}();"));
+            }
+
+            return tree;
         }
 
         private ISyntax GetHashToTypeDictionary()
@@ -179,7 +233,7 @@ namespace HECSFramework.Core
             var dicBody = new TreeSyntaxNode();
 
             tree.Add(new ParagraphSyntax());
-            tree.Add(new TabSimpleSyntax(2, "private Dictionary<Type,int> GetTypeToComponentIndexes()"));
+            tree.Add(new TabSimpleSyntax(2, "private Dictionary<Type, int> GetTypeToComponentIndexes()"));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(new TabSimpleSyntax(3, "return new Dictionary<Type, int>()"));
             tree.Add(new LeftScopeSyntax(3));
@@ -198,6 +252,37 @@ namespace HECSFramework.Core
                 }
 
                 dicBody.Add(new TabSimpleSyntax(4, $"{{ typeof({componentTypes[i].Name}), {i} }},"));
+            }
+
+            return tree;
+        }
+        
+        private ISyntax GetTypeToHash()
+        {
+            var tree = new TreeSyntaxNode();
+            var dicBody = new TreeSyntaxNode();
+
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(2, "private Dictionary<Type, int> GetTypeToHash()"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(new TabSimpleSyntax(3, "return new Dictionary<Type, int>()"));
+            tree.Add(new LeftScopeSyntax(3));
+            tree.Add(dicBody);
+            tree.Add(new RightScopeSyntax(3, true));
+            tree.Add(new RightScopeSyntax(2));
+
+            for (int i = 0; i < componentTypes.Count; i++)
+            {
+                var interfaces = componentTypes[i].GetInterfaces();
+                var hash = IndexGenerator.GetIndexForType(componentTypes[i]);
+
+                foreach (var @interface in interfaces)
+                {
+                    if (@interface.Name.Contains(componentTypes[i].Name))
+                        dicBody.Add(new TabSimpleSyntax(4, $"{{ typeof({@interface.Name}), {hash} }},"));
+                }
+
+                dicBody.Add(new TabSimpleSyntax(4, $"{{ typeof({componentTypes[i].Name}), {hash} }},"));
             }
 
             return tree;
@@ -364,7 +449,7 @@ namespace HECSFramework.Core
         #endregion 
 
         #region ComponentContext
-        private string GenerateComponentContext()
+        public string GetComponentContext()
         {
             var overTree = new TreeSyntaxNode();
             var entityExtention = new TreeSyntaxNode();
@@ -405,7 +490,7 @@ namespace HECSFramework.Core
 
             switchAdd.Add(new ParagraphSyntax());
             switchAdd.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                new SimpleSyntax("public void AddComponent<T>(T component) where T: IComponent"), new ParagraphSyntax()));
+                new SimpleSyntax("partial void Add(IComponent component)"), new ParagraphSyntax()));
             switchAdd.Add(new LeftScopeSyntax(2));
 
             switchAdd.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax("switch (component)"), new ParagraphSyntax()));
@@ -416,7 +501,7 @@ namespace HECSFramework.Core
 
             switchAdd.Add(new ParagraphSyntax());
             switchAdd.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                new SimpleSyntax("public void RemoveComponent<T>(T component) where T: IComponent"), new ParagraphSyntax()));
+                new SimpleSyntax("partial void Remove(IComponent component)"), new ParagraphSyntax()));
             switchAdd.Add(new LeftScopeSyntax(2));
 
             switchAdd.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax("switch (component)"), new ParagraphSyntax()));
@@ -425,29 +510,27 @@ namespace HECSFramework.Core
             switchAdd.Add(new RightScopeSyntax(3));
             switchAdd.Add(new RightScopeSyntax(2));
 
-            nameSpaces.Add("HECSFrameWork.Components");
-
             foreach (var c in componentTypes)
             {
                 properties.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                    new SimpleSyntax($"public {c.Name} Get{c.Name.Remove(0, 1)} {{ get; private set; }}"), new ParagraphSyntax()));
+                    new SimpleSyntax($"public {c.Name} Get{c.Name} {{ get; private set; }}"), new ParagraphSyntax()));
 
-                var cArgument = c.Name.Remove(0, 1);
+                var cArgument = c.Name;
                 var fixedArg = char.ToLower(cArgument[0]) + cArgument.Substring(1);
 
                 switchBody.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"case {c.Name} {fixedArg}:"), new ParagraphSyntax()));
                 switchBody.Add(new LeftScopeSyntax(5));
-                switchBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new SimpleSyntax($"Get{c.Name.Remove(0, 1)} = {fixedArg};"), new ParagraphSyntax()));
+                switchBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new SimpleSyntax($"Get{c.Name} = {fixedArg};"), new ParagraphSyntax()));
                 switchBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new ReturnSyntax()));
                 switchBody.Add(new RightScopeSyntax(5));
 
                 switchRemoveBody.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"case {c.Name} {fixedArg}:"), new ParagraphSyntax()));
                 switchRemoveBody.Add(new LeftScopeSyntax(5));
-                switchRemoveBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new SimpleSyntax($"Get{c.Name.Remove(0, 1)} = null;"), new ParagraphSyntax()));
+                switchRemoveBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new SimpleSyntax($"Get{c.Name} = null;"), new ParagraphSyntax()));
                 switchRemoveBody.Add(new CompositeSyntax(new TabSpaceSyntax(6), new ReturnSyntax()));
                 switchRemoveBody.Add(new RightScopeSyntax(5));
 
-                disposableBody.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"Get{c.Name.Remove(0, 1)} = null;"), new ParagraphSyntax()));
+                disposableBody.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax($"Get{c.Name} = null;"), new ParagraphSyntax()));
                 //if (c != componentTypes.Last())
                 //    switchBody.Add(new ParagraphSyntax());
 
@@ -455,10 +538,7 @@ namespace HECSFramework.Core
             }
 
             foreach (var n in nameSpaces)
-            {
                 usings.Add(new UsingSyntax(n));
-                usings.Add(new ParagraphSyntax());
-            }
 
             AddEntityExtention(entityExtention);
 
@@ -495,10 +575,10 @@ namespace HECSFramework.Core
             {
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax(AggressiveInline), new ParagraphSyntax()));
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                    new SimpleSyntax($"public static {c.Name} Get{c.Name.Remove(0, 1)}(this IEntity entity)"), new ParagraphSyntax()));
+                    new SimpleSyntax($"public static {c.Name} Get{c.Name}(this IEntity entity)"), new ParagraphSyntax()));
                 body.Add(new LeftScopeSyntax(2));
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(3),
-                    new SimpleSyntax($"return entity.ComponentContext.Get{c.Name.Remove(0, 1)};"), new ParagraphSyntax()));
+                    new SimpleSyntax($"return entity.ComponentContext.Get{c.Name};"), new ParagraphSyntax()));
                 body.Add(new RightScopeSyntax(2));
 
                 if (c != componentTypes.Last())
