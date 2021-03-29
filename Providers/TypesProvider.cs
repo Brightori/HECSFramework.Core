@@ -8,6 +8,7 @@ namespace HECSFramework.Core
         public int Count { get; private set; }
         public  Dictionary<int, ComponentMaskAndIndex> MapIndexes { get; private set; }
         public  Dictionary<Type, int> TypeToComponentIndex { get; private set; }
+        public  Dictionary<int, Type> HashToType { get; private set; }
 
         public IComponentFactory ComponentFactory { get; private set; }
     }
@@ -15,6 +16,6 @@ namespace HECSFramework.Core
     public interface IComponentFactory
     {
         IComponent GetComponentFromFactory(int hashCodeType);
-        IComponent GetComponentFromFactory<T>() where T : class, IComponent;
+        T GetComponentFromFactory<T>() where T : class, IComponent;
     }
 }

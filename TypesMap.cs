@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -20,6 +21,8 @@ namespace HECSFramework.Core
             MapIndexes = typeProvider.MapIndexes;
             TypeToComponentIndex = typeProvider.TypeToComponentIndex;
             SizeOfComponents = typeProvider.Count;
+            componentFactory = typeProvider.ComponentFactory;
+            componentHashToType = typeProvider.HashToType;
         }
 
         public static bool GetComponentInfo(int hashTypeCode, out ComponentMaskAndIndex mask)
@@ -50,12 +53,17 @@ namespace HECSFramework.Core
             return componentHashToType[hash];
         }
 
+        public static int GetIndexByType<T>() where T: IComponent
+        {
+            return TypeToComponentIndex[typeof(T)];
+        }
+
         public static IComponent GetComponentFromFactory(int hashCodeType)
         {
             return componentFactory.GetComponentFromFactory(hashCodeType);
         }
 
-        public static IComponent GetComponentFromFactory<T>() where T : class, IComponent
+        public static T GetComponentFromFactory<T>() where T : class, IComponent
         {
             return componentFactory.GetComponentFromFactory<T>();
         }

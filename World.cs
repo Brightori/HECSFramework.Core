@@ -50,6 +50,11 @@ namespace HECSFramework.Core
         {
             commandService.AddListener(system, react);
         }
+        
+        public void RemoveGlobalReactCommand(ISystem system) 
+        {
+            commandService.ReleaseListener(system);
+        }
 
         public void AddGlobalReactComponent(IReactComponent reactComponent)
         {

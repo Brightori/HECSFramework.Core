@@ -22,6 +22,11 @@ namespace HECSFramework.Core
             Instance = this;
         }
 
+        public static void Command<T>(T command, int world = 0) where T : IGlobalCommand
+        {
+            Instance.worlds[world].Command(command);
+        }
+
         public static void RegisterEntity(IEntity entity, bool add)
         {
             Instance.worlds[entity.WorldId].RegisterEntity(entity, add);

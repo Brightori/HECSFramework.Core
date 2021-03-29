@@ -51,7 +51,12 @@
         }
 
         partial void BindSystem(ISystem system);
-        partial void UnBindSystem(ISystem system);
+        
+        private void UnBindSystem(ISystem system)
+        {
+            system.Owner.EntityCommandService.ReleaseListener(system);
+            system.Owner.World.RemoveGlobalReactCommand(system);
+        }
         
         //for different custom systems on unity or server side
         partial void RegisterAdditionalSystems(ISystem system);

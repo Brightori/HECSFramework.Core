@@ -20,7 +20,7 @@ namespace HECSFramework.Core
         ComponentContext ComponentContext { get; }
 
         bool TryGetHecsComponent<T>(HECSMask mask, out T component) where T : IComponent;
-        void GetOrAddComponent<T>(HECSMask mask, out T component) where T : class, IComponent;
+        T GetOrAddComponent<T>() where T : class, IComponent;
         void AddHecsComponent(IComponent component, bool silently = false);
         
         void AddHecsSystem<T>(T system) where T : ISystem;

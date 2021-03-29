@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace HECSFramework.Core
 {
@@ -259,19 +256,17 @@ namespace HECSFramework.Core
             return other.EntityGuid == EntityGuid;
         }
 
-        public void GetOrAddComponent<T>(HECSMask mask, out T component) where T : class, IComponent
+        public T GetOrAddComponent<T>() where T : class, IComponent
         {
-            var needed = components[mask.Index];
+            var index = TypesMap.GetIndexByType<T>();
+            var needed = components[index];
 
             if (needed != null)
-            {
-                component = (T)needed;
-                return;
-            }
+                return (T)needed;
 
-            AddHecsComponent(needed);
-            needed = TypesMap.GetComponentFromFactory<T>();
-            component = (T)needed;
+            var newComp = TypesMap.GetComponentFromFactory<T>();
+            AddHecsComponent(newComp);
+            return newComp;
         }
 
         public void RemoveHecsComponent(HECSMask component)

@@ -66,21 +66,21 @@ namespace HECSFramework.Core
             for (int i = 0; i < globalSystemBind.Count; i++)
             {
                 Type t = globalSystemBind[i];
-                
+
                 if (i != 0)
                     tree.Add(new ParagraphSyntax());
-                
+
                 tree.Add(new TabSimpleSyntax(3, $"if (system is IReactGlobalCommand<{t.Name}> {t.Name}GlobalCommandsReact)"));
                 tree.Add(new TabSimpleSyntax(4, $"system.Owner.World.AddGlobalReactCommand<{t.Name}>(system, {t.Name}GlobalCommandsReact.CommandGlobalReact);"));
             }
 
             return tree;
-        }     
-        
+        }
+
         private ISyntax GetLocalBindings()
         {
             var tree = new TreeSyntaxNode();
-            
+
 
             foreach (var t in localSystemBind)
             {
@@ -101,7 +101,7 @@ namespace HECSFramework.Core
 
             tree.Add(new UsingSyntax("System.Collections.Generic"));
             tree.Add(new UsingSyntax("Components"));
-            tree.Add(new UsingSyntax("HECSFramework.Core", 1));
+            tree.Add(new UsingSyntax("System", 1));
 
             tree.Add(new NameSpaceSyntax(DefaultNameSpace));
             tree.Add(new LeftScopeSyntax());
@@ -111,13 +111,15 @@ namespace HECSFramework.Core
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(new TabSimpleSyntax(3, $"Count = {componentTypes.Count + 1};"));
             tree.Add(new TabSimpleSyntax(3, $"MapIndexes = GetMapIndexes();"));
+            tree.Add(new TabSimpleSyntax(3, $"TypeToComponentIndex = GetTypeToComponentIndexes();"));
+            tree.Add(new TabSimpleSyntax(3, $"HashToType = GetHashToTypeDictionary();"));
             tree.Add(new RightScopeSyntax(2));
 
-            //size for componentsArray
+            tree.Add(GetTypeToComponentIndexes());
+            tree.Add(GetHashToTypeDictionary());
+
+            //dictionary
             tree.Add(new ParagraphSyntax());
-
-
-            //dictionaty
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax("private Dictionary<int, ComponentMaskAndIndex> GetMapIndexes()")));
             tree.Add(new ParagraphSyntax());
             tree.Add(new LeftScopeSyntax(2));
@@ -146,7 +148,61 @@ namespace HECSFramework.Core
 
             return tree.ToString();
         }
-      
+
+        private ISyntax GetHashToTypeDictionary()
+        {
+            var tree = new TreeSyntaxNode();
+
+            var dicBody = new TreeSyntaxNode();
+
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(2, "private Dictionary<int, Type> GetHashToTypeDictionary()"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(new TabSimpleSyntax(3, "return new Dictionary<int, Type>()"));
+            tree.Add(new LeftScopeSyntax(3));
+            tree.Add(dicBody);
+            tree.Add(new RightScopeSyntax(3, true));
+            tree.Add(new RightScopeSyntax(2));
+
+            for (int i = 0; i < componentTypes.Count; i++)
+            {
+                var hash = IndexGenerator.GetIndexForType(componentTypes[i]);
+                dicBody.Add(new TabSimpleSyntax(4, $"{{ {hash}, typeof({componentTypes[i].Name})}},"));
+            }
+
+            return tree;
+        }
+
+        private ISyntax GetTypeToComponentIndexes()
+        {
+            var tree = new TreeSyntaxNode();
+            var dicBody = new TreeSyntaxNode();
+
+            tree.Add(new ParagraphSyntax());
+            tree.Add(new TabSimpleSyntax(2, "private Dictionary<Type,int> GetTypeToComponentIndexes()"));
+            tree.Add(new LeftScopeSyntax(2));
+            tree.Add(new TabSimpleSyntax(3, "return new Dictionary<Type, int>()"));
+            tree.Add(new LeftScopeSyntax(3));
+            tree.Add(dicBody);
+            tree.Add(new RightScopeSyntax(3, true));
+            tree.Add(new RightScopeSyntax(2));
+
+            for (int i = 0; i < componentTypes.Count; i++)
+            {
+                var interfaces = componentTypes[i].GetInterfaces();
+
+                foreach (var @interface in interfaces)
+                {
+                    if (@interface.Name.Contains(componentTypes[i].Name))
+                        dicBody.Add(new TabSimpleSyntax(4, $"{{ typeof({@interface.Name}), {i} }},"));
+                }
+
+                dicBody.Add(new TabSimpleSyntax(4, $"{{ typeof({componentTypes[i].Name}), {i} }},"));
+            }
+
+            return tree;
+        }
+
         private ISyntax GetComponentForTypeMap(int index, int fieldCount, Type c)
         {
             var composite = new TreeSyntaxNode();
@@ -156,8 +212,8 @@ namespace HECSFramework.Core
             composite.Add(new ParagraphSyntax());
             composite.Add(new TabSpaceSyntax(3));
             composite.Add(new SimpleSyntax(CParse.LeftScope));
-            composite.Add(new CompositeSyntax(new SimpleSyntax(IndexGenerator.GetIndexForType(c).ToString() + CParse.Comma)));
-            composite.Add(new SimpleSyntax($"new ComponentMaskAndIndex {{ComponentName = {CParse.Quote}{ c.Name }{(CParse.Quote)}, ComponentsMask = new  {typeof(HECSMask).Name}"));
+            composite.Add(new CompositeSyntax(new SimpleSyntax(CParse.Space+IndexGenerator.GetIndexForType(c).ToString() + CParse.Comma)));
+            composite.Add(new SimpleSyntax($" new ComponentMaskAndIndex {{ComponentName = {CParse.Quote}{ c.Name }{(CParse.Quote)}, ComponentsMask = new {typeof(HECSMask).Name}"));
             composite.Add(new ParagraphSyntax());
             composite.Add(MaskPart);
             composite.Add(new CompositeSyntax(new TabSpaceSyntax(3), new SimpleSyntax("}},")));
@@ -246,7 +302,7 @@ namespace HECSFramework.Core
             tree.Add(new RightScopeSyntax(4, true));
 
             maskBody.Add(new TabSimpleSyntax(5, $"Index = {index},"));
-            
+
             var maskSplitToArray = CalculateIndexesForMask(index, fieldCount);
 
             for (int i = 0; i < fieldCount; i++)
@@ -284,8 +340,8 @@ namespace HECSFramework.Core
                 var classType = componentTypes[i];
                 var hash = IndexGenerator.GetIndexForType(classType);
                 tree.Add(new TabSimpleSyntax(4, $"{className} = {GetNewComponentSolved(classType, i, ComponentsCount())}"));
-            }     
-            
+            }
+
             return tree;
         }
 
@@ -297,7 +353,7 @@ namespace HECSFramework.Core
         private ISyntax GetHecsMasksFields()
         {
             var tree = new TreeSyntaxNode();
-            
+
             var hecsMaskname = typeof(HECSMask).Name;
 
             for (int i = 0; i < componentTypes.Count; i++)
@@ -562,7 +618,7 @@ namespace HECSFramework.Core
             var operatorPlus = new TreeSyntaxNode();
             var operatorMinus = new TreeSyntaxNode();
             var isHaveBody = new TreeSyntaxNode();
-            
+
             var equalityBody = new TreeSyntaxNode();
             var getHashCodeBody = new TreeSyntaxNode();
 
@@ -639,20 +695,20 @@ namespace HECSFramework.Core
             for (int i = 0; i < ComponentsCount(); i++)
             {
                 maskDefault.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = 0,"), new ParagraphSyntax()));
-                equalityBody.Add( new SimpleSyntax($"{CParse.Space}&& mask.Mask0{i+1} == otherMask.Mask0{i+1}"));
+                equalityBody.Add(new SimpleSyntax($"{CParse.Space}&& mask.Mask0{i + 1} == otherMask.Mask0{i + 1}"));
                 fields.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public ulong Mask0{i + 1};"), new ParagraphSyntax()));
                 operatorPlus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} | r.Mask0{i + 1},"), new ParagraphSyntax()));
                 operatorMinus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} ^ r.Mask0{i + 1},"), new ParagraphSyntax()));
-                getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += (-{i+1} * (int)mask.Mask0{i+1});"));
+                getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += (-{i + 1} * (int)mask.Mask0{i + 1});"));
 
                 if (i == 0)
                     isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0"));
                 else
-                    isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6), 
+                    isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6),
                         new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0")));
 
                 if (i > 0)
-                    hecsMaskPart.Add(new TabSimpleSyntax(2, $"public ulong Mask0{i+1};"));
+                    hecsMaskPart.Add(new TabSimpleSyntax(2, $"public ulong Mask0{i + 1};"));
             }
 
             return tree.ToString();
