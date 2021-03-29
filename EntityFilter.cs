@@ -27,7 +27,11 @@ namespace HECSFramework.Core
 
         public List<IEntity> GetFilter(HECSMask include, HECSMask exclude)
         {
-            var sumMask = include.GetHashCode() - exclude.GetHashCode();
+            int sumMask = 0;
+            unchecked
+            {
+                sumMask = include.GetHashCode() - exclude.GetHashCode();
+            }
 
             if (filters.TryGetValue(sumMask, out var filter))
                 return filter.Entities;
