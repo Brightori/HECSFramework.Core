@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace HECSFramework.Core
 {
@@ -56,15 +55,12 @@ namespace HECSFramework.Core
         public void AddHecsComponent(IComponent component, bool silently = false)
         {
             if (component == null)
-            {
-                Debug.LogWarning($"пустой компонент прилетел " + ID);
-                return;
-            }
+                throw new Exception($"compontent is null " + ID);
 
             if (TypesMap.GetComponentInfo(component.GetTypeHashCode, out var info))
                 component.ComponentsMask = info.ComponentsMask;
             else
-                Debug.LogAssertion("нет нужного типа в дикшенари, надо запустить кодоген или проверить кейс " + component.GetType().Name);
+                throw new Exception("we dont have needed type in TypesMap, u need to run codogen or check this type manualy" + component.GetType().Name);
 
 
             component.Owner = this;
@@ -170,11 +166,8 @@ namespace HECSFramework.Core
         {
             system.Owner = this;
 
-            if (systems.Any(x => system.Equals(x)))
-            {
-                Debug.LogAssertion("такой тип системы уже есть " + system.ToString());
-                return;
-            }
+            if (systems.Any(x => x is T))
+                throw new Exception("we alrdy have this type of system " + system.ToString());
 
             systems.Add(system);
 
