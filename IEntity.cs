@@ -12,7 +12,7 @@ namespace HECSFramework.Core
         World World { get; }
 
 
-        Guid EntityGuid { get; }
+        Guid GUID { get; }
         HECSMask ComponentsMask { get; }
 
         IComponent[] GetAllComponents { get; }

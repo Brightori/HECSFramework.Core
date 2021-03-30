@@ -10,7 +10,7 @@ namespace HECSFramework.Core
         public int WorldId { get; private set; } = 0;
         public World World { get; private set; }
 
-        public Guid EntityGuid { get; private set; }
+        public Guid GUID { get; private set; }
         public ComponentContext ComponentContext { get; } = new ComponentContext();
         public string ID { get; protected set; }
 
@@ -234,7 +234,7 @@ namespace HECSFramework.Core
 
         public void GenerateId()
         {
-            EntityGuid = System.Guid.NewGuid();
+            GUID = System.Guid.NewGuid();
         }
 
         public void RemoveHecsSystem(ISystem system)
@@ -246,7 +246,7 @@ namespace HECSFramework.Core
 
         public bool Equals(IEntity other)
         {
-            return other.EntityGuid == EntityGuid;
+            return other.GUID == GUID;
         }
 
         public T GetOrAddComponent<T>() where T : class, IComponent
@@ -279,7 +279,7 @@ namespace HECSFramework.Core
             foreach (var s in entity.GetAllSystems)
                 AddHecsSystem(s);
 
-            EntityGuid = entity.EntityGuid;
+            GUID = entity.GUID;
         }
 
         private void RemoveComponentsAndSystems()
@@ -298,7 +298,7 @@ namespace HECSFramework.Core
 
         public void GenerateID()
         {
-            EntityGuid = Guid.NewGuid();
+            GUID = Guid.NewGuid();
         }
 
         public bool ContainsMask(ref HECSMask mask)

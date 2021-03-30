@@ -38,7 +38,7 @@ namespace HECSFramework.Core
 
         public void RegisterEntity(IEntity entity, bool isAdded)
         {
-            if (isAdded && entity.EntityGuid == Guid.Empty) entity.GenerateID();
+            if (isAdded && entity.GUID == Guid.Empty) entity.GenerateID();
             entityService.RegisterEntity(entity, isAdded);
         }
 
@@ -141,7 +141,7 @@ namespace HECSFramework.Core
 
         public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)
         {
-            entity = Entities.FirstOrDefault(a => a.EntityGuid == entityGuid);
+            entity = Entities.FirstOrDefault(a => a.GUID == entityGuid);
             return entity != null;
         }
 
