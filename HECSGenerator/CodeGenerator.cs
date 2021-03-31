@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HECSFramework.Core
+namespace HECSFramework.Core.Generator
 {
     public partial class CodeGenerator
     {
