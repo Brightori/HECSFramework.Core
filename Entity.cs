@@ -296,7 +296,7 @@ namespace HECSFramework.Core
             systems.Clear();
         }
 
-        public void GenerateID()
+        public void GenerateGuid()
         {
             GUID = Guid.NewGuid();
         }
@@ -308,5 +308,10 @@ namespace HECSFramework.Core
 
         public void HecsDestroy()
             => Dispose();
+
+        public void SetGuid(Guid guid)
+        {
+            GUID = guid;
+        }
     }
 }

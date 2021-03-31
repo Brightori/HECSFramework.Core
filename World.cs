@@ -38,7 +38,7 @@ namespace HECSFramework.Core
 
         public void RegisterEntity(IEntity entity, bool isAdded)
         {
-            if (isAdded && entity.GUID == Guid.Empty) entity.GenerateID();
+            if (isAdded && entity.GUID == Guid.Empty) entity.GenerateGuid();
             entityService.RegisterEntity(entity, isAdded);
         }
 

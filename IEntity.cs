@@ -36,7 +36,9 @@ namespace HECSFramework.Core
         void Init();
         void Init(int worldIndex);
         void InjectEntity(IEntity entity, bool additive = false);
-        void GenerateID();
+        
+        void GenerateGuid();
+        void SetGuid(Guid guid);
 
         bool ContainsMask(ref HECSMask mask);
 

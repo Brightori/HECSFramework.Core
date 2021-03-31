@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-    public class CodeGenerator
+    public partial class CodeGenerator
     {
 #pragma warning disable
         private readonly string DefaultPath = "/Scripts/HECSGenerated/";
@@ -421,7 +421,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < componentTypes.Count; i++)
             {
-                var className = componentTypes[i].Name;
+                var className = componentTypes[i].Name.ToLower();
                 var classType = componentTypes[i];
                 var hash = IndexGenerator.GetIndexForType(classType);
                 tree.Add(new TabSimpleSyntax(4, $"{className} = {GetNewComponentSolved(classType, i, ComponentsCount())}"));
@@ -442,7 +442,10 @@ namespace HECSFramework.Core
             var hecsMaskname = typeof(HECSMask).Name;
 
             for (int i = 0; i < componentTypes.Count; i++)
-                tree.Add(new TabSimpleSyntax(2, $"public readonly static {hecsMaskname} {componentTypes[i].Name};"));
+            {
+                tree.Add(new TabSimpleSyntax(2, $"private static {hecsMaskname} {componentTypes[i].Name.ToLower()};"));
+                tree.Add(new TabSimpleSyntax(2, $"public static ref {hecsMaskname} {componentTypes[i].Name} => ref {componentTypes[i].Name.ToLower()};"));
+            }
 
             return tree;
         }
