@@ -28,6 +28,8 @@ namespace HECSFramework.Core.Generator
         private List<Type> localSystemBind;
         private List<Type> globalSystemBind;
 
+        private List<Type> systems;
+
         public void StartGeneration()
         {
             //GatherAssembly();
@@ -888,9 +890,12 @@ namespace HECSFramework.Core.Generator
 
             var localreact = typeof(IReactCommand<>);
             var globalReact = typeof(IReactGlobalCommand<>);
+            var systemsTypes = typeof(ISystem);
 
             globalSystemBind = asses.Where(p => sysGlobalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
             localSystemBind = asses.Where(p => sysLocalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
+
+            systems = asses.Where(p => systemsTypes.IsAssignableFrom(p) && p.IsClass && !p.IsInterface && !p.IsAbstract).ToList();
         }
         #endregion
     }
