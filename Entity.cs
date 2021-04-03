@@ -101,9 +101,9 @@ namespace HECSFramework.Core
         {
             var needed = components[mask.Index];
 
-            if (needed != null)
+            if (needed != null && needed is T cast)
             {
-                component = (T)needed;
+                component = cast;
                 return true;
             }
 
@@ -116,7 +116,7 @@ namespace HECSFramework.Core
             outComponents.Clear();
             foreach (var c in components)
             {
-                if (c is T needed)
+                if (c != null && c is T needed)
                     outComponents.Add(needed);
             }
         }
