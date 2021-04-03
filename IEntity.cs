@@ -45,6 +45,8 @@ namespace HECSFramework.Core
         void HecsDestroy();
 
         string ID { get; }
+        string ContainerID { get; }
+
         bool IsInited { get; }
         bool IsAlive { get; }
         bool IsPaused { get; }

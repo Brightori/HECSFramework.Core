@@ -1,3 +1,4 @@
+using Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,18 @@ namespace HECSFramework.Core
         public bool IsLoaded { get; set; }
 
         public HECSMask ComponentsMask { get => componentsMask; private set => componentsMask = value; }
+        public string ContainerID 
+        {
+            get
+            {
+                var container = this.GetHECSComponent<ActorContainerID>();
+
+                if (container != null)
+                    return container.ID;
+
+                return "Container Empty";
+            }
+        }
 
         public Entity() { }
 

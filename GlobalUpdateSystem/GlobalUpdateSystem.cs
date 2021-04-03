@@ -43,16 +43,16 @@
         partial void UnityFuncs(IRegisterUpdatable registerUpdatable, bool add);
         partial void AdditionalFuncs(IRegisterUpdatable registerUpdatable, bool add);
 
-        private void Start()
+        public void Start()
             => startModule.GlobalStart();
 
-        private void FixedUpdate()
+        public void FixedUpdate()
             => fixedModule.FixedUpdateLocal();
 
-        private void LateUpdate()
+        public void LateUpdate()
             => lateModule.UpdateLateLocal();
 
-        private void Update()
+        public void Update()
         {
             defaultModule.UpdateLocal();
         }

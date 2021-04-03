@@ -44,13 +44,13 @@ namespace HECSFramework.Core
         /// <param name="Owner"></param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IComponent GetHECSComponent<T>(this IEntity Owner)
+        public static T GetHECSComponent<T>(this IEntity Owner)
         {
             var t = typeof(T);
 
             if (TypeToComponentIndex.TryGetValue(t, out var index))
             {
-                return Owner.GetAllComponents[index];
+                return (T)Owner.GetAllComponents[index];
             }
             else
                 return default;
