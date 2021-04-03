@@ -10,6 +10,7 @@ namespace HECSFramework.Core
 
         public static World[] Worlds => Instance.worlds;
         public static World Default => Instance.worlds[0];
+        public static bool IsAlive => Instance != null;
 
         public EntityManager(int worldsCount = 1)
         {

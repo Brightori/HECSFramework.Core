@@ -39,6 +39,11 @@ namespace HECSFramework.Core
         public bool IsLoaded { get; set; }
 
         public HECSMask ComponentsMask { get => componentsMask; private set => componentsMask = value; }
+
+        /// <summary>
+        /// this is slow method, purpose - using at Editor or for debugging
+        /// better will take ActorContainerID directly - GetActorContainerID
+        /// </summary>
         public string ContainerID 
         {
             get
