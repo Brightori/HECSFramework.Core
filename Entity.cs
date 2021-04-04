@@ -184,8 +184,8 @@ namespace HECSFramework.Core
         {
             system.Owner = this;
 
-            if (systems.Any(x => x is T))
-                throw new Exception("we alrdy have this type of system " + system.ToString());
+            if (systems.Any(x => x.GetTypeHashCode == system.GetTypeHashCode))
+                throw new Exception($"we alrdy have this type of system  + { system.ToString() } {ID}");
 
             systems.Add(system);
 
