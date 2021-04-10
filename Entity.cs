@@ -180,7 +180,7 @@ namespace HECSFramework.Core
             GenerateId();
         }
 
-        public void AddHecsSystem<T>(T system) where T : ISystem
+        public virtual void AddHecsSystem<T>(T system) where T : ISystem
         {
             system.Owner = this;
 
@@ -255,7 +255,7 @@ namespace HECSFramework.Core
             GUID = System.Guid.NewGuid();
         }
 
-        public void RemoveHecsSystem(ISystem system)
+        public virtual void RemoveHecsSystem(ISystem system)
         {
             RegisterService.UnRegisterSystem(system);
             system.Dispose();
