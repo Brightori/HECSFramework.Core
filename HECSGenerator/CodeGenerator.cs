@@ -366,7 +366,7 @@ namespace HECSFramework.Core.Generator
 
             tree.Add(new NameSpaceSyntax("HECSFramework.Core"));
             tree.Add(new LeftScopeSyntax());
-            tree.Add(new TabSimpleSyntax(1, "public static class HMasks"));
+            tree.Add(new TabSimpleSyntax(1, "public static partial class HMasks"));
             tree.Add(new LeftScopeSyntax(1));
             tree.Add(GetHecsMasksFields());
             tree.Add(GetHecsMasksConstructor());
