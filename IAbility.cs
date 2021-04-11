@@ -17,7 +17,7 @@ namespace HECSFramework.Core
         {
         }
 
-        public override void AddHecsSystem<T>(T system)
+        public override void AddHecsSystem<T>(T system, IEntity entity = null)
         {
             base.AddHecsSystem(system);
 

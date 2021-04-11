@@ -6,7 +6,7 @@ using System.Linq;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public class Entity : IEntity
+    public class Entity : IEntity, IChangeWorldIndex
     {
         public int WorldId { get; private set; } = 0;
         public World World { get; private set; }
@@ -70,7 +70,13 @@ namespace HECSFramework.Core
             ID = id;
         }
 
-        public void AddHecsComponent(IComponent component, bool silently = false)
+        /// <summary>
+        /// Base method for add hecs component, all methods with adds component functionality shoulds use this method at the end
+        /// </summary>
+        /// <param name="component"></param>
+        /// <param name="owner">this for actor, actor can assign self as owner</param>
+        /// <param name="silently"></param>
+        public void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false)
         {
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
@@ -80,8 +86,14 @@ namespace HECSFramework.Core
             else
                 throw new Exception("we dont have needed type in TypesMap, u need to run codogen or check this type manualy" + component.GetType().Name);
 
+            if (components[component.ComponentsMask.Index] != null)
+                return;
 
-            component.Owner = this;
+            if (owner == null)
+                component.Owner = this;
+            else
+                component.Owner = owner;
+
             components[component.ComponentsMask.Index] = component;
             ComponentContext.AddComponent(component);
 
@@ -89,6 +101,9 @@ namespace HECSFramework.Core
             {
                 if (component is IInitable initable)
                     initable.Init();
+
+                if (component is IAfterEntityInit afterEntityInit)
+                    afterEntityInit.AfterEntityInit();
             }
 
             ComponentsMask += component.ComponentsMask;
@@ -129,12 +144,25 @@ namespace HECSFramework.Core
 
         public void Init()
         {
-            World = EntityManager.Worlds[WorldId];
+            SetWorld();
             InitComponentsAndSystems();
             EntityManager.RegisterEntity(this, true);
+            AfterInit();
         }
 
-        private void InitComponentsAndSystems()
+        public void AfterInit()
+        {
+            foreach (var c in components)
+                if (c != null)
+                    if (c is IAfterEntityInit afterEntityInit)
+                        afterEntityInit.AfterEntityInit();
+
+            foreach (var s in systems)
+                if (s is IAfterEntityInit afterSysEntityInit)
+                    afterSysEntityInit.AfterEntityInit();
+        }
+
+        public void InitComponentsAndSystems()
         {
             //ComponentsMask = HECSMask.Empty;
 
@@ -180,7 +208,7 @@ namespace HECSFramework.Core
             GenerateId();
         }
 
-        public virtual void AddHecsSystem<T>(T system) where T : ISystem
+        public virtual void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
         {
             system.Owner = this;
 
@@ -193,6 +221,9 @@ namespace HECSFramework.Core
             {
                 RegisterService.RegisterSystem(system);
                 system.InitSystem();
+
+                if (system is IAfterEntityInit afterSysEntityInit)
+                    afterSysEntityInit.AfterEntityInit();
             }
         }
 
@@ -267,7 +298,7 @@ namespace HECSFramework.Core
             return other.GUID == GUID;
         }
 
-        public T GetOrAddComponent<T>() where T : class, IComponent
+        public T GetOrAddComponent<T>(IEntity owner  = null) where T : class, IComponent
         {
             var index = TypesMap.GetIndexByType<T>();
             var needed = components[index];
@@ -276,7 +307,7 @@ namespace HECSFramework.Core
                 return (T)needed;
 
             var newComp = TypesMap.GetComponentFromFactory<T>();
-            AddHecsComponent(newComp);
+            AddHecsComponent(newComp, owner);
             return newComp;
         }
 
@@ -331,5 +362,20 @@ namespace HECSFramework.Core
         {
             GUID = guid;
         }
+
+        public void SetWorld()
+        {
+            World = EntityManager.Worlds[WorldId];
+        }
+
+        void IChangeWorldIndex.SetWorldIndex(int index)
+        {
+            WorldId = index;
+        }
+    }
+
+    public interface IChangeWorldIndex
+    {
+        void SetWorldIndex(int index);
     }
 }

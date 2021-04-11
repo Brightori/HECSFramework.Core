@@ -87,7 +87,7 @@ namespace HECSFramework.Core
         /// <param name="componentIDs"></param>
         public bool TryGetEntityByComponents(out IEntity outEntity, ref HECSMask mask)
         {
-            var count = Entities.Length;
+            var count = EntitiesCount;
 
             for (int i = 0; i < count; i++)
             {
