@@ -784,13 +784,13 @@ namespace HECSFramework.Core.Generator
                 fields.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax($"public ulong Mask0{i + 1};"), new ParagraphSyntax()));
                 operatorPlus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} | r.Mask0{i + 1},"), new ParagraphSyntax()));
                 operatorMinus.Add(new CompositeSyntax(new TabSpaceSyntax(4), new SimpleSyntax($"Mask0{i + 1} = l.Mask0{i + 1} ^ r.Mask0{i + 1},"), new ParagraphSyntax()));
-                getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += (-{i + 1} * (int)mask.Mask0{i + 1});"));
+                getHashCodeBody.Add(new TabSimpleSyntax(4, $"hash += ({(i+1)*3} * mask.Mask0{i + 1}.GetHashCode());"));
 
                 if (i == 0)
-                    isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i+1}"));
+                    isHaveBody.Add(new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0"));
                 else
                     isHaveBody.Add(new CompositeSyntax(new ParagraphSyntax(), new TabSpaceSyntax(6),
-                        new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) == other.Mask0{i + 1}")));
+                        new SimpleSyntax("&&"), new SimpleSyntax($"(original.Mask0{i + 1} & other.Mask0{i + 1}) != 0")));
 
                 if (i > 0)
                     hecsMaskPart.Add(new TabSimpleSyntax(2, $"public ulong Mask0{i + 1};"));
@@ -824,7 +824,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(new TabSimpleSyntax(3, "unchecked"));
             tree.Add(new LeftScopeSyntax(3));
-            tree.Add(new TabSimpleSyntax(4, "int hash = -2134847229;"));
+            tree.Add(new TabSimpleSyntax(4, "int hash = 256;"));
             tree.Add(body);
             tree.Add(new TabSimpleSyntax(4, "return hash;"));
             tree.Add(new RightScopeSyntax(3));
