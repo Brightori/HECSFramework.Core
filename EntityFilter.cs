@@ -39,7 +39,7 @@ namespace HECSFramework.Core
             return nf.Entities;
         }
 
-        private class Filter : IReactComponent, IDisposable
+        private class Filter : IReactComponent, IDisposable, IReactEntity
         {
             private List<IEntity> entities = new List<IEntity>(32);
             private readonly World world;
@@ -56,6 +56,7 @@ namespace HECSFramework.Core
                 mask = includeComponents;
                 excludeMask = HECSMask.Empty;
                 world.AddGlobalReactComponent(this);
+                world.AddEntityListener(this, true);
                 GatherEntities(world);
             }
 
@@ -107,9 +108,14 @@ namespace HECSFramework.Core
             public void Dispose()
             {
                 world.RemoveGlobalReactComponent(this);
+                world.AddEntityListener(this, false);
+            }
+
+            public void EntityReact(IEntity entity, bool isAdded)
+            {
+                if (isAdded && entity.ContainsMask(ref mask) && !entity.ContainsMask(ref excludeMask))
+                    entities.AddOrRemoveElement(entity, true);
             }
         }
     }
-
-
 }

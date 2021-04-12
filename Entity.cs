@@ -6,7 +6,7 @@ using System.Linq;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public class Entity : IEntity, IChangeWorldIndex
+    public partial class Entity : IEntity, IChangeWorldIndex
     {
         public int WorldId { get; private set; } = 0;
         public World World { get; private set; }
@@ -92,7 +92,11 @@ namespace HECSFramework.Core
             if (owner == null)
                 component.Owner = this;
             else
+            {
                 component.Owner = owner;
+                ComponentAdditionalProcessing(component, owner);
+            }
+                
 
             components[component.ComponentsMask.Index] = component;
             ComponentContext.AddComponent(component);
@@ -210,7 +214,13 @@ namespace HECSFramework.Core
 
         public virtual void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
         {
-            system.Owner = this;
+            if (owner == null)
+                system.Owner = this;
+            else
+            {
+                system.Owner = owner;
+                SystemAdditionalProcessing(system, owner);
+            }
 
             if (systems.Any(x => x.GetTypeHashCode == system.GetTypeHashCode))
                 throw new Exception($"we alrdy have this type of system  + { system.ToString() } {ID}");
@@ -372,6 +382,9 @@ namespace HECSFramework.Core
         {
             WorldId = index;
         }
+
+        partial void ComponentAdditionalProcessing(IComponent component, IEntity owner);
+        partial void SystemAdditionalProcessing(ISystem system, IEntity owner);
     }
 
     public interface IChangeWorldIndex
