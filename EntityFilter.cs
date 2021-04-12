@@ -50,21 +50,13 @@ namespace HECSFramework.Core
 
             public System.Guid ListenerGuid { get; }
 
-            public Filter(World world, HECSMask includeComponents)
+            public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
             {
                 this.world = world;
                 mask = includeComponents;
-                excludeMask = HECSMask.Empty;
+                excludeMask = excludeComponents;
                 world.AddGlobalReactComponent(this);
                 world.AddEntityListener(this, true);
-                GatherEntities(world);
-            }
-
-            public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
-            {
-                mask = includeComponents;
-                excludeMask = excludeComponents;
-
                 GatherEntities(world);
             }
 
