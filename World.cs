@@ -11,7 +11,7 @@ namespace HECSFramework.Core
         private ComponentsService componentsService = new ComponentsService();
         private EntityService entityService = new EntityService();
         private EntityCommandService commandService = new EntityCommandService();
-        private GlobalUpdateSystem globalUpdateSystem = new GlobalUpdateSystem();
+        public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private EntityFilter entityFilter;
 
         public World(int index)
@@ -33,7 +33,7 @@ namespace HECSFramework.Core
 
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T: IRegisterUpdatable
         {
-            globalUpdateSystem.Register(registerUpdatable, add);
+            GlobalUpdateSystem.Register(registerUpdatable, add);
         }
 
         public void RegisterEntity(IEntity entity, bool isAdded)

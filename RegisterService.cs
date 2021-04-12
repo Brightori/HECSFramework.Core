@@ -4,16 +4,7 @@
     {
         public void RegisterSystem(ISystem system)
         {
-            if (system is IUpdatable updatable)
-                system.Owner.World.RegisterUpdatable(updatable, true);
-
-            if (system is IFixedUpdatable fixedUpdatable)
-                system.Owner.World.RegisterUpdatable(fixedUpdatable, true);
-
-            if (system is ILateUpdatable lateUpdatable)
-                system.Owner.World.RegisterUpdatable(lateUpdatable, true);
-
-            if (system is IAsyncUpdatable asyncupdate)
+            if (system is IRegisterUpdatable asyncupdate)
                 system.Owner.World.RegisterUpdatable(asyncupdate, true);
 
             if (system is IReactEntity enitiesChanges)
@@ -28,17 +19,8 @@
 
         public void UnRegisterSystem(ISystem system)
         {
-            if (system is IUpdatable updatable)
-                system.Owner.World.RegisterUpdatable(updatable, false);
-
-            if (system is IFixedUpdatable fixedUpdatable)
-                system.Owner.World.RegisterUpdatable(fixedUpdatable, false);
-
-            if (system is ILateUpdatable lateUpdatable)
-                system.Owner.World.RegisterUpdatable(lateUpdatable, false);
-
-            if (system is IAsyncUpdatable asyncupdate)
-                system.Owner.World.RegisterUpdatable(asyncupdate, false);
+            if (system is IRegisterUpdatable asyncupdate)
+                system.Owner.World.RegisterUpdatable(asyncupdate, true);
 
             if (system is IReactEntity enitiesChanges)
                 system.Owner.World.AddEntityListener(enitiesChanges, false);

@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public partial class GlobalUpdateSystem 
+    public partial class GlobalUpdateSystem
     {
         private UpdateModuleFixed fixedModule;
         private UpdateModuleLate lateModule;
@@ -17,27 +17,28 @@
             updateModuleAsync = new UpdateModuleAsync();
         }
 
-        public void Register<T>(T registerUpdate, bool add) where T: IRegisterUpdatable
+        public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable
         {
-            switch (registerUpdate)
-            {
-                case IUpdatable updatable:
-                    defaultModule.Register(updatable, add);
-                    break;
-                case IFixedUpdatable fixedUpdatable:
-                    fixedModule.Register(fixedUpdatable, add);
-                    break;
-                case ILateUpdatable lateUpdatable:
-                    lateModule.Register(lateUpdatable, add);
-                    break;
-                case IAsyncUpdatable updatableAsync:
-                    updateModuleAsync.Register(updatableAsync, add);
-                    break;
-                default:
-                    UnityFuncs(registerUpdate, add);
-                    AdditionalFuncs(registerUpdate, add);
-                    break;
-            }
+            if (registerUpdate is INeedGlobalStart needGlobalStart)
+                startModule.Register(needGlobalStart, true);
+
+            if (registerUpdate is ILateStart needLateStart)
+                startModule.Register(needLateStart, true);
+
+            if (registerUpdate is IUpdatable updatable)
+                defaultModule.Register(updatable, add);
+
+            if (registerUpdate is IFixedUpdatable fixedUpdatable)
+                fixedModule.Register(fixedUpdatable, add);
+
+            if (registerUpdate is ILateUpdatable lateUpdatable)
+                lateModule.Register(lateUpdatable, add);
+
+            if (registerUpdate is IAsyncUpdatable updatableAsync)
+                updateModuleAsync.Register(updatableAsync, add);
+
+            UnityFuncs(registerUpdate, add);
+            AdditionalFuncs(registerUpdate, add);
         }
 
         partial void UnityFuncs(IRegisterUpdatable registerUpdatable, bool add);
@@ -45,6 +46,9 @@
 
         public void Start()
             => startModule.GlobalStart();
+
+        public void LateStart()
+            => startModule.LateStart();
 
         public void FixedUpdate()
             => fixedModule.FixedUpdateLocal();
