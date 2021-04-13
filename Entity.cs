@@ -44,7 +44,7 @@ namespace HECSFramework.Core
         /// this is slow method, purpose - using at Editor or for debugging
         /// better will take ActorContainerID directly - GetActorContainerID
         /// </summary>
-        public string ContainerID 
+        public string ContainerID
         {
             get
             {
@@ -96,7 +96,7 @@ namespace HECSFramework.Core
                 component.Owner = owner;
                 ComponentAdditionalProcessing(component, owner);
             }
-                
+
 
             components[component.ComponentsMask.Index] = component;
             ComponentContext.AddComponent(component);
@@ -308,7 +308,7 @@ namespace HECSFramework.Core
             return other.GUID == GUID;
         }
 
-        public T GetOrAddComponent<T>(IEntity owner  = null) where T : class, IComponent
+        public T GetOrAddComponent<T>(IEntity owner = null) where T : class, IComponent
         {
             var index = TypesMap.GetIndexByType<T>();
             var needed = components[index];
@@ -327,16 +327,19 @@ namespace HECSFramework.Core
             RemoveHecsComponent(needed);
         }
 
-        public void InjectEntity(IEntity entity, bool additive = false)
+        public void InjectEntity(IEntity entity, IEntity owner = null, bool additive = false)
         {
             if (!additive)
                 RemoveComponentsAndSystems();
 
             foreach (var c in entity.GetAllComponents)
-                AddHecsComponent(c);
+            {
+                if (c != null)
+                    AddHecsComponent(c, owner);
+            }
 
             foreach (var s in entity.GetAllSystems)
-                AddHecsSystem(s);
+                AddHecsSystem(s, owner);
 
             GUID = entity.GUID;
         }
