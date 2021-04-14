@@ -1,6 +1,5 @@
 ﻿using HECSFramework.Core.Helpers;
 using System.Collections.Generic;
-using Systems;
 
 namespace HECSFramework.Core
 {

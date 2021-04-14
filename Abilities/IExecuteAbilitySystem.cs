@@ -5,4 +5,6 @@ namespace HECSFramework.Core
     {
         void Execute(IEntity owner = null, IEntity target = null, bool enable = true);
     }
+
+    public interface IPassiveAbilitySystem : IExecuteAbilitySystem { }
 }
