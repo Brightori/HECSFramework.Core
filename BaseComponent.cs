@@ -8,6 +8,15 @@ namespace HECSFramework.Core
         public HECSMask ComponentsMask { get; set; }
         public IEntity Owner { get; set; }
         
+        public BaseComponent()
+        {
+            ConstructorCall();
+        }
+
+        protected virtual void ConstructorCall()
+        {
+        }
+
         public int GetTypeHashCode
         {
             get
