@@ -21,6 +21,7 @@ namespace HECSFramework.Core
 
         bool TryGetHecsComponent<T>(HECSMask mask, out T component) where T : IComponent;
         T GetOrAddComponent<T>(IEntity owner = null) where T : class, IComponent;
+        void AddOrReplaceComponent(IComponent component, IEntity owner = null, bool silently = false);
         void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false);
         
         void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem;

@@ -35,5 +35,16 @@ namespace HECSFramework.Core.Helpers
                 if (list.Contains(element))
                 list.Remove(element);
         }
+
+        public static T GetHECSComponent<T>(this List<IComponent> components) where T: IComponent
+        {
+            for (int i = 0; i < components.Count; i++)
+            {
+                if (components[i] is T needed)
+                    return needed;
+            }
+
+            return default;
+        }
     }
 }
