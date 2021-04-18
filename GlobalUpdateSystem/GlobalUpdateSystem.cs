@@ -1,4 +1,6 @@
-﻿namespace HECSFramework.Core
+﻿using System;
+
+namespace HECSFramework.Core
 {
     public partial class GlobalUpdateSystem
     {
@@ -7,6 +9,7 @@
         private UpdateModuleDefault defaultModule;
         private UpdateModuleGlobalStart startModule;
         private UpdateModuleAsync updateModuleAsync;
+        private DispatchModule dispatchModule;
 
         public GlobalUpdateSystem()
         {
@@ -15,6 +18,7 @@
             defaultModule = new UpdateModuleDefault();
             startModule = new UpdateModuleGlobalStart();
             updateModuleAsync = new UpdateModuleAsync();
+            dispatchModule = new DispatchModule();
         }
 
         public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable
@@ -41,6 +45,11 @@
             AdditionalFuncs(registerUpdate, add);
         }
 
+        public void AddToDispatch(Func<bool> func)
+        {
+            dispatchModule.AddToDispatch(func);
+        }
+
         partial void UnityFuncs(IRegisterUpdatable registerUpdatable, bool add);
         partial void AdditionalFuncs(IRegisterUpdatable registerUpdatable, bool add);
 
@@ -58,6 +67,7 @@
 
         public void Update()
         {
+            dispatchModule.UpdateLocal();
             defaultModule.UpdateLocal();
         }
     }
