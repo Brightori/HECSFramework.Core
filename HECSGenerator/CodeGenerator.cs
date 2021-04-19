@@ -29,6 +29,8 @@ namespace HECSFramework.Core.Generator
         private List<Type> globalSystemBind;
 
         private List<Type> systems;
+        private IEnumerable<Type> assembly;
+
 
         public void StartGeneration()
         {
@@ -883,19 +885,18 @@ namespace HECSFramework.Core.Generator
             var sysGlobalReactType = typeof(IGlobalCommand);
             var sysLocalReactType = typeof(ICommand);
 
-            var asses = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
-            componentTypes = asses.Where(p => componentType.IsAssignableFrom(p) && !p.IsGenericType && !p.IsAbstract && !p.IsInterface).ToList();
-
-            componentTypesByClass = asses.Where(p => p.Name != "BaseComponent" && componentType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsGenericType && !p.IsInterface && p.IsSubclassOf(typeof(BaseComponent))).ToList();
+            assembly = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes());
+            componentTypes = assembly.Where(p => componentType.IsAssignableFrom(p) && !p.IsGenericType && !p.IsAbstract && !p.IsInterface).ToList();
+            componentTypesByClass = assembly.Where(p => p.Name != "BaseComponent" && componentType.IsAssignableFrom(p) && !p.IsAbstract && !p.IsGenericType && !p.IsInterface && p.IsSubclassOf(typeof(BaseComponent))).ToList();
 
             var localreact = typeof(IReactCommand<>);
             var globalReact = typeof(IReactGlobalCommand<>);
             var systemsTypes = typeof(ISystem);
 
-            globalSystemBind = asses.Where(p => sysGlobalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
-            localSystemBind = asses.Where(p => sysLocalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
+            globalSystemBind = assembly.Where(p => sysGlobalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
+            localSystemBind = assembly.Where(p => sysLocalReactType.IsAssignableFrom(p) && !p.IsClass && !p.IsInterface).ToList();
 
-            systems = asses.Where(p => systemsTypes.IsAssignableFrom(p) && p.IsClass && !p.IsInterface && !p.IsAbstract).ToList();
+            systems = assembly.Where(p => systemsTypes.IsAssignableFrom(p) && p.IsClass && !p.IsInterface && !p.IsAbstract).ToList();
         }
         #endregion
     }

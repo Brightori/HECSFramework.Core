@@ -232,6 +232,7 @@ namespace HECSFramework.Core.Generator
     {
         public List<ISyntax> Tree { get; set; } = new List<ISyntax>();
         public string StringValue { get; set; } = CParse.RightScope;
+        public bool IsCommaNeeded;
 
         public RightScopeSyntax(int tabSpace)
         {
@@ -259,6 +260,9 @@ namespace HECSFramework.Core.Generator
 
         public override string ToString()
         {
+            if (IsCommaNeeded)
+                return StringValue + CParse.Comma + CParse.Paragraph;
+
             return StringValue + CParse.Paragraph;
         }
     }
