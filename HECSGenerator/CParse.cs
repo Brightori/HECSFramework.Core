@@ -21,6 +21,7 @@ namespace HECSFramework.Core.Generator
         public const string Return = "return";
         public const string Comma = ",";
         public const string Quote = @"""";
+        public const string Dot = @".";
 
         public static string[] Modifiers = new string[]
         {
