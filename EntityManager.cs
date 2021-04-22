@@ -48,6 +48,12 @@ namespace HECSFramework.Core
             return world.TryGetEntityByComponents(out outEntity, ref mask);
         }
 
+        public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system, int worldIndex =0) where T : ISystem
+        {
+            var world = Instance.worlds[worldIndex];
+            return world.TryGetSystemFromEntity(ref mask, out system);
+        }
+
         public static void AddOrRemoveComponent(IComponent component, bool isAdded)
         {
             Instance.worlds[component.Owner.WorldId].AddOrRemoveComponentEvent(component, isAdded);
