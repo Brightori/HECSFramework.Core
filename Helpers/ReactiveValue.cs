@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core.Helpers
 {
-    // TODO: IDisposable and use dispose everywhere.
+    // TODO: IDisposable and use dispose everywhere...
     public class ReactiveValue<T>
     {
         private T currentState;
