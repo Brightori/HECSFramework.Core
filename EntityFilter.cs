@@ -48,7 +48,7 @@ namespace HECSFramework.Core
 
             public List<IEntity> Entities => entities;
 
-            public System.Guid ListenerGuid { get; }
+            public System.Guid ListenerGuid { get; } = Guid.NewGuid();
 
             public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
             {
