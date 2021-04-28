@@ -396,6 +396,19 @@ namespace HECSFramework.Core
 
         partial void ComponentAdditionalProcessing(IComponent component, IEntity owner);
         partial void SystemAdditionalProcessing(ISystem system, IEntity owner);
+
+        public bool ContainsMask<T>() where T : IComponent
+        {
+            var index = TypesMap.GetIndexByType<T>();
+            return components[index] != null;
+        }
+
+        public void RemoveHecsComponent<T>() where T: IComponent
+        {
+            var index = TypesMap.GetIndexByType<T>();
+            if (components[index] != null)
+                RemoveHecsComponent(components[index]);
+        }
     }
 
     public interface IChangeWorldIndex

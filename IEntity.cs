@@ -28,6 +28,7 @@ namespace HECSFramework.Core
 
         void RemoveHecsComponent(IComponent component);
         void RemoveHecsComponent(HECSMask component);
+        void RemoveHecsComponent<T>() where T: IComponent;
         
         void RemoveHecsSystem(ISystem system);
         void Command<T>(T command) where T : ICommand;
@@ -42,6 +43,7 @@ namespace HECSFramework.Core
         void SetGuid(Guid guid);
 
         bool ContainsMask(ref HECSMask mask);
+        bool ContainsMask<T>() where T: IComponent;
 
         void HecsDestroy();
 
