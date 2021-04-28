@@ -112,7 +112,7 @@ namespace HECSFramework.Core
 
             ComponentsMask += component.ComponentsMask;
 
-            if (!silently)
+            if (!silently && IsInited)
                 EntityManager.AddOrRemoveComponent(component, true);
         }
 

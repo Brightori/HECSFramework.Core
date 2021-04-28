@@ -150,6 +150,7 @@ namespace HECSFramework.Core
             componentsService.Dispose();
             entityService.Dispose();
             commandService.Dispose();
+            entityFilter.Dispose();
         }
     }
 }

@@ -69,13 +69,8 @@ namespace HECSFramework.Core
 
                     for (int i = 0; i < count; i++)
                     {
-                        //if (excludeMask.Index == HECSMask.Empty.Index)
-                        //{
-                        //    if (worldEntities[i].ContainsMask(ref mask))
-                        //        entities.Add(worldEntities[i]);
-
-                        //    continue;
-                        //}
+                        if (!worldEntities[i].IsInited)
+                            continue;
 
                         if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
                             entities.Add(worldEntities[i]);
