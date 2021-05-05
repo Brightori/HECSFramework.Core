@@ -10,7 +10,7 @@ namespace HECSFramework.Core
 
     public class Ability : Entity, IAbility
     {
-        private List<IExecuteAbilitySystem> executeAbilitySystems = new List<IExecuteAbilitySystem>(2);
+        private List<IActiveAbilitySystem> executeAbilitySystems = new List<IActiveAbilitySystem>(2);
 
         public Ability(string id, int worldIndex) : base(id, worldIndex)
         {
@@ -20,7 +20,7 @@ namespace HECSFramework.Core
         {
             base.AddHecsSystem(system);
 
-            if (system is IExecuteAbilitySystem abilitySystem)
+            if (system is IActiveAbilitySystem abilitySystem)
                 executeAbilitySystems.AddOrRemoveElement(abilitySystem, true);
         }
 
@@ -28,7 +28,7 @@ namespace HECSFramework.Core
         {
             base.RemoveHecsSystem(system);
             
-            if (system is IExecuteAbilitySystem abilitySystem)
+            if (system is IActiveAbilitySystem abilitySystem)
                 executeAbilitySystems.AddOrRemoveElement(abilitySystem, false);
         }
 
