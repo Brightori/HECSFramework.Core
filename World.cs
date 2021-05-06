@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Systems;
 
 namespace HECSFramework.Core
 {
@@ -14,10 +15,21 @@ namespace HECSFramework.Core
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private EntityFilter entityFilter;
 
+        private Dictionary<HECSMask, IEntity> cacheTryGet = new Dictionary<HECSMask, IEntity>(6);
+        private WaitingCommandsSystems waitingCommandsSystems;
+
         public World(int index)
         {
             Index = index;
             entityFilter = new EntityFilter(this);
+        }
+
+        public void Init()
+        {
+            var worldService = new Entity("WorldService", Index);
+            waitingCommandsSystems = new WaitingCommandsSystems();
+            worldService.AddHecsSystem(waitingCommandsSystems);
+            worldService.Init();
         }
 
         public IEntity[] Entities => entityService.Entities;
@@ -57,6 +69,23 @@ namespace HECSFramework.Core
         public void Command<T>(T command) where T : ICommand, IGlobalCommand
         {
             commandService.Invoke(command);
+        }   
+        
+        /// <summary>
+        /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
+        /// то мы отправляем команду ожидать появления нужной сущности
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="command"></param>
+        /// <param name="waitForComponent"></param>
+        public void Command<T>(T command, ref HECSMask waitForComponent) where T : ICommand, IGlobalCommand
+        {
+            if (TryGetEntityByComponents(out var entity, ref waitForComponent))
+            {
+                commandService.Invoke(command);
+            }
+
+            waitingCommandsSystems.AddWaitingCommand(command, waitForComponent);
         }
 
         public void AddGlobalReactCommand<T>(ISystem system, Action<T> react) where T: IGlobalCommand
@@ -79,7 +108,6 @@ namespace HECSFramework.Core
             componentsService.RemoveListener(reactComponent);
         }
 
-
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты
         /// </summary>
@@ -87,6 +115,14 @@ namespace HECSFramework.Core
         /// <param name="componentIDs"></param>
         public bool TryGetEntityByComponents(out IEntity outEntity, ref HECSMask mask)
         {
+            if (cacheTryGet.TryGetValue(mask, out outEntity))
+            {
+                if (outEntity.IsAlive)
+                    return true;
+                else
+                    cacheTryGet.Remove(mask);
+            }
+
             var count = EntitiesCount;
 
             for (int i = 0; i < count; i++)
@@ -96,6 +132,7 @@ namespace HECSFramework.Core
                 if (currentEntity.ContainsMask(ref mask))
                 {
                     outEntity = currentEntity;
+                    cacheTryGet.Add(mask, currentEntity);
                     return true;
                 }
             }

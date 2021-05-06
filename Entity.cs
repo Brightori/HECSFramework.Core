@@ -38,7 +38,7 @@ namespace HECSFramework.Core
         public bool IsPaused { get; private set; }
         public bool IsLoaded { get; set; }
 
-        public HECSMask ComponentsMask { get => componentsMask; private set => componentsMask = value; }
+        public ref HECSMask ComponentsMask => ref componentsMask;
 
         /// <summary>
         /// this is slow method, purpose - using at Editor or for debugging

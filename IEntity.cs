@@ -13,7 +13,7 @@ namespace HECSFramework.Core
 
 
         Guid GUID { get; }
-        HECSMask ComponentsMask { get; }
+        ref HECSMask ComponentsMask { get; }
 
         IComponent[] GetAllComponents { get; }
         List<ISystem> GetAllSystems { get; }

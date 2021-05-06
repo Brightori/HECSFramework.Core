@@ -318,6 +318,13 @@ namespace HECSFramework.Core.Generator
 
             for (int i = 0; i < fieldCount; i++)
             {
+                if (maskSplitToArray[fieldCount-1] > 1 && i < fieldCount-1)
+                {
+                    maskBody.Add(new CompositeSyntax(new TabSpaceSyntax(5), new SimpleSyntax($"Mask0{i + 1} = 1ul << {0},")));
+                    maskBody.Add(new ParagraphSyntax());
+                    continue;
+                }
+                
                 maskBody.Add(new CompositeSyntax(new TabSpaceSyntax(5), new SimpleSyntax($"Mask0{i + 1} = 1ul << {maskSplitToArray[i]},")));
 
                 if (i > fieldCount - 1)
@@ -353,7 +360,7 @@ namespace HECSFramework.Core.Generator
 
                 else if (calculate < 0)
                 {
-                    t[i] = 1;
+                    t[i] = 0;
                 }
             }
 
@@ -396,6 +403,13 @@ namespace HECSFramework.Core.Generator
 
             for (int i = 0; i < fieldCount; i++)
             {
+                if (maskSplitToArray[fieldCount - 1] > 1 && i < fieldCount - 1)
+                {
+                    maskBody.Add(new CompositeSyntax(new TabSpaceSyntax(5), new SimpleSyntax($"Mask0{i + 1} = 1ul << {0},")));
+                    maskBody.Add(new ParagraphSyntax());
+                    continue;
+                }
+
                 maskBody.Add(new CompositeSyntax(new TabSpaceSyntax(5), new SimpleSyntax($"Mask0{i + 1} = 1ul << {maskSplitToArray[i]},")));
 
                 if (i > fieldCount - 1)

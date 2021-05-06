@@ -22,12 +22,27 @@ namespace HECSFramework.Core
             }
 
             Instance = this;
+
+            foreach (var world in worlds)
+            {
+                world.Init();
+            }
         }
 
         public static void Command<T>(T command, int world = 0) where T : IGlobalCommand
         {
             Instance.worlds[world].Command(command);
         }
+
+        /// <summary>
+        /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
+        /// то мы отправляем команду ожидать появления нужной сущности
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="command"></param>
+        /// <param name="waitForComponent"></param>
+        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : ICommand, IGlobalCommand 
+            => Worlds[worldIndex].Command(command, ref waitForComponent);
 
         public static void RegisterEntity(IEntity entity, bool add)
         {
