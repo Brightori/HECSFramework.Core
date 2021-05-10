@@ -49,11 +49,15 @@ namespace HECSFramework.Core
             var t = typeof(T);
 
             if (TypeToComponentIndex.TryGetValue(t, out var index))
-            {
                 return (T)Owner.GetAllComponents[index];
-            }
             else
                 return default;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T GetHECSComponent<T>(this IEntity Owner, ref HECSMask hECSMask)
+        {
+            return (T)Owner.GetAllComponents[hECSMask.Index];
         }
 
         public static Type GetTypeByComponentHECSHash(int hash)

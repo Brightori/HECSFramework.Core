@@ -74,6 +74,11 @@ namespace HECSFramework.Core
             Instance.worlds[component.Owner.WorldId].AddOrRemoveComponentEvent(component, isAdded);
         }
 
+        public T GetHECSComponent<T>(ref HECSMask owner, int worldIndex = 0) => worlds[worldIndex].GetHECSComponent<T>(ref owner);
+
+        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent, int worldIndex) where T : IComponent
+            => worlds[worldIndex].TryGetComponentFromEntity(out component, ref owner, ref neededComponent);
+
         public void Dispose()
         {
             for (int i = 0; i < worlds.Length; i++)

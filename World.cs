@@ -176,6 +176,26 @@ namespace HECSFramework.Core
             return false;
         }
 
+        public T GetHECSComponent<T>(ref HECSMask owner)
+        {
+            if (TryGetEntityByComponents(out var entity, ref owner))
+                return entity.GetHECSComponent<T>();
+            else
+                return default;
+        }
+
+        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent) where T: IComponent
+        {
+            if (TryGetEntityByComponents(out var entity, ref owner))
+            {
+                component = entity.GetHECSComponent<T>();
+                return true;
+            }
+
+            component = default;
+            return false;
+        }
+
         public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)
         {
             entity = Entities.FirstOrDefault(a => a.GUID == entityGuid);
