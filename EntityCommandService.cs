@@ -80,7 +80,7 @@ namespace HECSFramework.Core
         {
             for (int i = 0; i < listeners.Count; i++)
             {
-                if (!listeners[i].listener.Owner.IsAlive)
+                if (listeners[i].listener.Owner == null || !listeners[i].listener.Owner.IsAlive)
                 {
                     listenersToRemove.Enqueue(listeners[i]);
                     continue;
