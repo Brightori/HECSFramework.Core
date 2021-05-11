@@ -106,6 +106,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new UsingSyntax("System.Collections.Generic"));
             tree.Add(new UsingSyntax("Components"));
             tree.Add(new UsingSyntax("System", 1));
+            tree.Add(new UsingSyntax("Systems", 1));
 
             tree.Add(new NameSpaceSyntax(DefaultNameSpace));
             tree.Add(new LeftScopeSyntax());
@@ -118,7 +119,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new TabSimpleSyntax(3, $"TypeToComponentIndex = GetTypeToComponentIndexes();"));
             tree.Add(new TabSimpleSyntax(3, $"HashToType = GetHashToTypeDictionary();"));
             tree.Add(new TabSimpleSyntax(3, $"TypeToHash = GetTypeToHash();"));
-            tree.Add(new TabSimpleSyntax(3, $"ComponentFactory = new HECSComponentFactory();"));
+            tree.Add(new TabSimpleSyntax(3, $"HECSFactory = new HECSFactory();"));
             tree.Add(new RightScopeSyntax(2));
 
             tree.Add(GetTypeToComponentIndexes());
@@ -164,15 +165,16 @@ namespace HECSFramework.Core.Generator
             var getComponentFunc = new TreeSyntaxNode();
             
             tree.Add(new ParagraphSyntax());
-            tree.Add(new TabSimpleSyntax(1, "public partial class HECSComponentFactory"));
+            tree.Add(new TabSimpleSyntax(1, "public partial class HECSFactory"));
             tree.Add(new LeftScopeSyntax(1));
             tree.Add(constructor);
             tree.Add(getComponentFunc);
             tree.Add(new RightScopeSyntax(1));
 
-            constructor.Add(new TabSimpleSyntax(2, "public HECSComponentFactory()"));
+            constructor.Add(new TabSimpleSyntax(2, "public HECSFactory()"));
             constructor.Add(new LeftScopeSyntax(2));
             constructor.Add(new TabSimpleSyntax(3, "getComponentFromFactoryByHash = GetComponentFromFactoryFunc;"));
+            constructor.Add(new TabSimpleSyntax(3, "getSystemFromFactoryByHash = GetSystemFromFactoryFunc;"));
             constructor.Add(new RightScopeSyntax(2));
 
             getComponentFunc.Add(new ParagraphSyntax());
@@ -181,6 +183,17 @@ namespace HECSFramework.Core.Generator
             getComponentFunc.Add(new TabSimpleSyntax(3, "switch (hashCodeType)"));
             getComponentFunc.Add(new LeftScopeSyntax(3));
             getComponentFunc.Add(GetComponentsByHashCode());
+            getComponentFunc.Add(new RightScopeSyntax(3));
+            getComponentFunc.Add(new ParagraphSyntax());
+            getComponentFunc.Add(new TabSimpleSyntax(3, "return default;"));
+            getComponentFunc.Add(new RightScopeSyntax(2));        
+            
+            getComponentFunc.Add(new ParagraphSyntax());
+            getComponentFunc.Add(new TabSimpleSyntax(2, "private ISystem GetSystemFromFactoryFunc(int hashCodeType)"));
+            getComponentFunc.Add(new LeftScopeSyntax(2));
+            getComponentFunc.Add(new TabSimpleSyntax(3, "switch (hashCodeType)"));
+            getComponentFunc.Add(new LeftScopeSyntax(3));
+            getComponentFunc.Add(GetSystemsByHashCode());
             getComponentFunc.Add(new RightScopeSyntax(3));
             getComponentFunc.Add(new ParagraphSyntax());
             getComponentFunc.Add(new TabSimpleSyntax(3, "return default;"));
@@ -199,6 +212,24 @@ namespace HECSFramework.Core.Generator
                     tree.Add(new ParagraphSyntax());
 
                 var component = componentTypes[i];
+
+                tree.Add(new TabSimpleSyntax(4, $"case {IndexGenerator.GetIndexForType(component)}:"));
+                tree.Add(new TabSimpleSyntax(5, $"return new {component.Name}();"));
+            }
+
+            return tree;
+        }
+        
+        private ISyntax GetSystemsByHashCode()
+        {
+            var tree = new TreeSyntaxNode();
+
+            for (int i = 0; i < systems.Count; i++)
+            {
+                if (i > 0)
+                    tree.Add(new ParagraphSyntax());
+
+                var component = systems[i];
 
                 tree.Add(new TabSimpleSyntax(4, $"case {IndexGenerator.GetIndexForType(component)}:"));
                 tree.Add(new TabSimpleSyntax(5, $"return new {component.Name}();"));

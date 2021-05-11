@@ -13,7 +13,7 @@ namespace HECSFramework.Core
         private static readonly Dictionary<Type, int> TypeToComponentIndex;
         private static readonly Dictionary<Type, int> TypeToHash;
         private static readonly Dictionary<int, Type> componentHashToType;
-        private static IComponentFactory componentFactory;
+        private static IHECSFactory factory;
 
         static TypesMap()
         {
@@ -22,7 +22,7 @@ namespace HECSFramework.Core
             MapIndexes = typeProvider.MapIndexes;
             TypeToComponentIndex = typeProvider.TypeToComponentIndex;
             SizeOfComponents = typeProvider.Count;
-            componentFactory = typeProvider.ComponentFactory;
+            factory = typeProvider.HECSFactory;
             TypeToHash = typeProvider.TypeToHash;
             componentHashToType = typeProvider.HashToType;
         }
@@ -72,12 +72,17 @@ namespace HECSFramework.Core
 
         public static IComponent GetComponentFromFactory(int hashCodeType)
         {
-            return componentFactory.GetComponentFromFactory(hashCodeType);
+            return factory.GetComponentFromFactory(hashCodeType);
+        }
+
+        public static ISystem GetSystemFromFactory(int hashCodeType)
+        {
+            return factory.GetSystemFromFactory(hashCodeType);
         }
 
         public static T GetComponentFromFactory<T>() where T : class, IComponent
         {
-            return componentFactory.GetComponentFromFactory<T>();
+            return factory.GetComponentFromFactory<T>();
         }
     }
 }

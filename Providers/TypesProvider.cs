@@ -11,12 +11,13 @@ namespace HECSFramework.Core
         public  Dictionary<int, Type> HashToType { get; private set; }
         public  Dictionary<Type, int> TypeToHash { get; private set; }
 
-        public IComponentFactory ComponentFactory { get; private set; }
+        public IHECSFactory HECSFactory { get; private set; }
     }
 
-    public interface IComponentFactory
+    public interface IHECSFactory
     {
         IComponent GetComponentFromFactory(int hashCodeType);
         T GetComponentFromFactory<T>() where T : class, IComponent;
+        ISystem GetSystemFromFactory(int hashCodeType);
     }
 }
