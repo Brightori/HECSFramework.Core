@@ -10,6 +10,30 @@ namespace HECSFramework.Core.Helpers
                 dictionary[key] = value;
             else
                 dictionary.Add(key, value);
+        }      
+        
+        public static void AddOrGet<T,U>(this Dictionary<T,U> dictionary, T key, out U value) where U: new()
+        {
+            if (dictionary.ContainsKey(key))
+                value = dictionary[key];
+            else
+            {
+                var data = new U();
+                value = data;
+                dictionary.Add(key, data);
+            }
+        }   
+        
+        public static void AddOrGet<T,U,Z>(this Dictionary<T,Z> dictionary, T key, out Z value) where Z: List<U>, new()
+        {
+            if (dictionary.ContainsKey(key))
+                value = dictionary[key];
+            else
+            {
+                var data = new Z();
+                value = data;
+                dictionary.Add(key, data);
+            }
         }
 
         public static bool AddOrRemoveElement<T>(this List<T> list, T element, bool add)
