@@ -63,6 +63,9 @@ namespace HECSFramework.Core
             return world.TryGetEntityByComponents(out outEntity, ref mask);
         }
 
+        public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0) 
+            => Worlds[worldIndex].TryGetEntityByID(entityGuid, out entity);
+
         public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system, int worldIndex =0) where T : ISystem
         {
             var world = Instance.worlds[worldIndex];
