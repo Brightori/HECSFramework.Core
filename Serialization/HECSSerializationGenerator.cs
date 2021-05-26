@@ -73,13 +73,13 @@ namespace HECSFramework.Core.Generator
             tree.Add(new LeftScopeSyntax(1));
             tree.Add(fields);
             tree.Add(new ParagraphSyntax());
-            tree.Add(new TabSimpleSyntax(2, $"public {c.Name + Resolver}({c.Name} {c.Name.ToLower()})"));
+            tree.Add(new TabSimpleSyntax(2, $"public {c.Name + Resolver} In(ref {c.Name} {c.Name.ToLower()})"));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(constructor);
             tree.Add(new RightScopeSyntax(2));
-            tree.Add(new ParagraphSyntax());
-            tree.Add(defaultConstructor);
-            tree.Add(new ParagraphSyntax());
+            //tree.Add(new ParagraphSyntax());
+            //tree.Add(defaultConstructor);
+            //tree.Add(new ParagraphSyntax());
             tree.Add(new TabSimpleSyntax(2, $"public void Out(ref {c.Name} {c.Name.ToLower()})"));
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(outFunc);
@@ -153,7 +153,7 @@ namespace HECSFramework.Core.Generator
             }
 
             defaultConstructor.Add(DefaultConstructor(c, fieldsForConstructor, fields, constructor));
-
+            constructor.Add(new TabSimpleSyntax(3, "return this;"));
             return tree;
         }
 
@@ -337,8 +337,10 @@ namespace HECSFramework.Core.Generator
 
             foreach (var container in containersSolve)
             {
+                var lowerContainerName = (container.Name + Resolver).ToLower();
                 caseBody.Add(new TabSimpleSyntax(4, $"case {IndexGenerator.GetIndexForType(container)}:"));
-                caseBody.Add(new TabSimpleSyntax(5, $"var {container.Name}Data = new {container.Name + Resolver}(component as {container.Name});"));
+                caseBody.Add(new TabSimpleSyntax(5, $"var {lowerContainerName} = component as {container.Name};"));
+                caseBody.Add(new TabSimpleSyntax(5, $"var {container.Name}Data = new {container.Name + Resolver}().In(ref {lowerContainerName});"));
                 caseBody.Add(new TabSimpleSyntax(5, $"return PackComponentToContainer(component, {container.Name}Data);"));
             }
 
