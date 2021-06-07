@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public class EntityManager : IDisposable
+    public partial class EntityManager : IDisposable
     {
         private World[] worlds;
         private static EntityManager Instance;
