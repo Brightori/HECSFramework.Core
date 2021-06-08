@@ -101,7 +101,13 @@ namespace HECSFramework.Core
             public void EntityReact(IEntity entity, bool isAdded)
             {
                 if (isAdded && entity.ContainsMask(ref mask) && !entity.ContainsMask(ref excludeMask))
+                {
                     entities.AddOrRemoveElement(entity, true);
+                    return;
+                }
+                    
+                if (!isAdded && entity.ContainsMask(ref mask))
+                    entities.AddOrRemoveElement(entity, false);
             }
         }
     }
