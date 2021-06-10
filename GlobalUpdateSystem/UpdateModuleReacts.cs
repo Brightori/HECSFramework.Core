@@ -1,11 +1,10 @@
 ﻿using HECSFramework.Core.Helpers;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace HECSFramework.Core
 {
-    public class UpdateModuleReacts : IUpdatable, 
+    public class UpdateModuleReacts : 
         IRegisterUpdate<DelayedAction>, 
         IRegisterUpdate<AddUpdateWithPredicate>, 
         IRegisterUpdate<DispatchGlobalCommand>
@@ -14,9 +13,12 @@ namespace HECSFramework.Core
         private readonly HashSet<Func<bool>> updateFuncs = new HashSet<Func<bool>>();
         private readonly List<DelayedAction> delayedActions = new List<DelayedAction>(16);
         private bool funcResult;
+        private static float currentDeltaTime;
 
-        public void UpdateLocal()
+        public void UpdateLocal(float deltaTime)
         {
+            currentDeltaTime = deltaTime;
+
             UpdateDelayedActions();
             OneWayQueue();
             UpdateGlobalFunc();
@@ -47,7 +49,7 @@ namespace HECSFramework.Core
 
         private static void UpdateTimer(ref float timer)
         {
-            timer -= Time.deltaTime;
+            timer -= currentDeltaTime;
         }
         
         private void OneWayQueue()

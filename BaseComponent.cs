@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace HECSFramework.Core 
+﻿namespace HECSFramework.Core
 {
     public abstract class BaseComponent : IComponent
     {

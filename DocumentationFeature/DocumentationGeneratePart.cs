@@ -1,7 +1,7 @@
-﻿using Sirenix.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace HECSFramework.Core.Generator
 {
@@ -44,7 +44,7 @@ namespace HECSFramework.Core.Generator
 
             foreach (var t in assembly)
             {
-                var attrs = t.GetAttributes();
+                var attrs = t.GetCustomAttributes().ToArray();
 
                 if (!attrs.Any(x => x is DocumentationAttribute))
                     continue;
