@@ -267,7 +267,7 @@ namespace HECSFramework.Core.Generator
         }
     }
 
-    public class ClassDeclarationSyntax : ISyntax
+    public class SyntaxClassDeclaration : ISyntax
     {
         public string Type;
         public int TabSpace;
