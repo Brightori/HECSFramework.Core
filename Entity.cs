@@ -140,17 +140,20 @@ namespace HECSFramework.Core
             }
         }
 
-        public void Init(int worldIndex)
+        public void Init(int worldIndex, bool needRegister = true)
         {
             WorldId = worldIndex;
-            Init();
+            Init(needRegister);
         }
 
-        public void Init()
+        public void Init(bool needRegister = true)
         {
             SetWorld();
             InitComponentsAndSystems();
-            EntityManager.RegisterEntity(this, true);
+            
+            if (needRegister)
+                EntityManager.RegisterEntity(this, true);
+            
             AfterInit();
         }
 
@@ -166,7 +169,7 @@ namespace HECSFramework.Core
                     afterSysEntityInit.AfterEntityInit();
         }
 
-        public void InitComponentsAndSystems()
+        public void InitComponentsAndSystems(bool needRegister = true)
         {
             //ComponentsMask = HECSMask.Empty;
 
@@ -179,7 +182,9 @@ namespace HECSFramework.Core
             foreach (var sys in systems)
             {
                 sys.InitSystem();
-                RegisterService.RegisterSystem(sys);
+
+                if(needRegister)
+                    RegisterService.RegisterSystem(sys);
             }
 
             IsInited = true;
