@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
 
 namespace HECSFramework.Core
 {
-    public class ConcurrencyList<T> 
+    public class ConcurrencyList<T>
     {
         private T[] data = new T[64];
         public T this[int index] { get => GetT(index); set => Set(value, index); }
@@ -19,16 +19,27 @@ namespace HECSFramework.Core
 
         static readonly T[] _emptyArray = new T[64];
 
+        private ConcurrentQueue<int> freeIndexes = new ConcurrentQueue<int>();
+
         public void Add(T item)
         {
             Lock();
-            
+            IsLockFree();
+            Interlocked.Increment(ref lockFreeStep);
+
             if (IsNeedToResize())
                 ResizeArray();
 
+            if (freeIndexes.TryDequeue(out var result))
+            {
+                data[result] = item;
+                UnLock();
+                return;
+            }
+
             data[Count] = item;
             Count++;
-            
+
             UnLock();
         }
 
@@ -38,6 +49,7 @@ namespace HECSFramework.Core
                 throw new Exception("out of range");
 
             IsLockFree();
+            Interlocked.Increment(ref lockFreeStep);
             return data[index];
         }
 
@@ -151,11 +163,26 @@ namespace HECSFramework.Core
             {
                 return -1;
             }
-            
-            var index = Array.IndexOf(data, item);
-            UnLock();
 
-            return index;
+            for (int i = 0; i < Count; i++)
+            {
+                IsLockFree();
+                var current = i;
+
+                if (data[current] == null)
+                    continue;
+
+                var currentData = data[current];
+                Interlocked.Increment(ref lockFreeStep);
+                if (currentData.Equals(item))
+                {
+                    UnLock();
+                    return current;
+                }
+            }
+            
+            UnLock();
+            return -1;
         }
 
         public void Insert(int index, T item)
@@ -203,16 +230,8 @@ namespace HECSFramework.Core
         public void RemoveAt(int index)
         {
             Lock();
-            
             Count--;
-            
-            if (index < Count)
-            {
-                IsLockFree();
-                Array.Copy(data, index + 1, data, index, Count - index);
-            }
-            
-            data[Count] = default(T);
+            data[index] = default(T);
             UnLock();
         }
 
@@ -222,7 +241,7 @@ namespace HECSFramework.Core
         }
 
         [Serializable]
-        public struct Enumerator 
+        public struct Enumerator
         {
             private ConcurrencyList<T> list;
             private int index;
@@ -261,8 +280,6 @@ namespace HECSFramework.Core
 
             public bool MoveNext()
             {
-                IsLockFree();
-
                 ConcurrencyList<T> localList = list;
 
                 if (((uint)index < (uint)localList.Count))
