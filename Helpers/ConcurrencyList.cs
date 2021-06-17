@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace HECSFramework.Core
 {
-    public class ConcurrencyList<T> : IList<T>
+    public class ConcurrencyList<T> 
     {
         private T[] data = new T[64];
         public T this[int index] { get => GetT(index); set => Set(value, index); }
@@ -145,6 +145,13 @@ namespace HECSFramework.Core
         public int IndexOf(T item)
         {
             Lock();
+            IsLockFree();
+
+            if (item == null)
+            {
+                return -1;
+            }
+            
             var index = Array.IndexOf(data, item);
             UnLock();
 
@@ -196,29 +203,26 @@ namespace HECSFramework.Core
         public void RemoveAt(int index)
         {
             Lock();
-
+            
             Count--;
+            
             if (index < Count)
             {
+                IsLockFree();
                 Array.Copy(data, index + 1, data, index, Count - index);
             }
-            data[Count] = default(T);
             
+            data[Count] = default(T);
             UnLock();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
-        public IEnumerator<T> GetEnumerator()
+        public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
         }
 
         [Serializable]
-        public struct Enumerator : IEnumerator<T>, System.Collections.IEnumerator
+        public struct Enumerator 
         {
             private ConcurrencyList<T> list;
             private int index;
@@ -285,19 +289,7 @@ namespace HECSFramework.Core
                 }
             }
 
-            Object IEnumerator.Current
-            {
-                get
-                {
-                    if (index == 0 || index == list.Count + 1)
-                    {
-                        throw new Exception("Out of range");
-                    }
-                    return Current;
-                }
-            }
-
-            void System.Collections.IEnumerator.Reset()
+            void Reset()
             {
                 index = 0;
                 current = default(T);
