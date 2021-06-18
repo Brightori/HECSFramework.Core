@@ -54,6 +54,19 @@ namespace HECSFramework.Core.Helpers
 
             return false;
         }
+        
+        public static bool AddOrRemoveElement<T>(this ConcurrencyList<T> list, T element, bool add)
+        {
+            if (add)
+            {
+                list.Add(element);
+                return true;
+            }
+            else
+            {
+                return list.Remove(element); 
+            }
+        }
 
         public static void AddOrRemoveElement<T>(this HashSet<T> list, T element, bool add)
         {

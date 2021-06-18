@@ -20,12 +20,12 @@ namespace HECSFramework.Core
                 f.Value.Dispose();
         }
 
-        public List<IEntity> GetFilter(HECSMask include)
+        public ConcurrencyList<IEntity> GetFilter(HECSMask include)
         {
             return GetFilter(include, HECSMask.Empty);
         }
 
-        public List<IEntity> GetFilter(HECSMask include, HECSMask exclude)
+        public ConcurrencyList<IEntity> GetFilter(HECSMask include, HECSMask exclude)
         {
             int sumMask = include.GetHashCode();
             sumMask += exclude.GetHashCode();
@@ -41,12 +41,11 @@ namespace HECSFramework.Core
 
         private class Filter : IReactComponent, IDisposable, IReactEntity
         {
-            private List<IEntity> entities = new List<IEntity>(32);
             private readonly World world;
             private HECSMask mask;
             private HECSMask excludeMask;
 
-            public List<IEntity> Entities => entities;
+            public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
 
             public System.Guid ListenerGuid { get; } = Guid.NewGuid();
 
@@ -62,19 +61,16 @@ namespace HECSFramework.Core
 
             private void GatherEntities(World world)
             {
-                lock (world.Entities)
+                var worldEntities = world.Entities;
+                var count = world.EntitiesCount;
+
+                for (int i = 0; i < count; i++)
                 {
-                    var worldEntities = world.Entities;
-                    var count = world.EntitiesCount;
+                    if (!worldEntities[i].IsInited)
+                        continue;
 
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (!worldEntities[i].IsInited)
-                            continue;
-
-                        if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
-                            entities.Add(worldEntities[i]);
-                    }
+                    if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
+                        Entities.Add(worldEntities[i]);
                 }
             }
 
@@ -86,10 +82,7 @@ namespace HECSFramework.Core
                 if (component.Owner.ContainsMask(ref excludeMask))
                     return;
 
-                lock (entities)
-                {
-                    entities.AddOrRemoveElement(component.Owner, isAdded);
-                }
+                    Entities.AddOrRemoveElement(component.Owner, isAdded);
             }
 
             public void Dispose()
@@ -102,12 +95,12 @@ namespace HECSFramework.Core
             {
                 if (isAdded && entity.ContainsMask(ref mask) && !entity.ContainsMask(ref excludeMask))
                 {
-                    entities.AddOrRemoveElement(entity, true);
+                    Entities.AddOrRemoveElement(entity, true);
                     return;
                 }
-                    
+
                 if (!isAdded && entity.ContainsMask(ref mask))
-                    entities.AddOrRemoveElement(entity, false);
+                    Entities.AddOrRemoveElement(entity, false);
             }
         }
     }

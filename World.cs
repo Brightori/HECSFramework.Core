@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Systems;
@@ -15,7 +16,7 @@ namespace HECSFramework.Core
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private EntityFilter entityFilter;
 
-        private Dictionary<HECSMask, IEntity> cacheTryGet = new Dictionary<HECSMask, IEntity>(6);
+        private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
         private WaitingCommandsSystems waitingCommandsSystems;
 
         public World(int index)
@@ -120,7 +121,7 @@ namespace HECSFramework.Core
                 if (outEntity.IsAlive)
                     return true;
                 else
-                    cacheTryGet.Remove(mask);
+                    cacheTryGet.TryRemove(mask, out var entity);
             }
 
             var count = EntitiesCount;
@@ -132,7 +133,7 @@ namespace HECSFramework.Core
                 if (currentEntity.ContainsMask(ref mask))
                 {
                     outEntity = currentEntity;
-                    cacheTryGet.Add(mask, currentEntity);
+                    cacheTryGet.TryRemove(mask, out var entity);
                     return true;
                 }
             }

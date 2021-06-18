@@ -79,7 +79,7 @@ namespace HECSFramework.Core
             }
         }
 
-        private bool IsLockFree()
+        public bool IsLockFree()
         {
             int valueData;
             do
@@ -255,26 +255,12 @@ namespace HECSFramework.Core
             private ConcurrencyList<T> list;
             private int index;
             private T current;
-            private int lockFreeStep;
 
             internal Enumerator(ConcurrencyList<T> list)
             {
                 this.list = list;
                 index = 0;
                 current = default(T);
-                lockFreeStep = 0;
-            }
-
-            private bool IsLockFree()
-            {
-                int valueData;
-                do
-                {
-                    valueData = lockFreeStep;
-                }
-                while (!CAS(ref lockFreeStep, valueData + 1, valueData));
-
-                return true;
             }
 
             private bool CAS(ref int currentValue, int wantedValue, int oldValue)
@@ -291,8 +277,10 @@ namespace HECSFramework.Core
             {
                 ConcurrencyList<T> localList = list;
 
+                list.IsLockFree();
                 if (((uint)index < (uint)localList.Count))
                 {
+                    list.IsLockFree();
                     current = localList[index];
                     index++;
                     return true;
