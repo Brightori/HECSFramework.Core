@@ -267,17 +267,19 @@ namespace HECSFramework.Core
         public virtual void Dispose()
         {
             IsAlive = false;
+            IsPaused = true;
 
-            foreach (var s in systems)
+            foreach (var s in systems.ToArray())
             {
-                RegisterService.UnRegisterSystem(s);
-                s.Dispose();
+                RemoveHecsSystem(s);
             }
 
-            foreach (var c in components)
+            for (int i = 0; i < components.Length; i++)
             {
-                if (c is IDisposable disposable)
-                    disposable.Dispose();
+                IComponent c = components[i];
+
+                if (c != null)
+                    RemoveHecsComponent(c);
             }
 
             systems.Clear();

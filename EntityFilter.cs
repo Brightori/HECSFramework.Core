@@ -1,12 +1,14 @@
 ﻿using HECSFramework.Core.Helpers;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace HECSFramework.Core
 {
     public class EntityFilter : IDisposable
     {
         private Dictionary<int, Filter> filters = new Dictionary<int, Filter>(16);
+        
         private World world;
 
         public EntityFilter(World world)
@@ -42,8 +44,11 @@ namespace HECSFramework.Core
         private class Filter : IReactComponent, IDisposable, IReactEntity
         {
             private readonly World world;
+            
             private HECSMask mask;
             private HECSMask excludeMask;
+            
+            private HashSet<Guid> entitiesAtFilter = new HashSet<Guid>();
 
             public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
 
@@ -66,23 +71,40 @@ namespace HECSFramework.Core
 
                 for (int i = 0; i < count; i++)
                 {
-                    if (!worldEntities[i].IsInited)
+                    var currentEntity = worldEntities[i];
+
+                    if ( currentEntity == null || !currentEntity.IsInited || !currentEntity.IsAlive)
                         continue;
 
-                    if (worldEntities[i].ContainsMask(ref mask) && !worldEntities[i].ContainsMask(ref excludeMask))
-                        Entities.Add(worldEntities[i]);
+                    if (currentEntity.ContainsMask(ref mask) && !currentEntity.ContainsMask(ref excludeMask))
+                    {
+                        Entities.Add(currentEntity);
+                        entitiesAtFilter.Add(currentEntity.GUID);
+                    }
                 }
             }
 
             public void ComponentReact(IComponent component, bool isAdded)
             {
+                if (entitiesAtFilter.Contains(component.Owner.GUID))
+                {
+                    if (isAdded)
+                        return;
+                    else
+                    {
+                        entitiesAtFilter.Remove(component.Owner.GUID);
+                        Entities.Remove(component.Owner);
+                    }
+                }
+
                 if (!component.Owner.ContainsMask(ref mask))
                     return;
 
                 if (component.Owner.ContainsMask(ref excludeMask))
                     return;
 
-                    Entities.AddOrRemoveElement(component.Owner, isAdded);
+                Entities.AddOrRemoveElement(component.Owner, isAdded);
+                entitiesAtFilter.AddOrRemoveElement(component.Owner.GUID, isAdded);
             }
 
             public void Dispose()
@@ -96,11 +118,15 @@ namespace HECSFramework.Core
                 if (isAdded && entity.ContainsMask(ref mask) && !entity.ContainsMask(ref excludeMask))
                 {
                     Entities.AddOrRemoveElement(entity, true);
+                    entitiesAtFilter.Add(entity.GUID);
                     return;
                 }
 
                 if (!isAdded && entity.ContainsMask(ref mask))
+                {
                     Entities.AddOrRemoveElement(entity, false);
+                    entitiesAtFilter.AddOrRemoveElement(entity.GUID, false);
+                }
             }
         }
     }

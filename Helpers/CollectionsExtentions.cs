@@ -59,6 +59,9 @@ namespace HECSFramework.Core.Helpers
         {
             if (add)
             {
+                if (list.Contains(element))
+                    return false;
+
                 list.Add(element);
                 return true;
             }
