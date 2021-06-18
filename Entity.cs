@@ -269,7 +269,10 @@ namespace HECSFramework.Core
             IsAlive = false;
 
             foreach (var s in systems)
+            {
+                RegisterService.UnRegisterSystem(s);
                 s.Dispose();
+            }
 
             foreach (var c in components)
             {
