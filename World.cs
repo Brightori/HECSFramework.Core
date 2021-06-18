@@ -33,11 +33,11 @@ namespace HECSFramework.Core
             worldService.Init();
         }
 
-        public IEntity[] Entities => entityService.Entities;
-        public int EntitiesCount => entityService.Count;
+        public ConcurrencyList<IEntity> Entities => entityService.Entities;
+        public int EntitiesCount => Entities.Count;
 
-        public List<IEntity> Filter(HECSMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
-        public List<IEntity> Filter(HECSMask include) => entityFilter.GetFilter(include);
+        public ConcurrencyList<IEntity> Filter(HECSMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
+        public ConcurrencyList<IEntity> Filter(HECSMask include) => entityFilter.GetFilter(include);
 
         public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
         {

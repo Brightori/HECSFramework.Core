@@ -183,6 +183,25 @@ namespace HECSFramework.Core
             return -1;
         }
 
+        public T[] ToArray()
+        {
+            Lock();
+
+            IsLockFree();
+
+            var count = Count;
+            var newArray = new T[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                IsLockFree();
+                newArray[i] = data[i];
+            }     
+
+            UnLock();
+            return newArray;
+        }
+
         public void Insert(int index, T item)
         {
             Lock();
@@ -204,6 +223,32 @@ namespace HECSFramework.Core
                 return true;
 
             return false;
+        }
+
+        public T FirstOrDefault(Func<T, bool> predicate)
+        {
+            Lock();
+            var count = Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                IsLockFree();
+                
+                var currentdata = data[i];
+                if (currentdata == null)
+                    continue;
+                
+                IsLockFree();
+                if (predicate(currentdata))
+                {
+                    UnLock();
+                    return currentdata;
+                }
+                    
+            }
+
+            UnLock();
+            return default;
         }
 
         private void ResizeArray()
