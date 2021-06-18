@@ -20,20 +20,18 @@ namespace HECSFramework.Core.Generator
         public string StringValue { get; set; } = "MainTree";
         public string[] RawData { get; set; }
 
-        public List<ISyntax> FlatRoot = new List<ISyntax>();
-
         public void Add(ISyntax syntax)
         {
-            FlatRoot.Add(syntax);
+            Tree.Add(syntax);
         }
 
         public override string ToString()
         {
             var t = string.Empty;
 
-            for (int i = 0; i < FlatRoot.Count; i++)
+            for (int i = 0; i < Tree.Count; i++)
             {
-                t += FlatRoot[i].ToString();
+                t += Tree[i].ToString();
             }
 
             return t;
