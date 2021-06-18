@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
@@ -11,35 +10,27 @@ namespace HECSFramework.Core
         private T[] data = new T[64];
         public T this[int index] { get => GetT(index); set => Set(value, index); }
 
-        public int Count { get; private set; } = 0;
+        public int Count { get => count; private set => count = value; }
         public bool IsReadOnly { get; private set; }
 
         private int locked = 0;
         private int lockFreeStep = 0;
 
         static readonly T[] _emptyArray = new T[64];
-
-        private ConcurrentQueue<int> freeIndexes = new ConcurrentQueue<int>();
+        private int count = 0;
 
         public void Add(T item)
         {
             Lock();
+            
             IsLockFree();
-            Interlocked.Increment(ref lockFreeStep);
 
             if (IsNeedToResize())
                 ResizeArray();
-
-            if (freeIndexes.TryDequeue(out var result))
-            {
-                data[result] = item;
-                UnLock();
-                return;
-            }
-
+            
+            IsLockFree();
             data[Count] = item;
-            Count++;
-
+            Interlocked.Increment(ref count);
             UnLock();
         }
 
@@ -49,13 +40,13 @@ namespace HECSFramework.Core
                 throw new Exception("out of range");
 
             IsLockFree();
-            Interlocked.Increment(ref lockFreeStep);
             return data[index];
         }
 
         private void Set(T item, int index)
         {
             Lock();
+            IsLockFree();
             data[index] = item;
             UnLock();
         }
@@ -97,6 +88,7 @@ namespace HECSFramework.Core
             }
             while (!CAS(ref lockFreeStep, valueData + 1, valueData));
 
+            Interlocked.Increment(ref lockFreeStep);
             return true;
         }
 
@@ -108,6 +100,11 @@ namespace HECSFramework.Core
             {
                 spinWait.SpinOnce();
             }
+
+            Interlocked.Increment(ref lockFreeStep);
+
+            if (lockFreeStep == int.MaxValue - 1000)
+                lockFreeStep = 0;
         }
 
         private bool CAS(ref int currentValue, int wantedValue, int oldValue)
@@ -159,28 +156,29 @@ namespace HECSFramework.Core
             Lock();
             IsLockFree();
 
-            if (item == null)
-            {
-                return -1;
-            }
+            var currentCount = Count;
 
-            for (int i = 0; i < Count; i++)
+            for (int i = 0; i < currentCount; i++)
             {
                 IsLockFree();
+
                 var current = i;
-
-                if (data[current] == null)
-                    continue;
-
                 var currentData = data[current];
-                Interlocked.Increment(ref lockFreeStep);
-                if (currentData.Equals(item))
+
+                if (item == null && currentData == null)
+                {
+                    UnLock();
+                    return current;
+                }
+
+                IsLockFree();
+                if (currentData != null && currentData.Equals(item))
                 {
                     UnLock();
                     return current;
                 }
             }
-            
+
             UnLock();
             return -1;
         }
@@ -218,6 +216,7 @@ namespace HECSFramework.Core
             IsLockFree();
 
             int index = IndexOf(item);
+
             if (index >= 0)
             {
                 RemoveAt(index);
@@ -230,8 +229,18 @@ namespace HECSFramework.Core
         public void RemoveAt(int index)
         {
             Lock();
-            Count--;
-            data[index] = default(T);
+
+            IsLockFree();
+            if (index == Count)
+            {
+                data[index] = default(T);
+            }
+            else
+            {
+                data[index] = data[Count - 1];
+            }
+            Interlocked.Decrement(ref count);
+            
             UnLock();
         }
 
