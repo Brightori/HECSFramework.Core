@@ -17,6 +17,7 @@ namespace HECSFramework.Core
         private EntityFilter entityFilter;
 
         private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
+        private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
         private WaitingCommandsSystems waitingCommandsSystems;
 
         public World(int index)
@@ -199,7 +200,19 @@ namespace HECSFramework.Core
 
         public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)
         {
+            if (cacheTryGetbyGuid.TryGetValue(entityGuid, out entity))
+            {
+                if (entity.IsAlive)
+                    return true;
+                else
+                    cacheTryGetbyGuid.TryRemove(entityGuid, out var entityOut);
+            }
+
             entity = Entities.FirstOrDefault(a => a.GUID == entityGuid);
+
+            if (entity != null)
+                cacheTryGetbyGuid.TryAdd(entityGuid, entity);
+
             return entity != null;
         }
 
