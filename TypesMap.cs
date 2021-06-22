@@ -51,7 +51,18 @@ namespace HECSFramework.Core
             if (TypeToComponentIndex.TryGetValue(t, out var index))
                 return (T)Owner.GetAllComponents[index];
             else
-                return default;
+            {
+                var components = Owner.GetAllComponents;
+                var count = components.Length;
+                
+                for (int i = 0; i < count; i++)
+                {
+                    if (components[i] is T needed)
+                        return needed;
+                }
+            }
+
+            return default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
