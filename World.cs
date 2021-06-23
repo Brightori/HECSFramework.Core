@@ -18,6 +18,9 @@ namespace HECSFramework.Core
 
         private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
         private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
+
+        private Dictionary<Type, ISystem> singleSystems = new Dictionary<Type, ISystem>();
+
         private WaitingCommandsSystems waitingCommandsSystems;
 
         public World(int index)
@@ -45,7 +48,7 @@ namespace HECSFramework.Core
             componentsService.ProcessComponent(component, isAdded);
         }
 
-        public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T: IRegisterUpdatable
+        public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable
         {
             GlobalUpdateSystem.Register(registerUpdatable, add);
         }
@@ -71,8 +74,8 @@ namespace HECSFramework.Core
         public void Command<T>(T command) where T : ICommand, IGlobalCommand
         {
             commandService.Invoke(command);
-        }   
-        
+        }
+
         /// <summary>
         /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
         /// то мы отправляем команду ожидать появления нужной сущности
@@ -90,12 +93,12 @@ namespace HECSFramework.Core
             waitingCommandsSystems.AddWaitingCommand(command, waitForComponent);
         }
 
-        public void AddGlobalReactCommand<T>(ISystem system, Action<T> react) where T: IGlobalCommand
+        public void AddGlobalReactCommand<T>(ISystem system, Action<T> react) where T : IGlobalCommand
         {
             commandService.AddListener(system, react);
         }
-        
-        public void RemoveGlobalReactCommand(ISystem system) 
+
+        public void RemoveGlobalReactCommand(ISystem system)
         {
             commandService.ReleaseListener(system);
         }
@@ -104,7 +107,7 @@ namespace HECSFramework.Core
         {
             componentsService.AddListener(reactComponent);
         }
-        
+
         public void RemoveGlobalReactComponent(IReactComponent reactComponent)
         {
             componentsService.RemoveListener(reactComponent);
@@ -178,6 +181,29 @@ namespace HECSFramework.Core
             return false;
         }
 
+        public T GetSingleSystem<T>() where T : ISystem
+        {
+            if (singleSystems.TryGetValue(typeof(T), out var system))
+            {
+                if (system.Owner.IsAlive)
+                    return (T)system;
+            }
+
+            for (int i = 0; i < entityService.Entities.Count; i++)
+            {
+                if (entityService.Entities[i].TryGetSystem(out T needed))
+                {
+                    if (needed.Owner.IsAlive)
+                    {
+                        singleSystems.Add(typeof(T), needed);   
+                        return needed;   
+                    }
+                }
+            }
+
+            return default;
+        }
+
         public T GetHECSComponent<T>(ref HECSMask owner)
         {
             if (TryGetEntityByComponents(out var entity, ref owner))
@@ -186,7 +212,7 @@ namespace HECSFramework.Core
                 return default;
         }
 
-        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent) where T: IComponent
+        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent) where T : IComponent
         {
             if (TryGetEntityByComponents(out var entity, ref owner))
             {

@@ -63,6 +63,8 @@ namespace HECSFramework.Core
             return world.TryGetEntityByComponents(out outEntity, ref mask);
         }
 
+        public static T GetSingleSystem<T>(int worldIndex = 0) where T : ISystem => Instance.worlds[worldIndex].GetSingleSystem<T>();
+
         public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0)
         {
             foreach (var w in Worlds)
