@@ -44,11 +44,11 @@ namespace HECSFramework.Core.Generator
 
             foreach (var t in assembly)
             {
-                var attrs = t.GetCustomAttributes().ToArray();
-
-                if (!attrs.Any(x => x is DocumentationAttribute))
+                if (!t.CustomAttributes.Any(x => x.AttributeType == typeof(DocumentationAttribute)))
                     continue;
 
+                var attrs = t.GetCustomAttributes().ToArray();
+                
                 if (attrs != null && attrs.Length > 0)
                 {
                     typeHolder.Add(t, (new List<string>(), new List<string>(), t.Name));
