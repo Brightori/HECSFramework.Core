@@ -419,6 +419,20 @@ namespace HECSFramework.Core
             if (components[index] != null)
                 RemoveHecsComponent(components[index]);
         }
+
+        public bool TryGetHecsComponent<T>(out T component) where T : IComponent
+        {
+            var index = TypesMap.GetIndexByType<T>();
+            
+            if (components[index] != null)
+            {
+                component = (T)components[index];
+                return true;
+            }
+
+            component = default;
+            return false;   
+        }
     }
 
     public interface IChangeWorldIndex
