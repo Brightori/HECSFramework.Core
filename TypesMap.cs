@@ -30,6 +30,11 @@ namespace HECSFramework.Core
         public static int GetHashOfComponentByType(Type type)
         {
             return TypeToHash[type];
+        } 
+        
+        public static int GetHashOfComponentByType<T>()
+        {
+            return TypeToHash[typeof(T)];
         }
 
         public static bool GetComponentInfo(int hashTypeCode, out ComponentMaskAndIndex mask)
