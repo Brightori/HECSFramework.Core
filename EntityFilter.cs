@@ -25,8 +25,8 @@ namespace HECSFramework.Core
         public ConcurrencyList<IEntity> GetFilter(HECSMask include)
         {
             return GetFilter(include, HECSMask.Empty);
-        }  
-        
+        }
+
         public ConcurrencyList<IEntity> GetFilter(HECSMultiMask include)
         {
             return GetFilter(include, HECSMask.Empty);
@@ -229,9 +229,11 @@ namespace HECSFramework.Core
 
             public void ComponentReact(IComponent component, bool isAdded)
             {
+                var cMask = component.ComponentsMask;
+
                 if (isAdded)
                 {
-                    var cMask = component.ComponentsMask;
+
                     if (summaryInclude.Contain(ref cMask) || summaryExclude.Contain(ref cMask))
                     {
                         if (ContainsMask(component.Owner))
@@ -239,11 +241,11 @@ namespace HECSFramework.Core
                             entitiesAtFilter.Add(component.Owner.GUID);
                             Entities.Add(component.Owner);
                         }
-                    } 
+                    }
                 }
                 else
                 {
-                    if (entitiesAtFilter.Contains(component.Owner.GUID))
+                    if ((summaryInclude.Contain(ref cMask) || summaryExclude.Contain(ref cMask)) && entitiesAtFilter.Contains(component.Owner.GUID))
                     {
                         entitiesAtFilter.Remove(component.Owner.GUID);
                         Entities.Remove(component.Owner);
