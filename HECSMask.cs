@@ -1,4 +1,6 @@
 ﻿#pragma warning disable //unity make warning about field ordering
+using System;
+
 namespace HECSFramework.Core 
 {
     public partial struct HECSMask

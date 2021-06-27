@@ -49,8 +49,12 @@ namespace HECSFramework.Core
             Instance.worlds[entity.WorldId].RegisterEntity(entity, add);
         }
 
-        public static ConcurrencyList<IEntity> Filter(HECSMask include, HECSMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
         public static ConcurrencyList<IEntity> Filter(HECSMask include, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include);
+        public static ConcurrencyList<IEntity> Filter(HECSMultiMask include, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include);
+        public static ConcurrencyList<IEntity> Filter(HECSMask include, HECSMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
+        public static ConcurrencyList<IEntity> Filter(HECSMultiMask include, HECSMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
+        public static ConcurrencyList<IEntity> Filter(HECSMask include, HECSMultiMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
+        public static ConcurrencyList<IEntity> Filter(HECSMultiMask include, HECSMultiMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
 
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты

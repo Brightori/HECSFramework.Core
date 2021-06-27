@@ -40,8 +40,12 @@ namespace HECSFramework.Core
         public ConcurrencyList<IEntity> Entities => entityService.Entities;
         public int EntitiesCount => Entities.Count;
 
-        public ConcurrencyList<IEntity> Filter(HECSMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
         public ConcurrencyList<IEntity> Filter(HECSMask include) => entityFilter.GetFilter(include);
+        public ConcurrencyList<IEntity> Filter(HECSMultiMask include) => entityFilter.GetFilter(include);
+        public ConcurrencyList<IEntity> Filter(HECSMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
+        public ConcurrencyList<IEntity> Filter(HECSMultiMask include, HECSMask exclude) => entityFilter.GetFilter(include, exclude);
+        public ConcurrencyList<IEntity> Filter(HECSMask include, HECSMultiMask exclude) => entityFilter.GetFilter(include, exclude);
+        public ConcurrencyList<IEntity> Filter(HECSMultiMask include, HECSMultiMask exclude) => entityFilter.GetFilter(include, exclude);
 
         public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
         {

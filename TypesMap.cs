@@ -40,6 +40,12 @@ namespace HECSFramework.Core
         public static bool GetComponentInfo(int hashTypeCode, out ComponentMaskAndIndex mask)
         {
             return MapIndexes.TryGetValue(hashTypeCode, out mask);
+        }      
+        
+        public static ComponentMaskAndIndex GetComponentInfo<T>() where T: IComponent
+        {
+            var hashTypeCode = GetHashOfComponentByType<T>();
+            return MapIndexes[hashTypeCode];
         }
 
         /// <summary>
