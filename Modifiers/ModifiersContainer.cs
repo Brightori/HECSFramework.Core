@@ -1,4 +1,5 @@
 ﻿using HECSFramework.Core.Helpers;
+using System;
 using System.Collections.Generic;
 
 namespace HECSFramework.Core
@@ -12,6 +13,20 @@ namespace HECSFramework.Core
             {(int)ModifierCalculationType.Multiply, new HashSet<T>()},
             {(int)ModifierCalculationType.Divide, new HashSet<T>()},
         };
+
+        public bool Contains(Func<T,bool> predicate)
+        {
+            foreach (var modifier in modifiers)
+            {
+                foreach (var value in modifier.Value)
+                {
+                    if (predicate(value))
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         public void AddModifier(T modifier)
         {

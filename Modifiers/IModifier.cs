@@ -5,9 +5,11 @@
         ModifierCalculationType GetCalculationType { get; }
     }
 
-    public interface IModifier<T> : IModifier
+    public interface IModifier<T> : IModifier where T : struct
     {
-        T Modify(ref T value);
+        T GetValue { get; }
+
+        void Modify(ref T currentMod);
     }
 
     public enum ModifierCalculationType
