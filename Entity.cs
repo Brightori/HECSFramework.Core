@@ -2,6 +2,7 @@ using Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace HECSFramework.Core
 {
@@ -441,8 +442,6 @@ namespace HECSFramework.Core
                 if (components[i] != null && components[i] is T needed)
                     yield return needed;
             }
-
-            yield return default;
         }
     }
 

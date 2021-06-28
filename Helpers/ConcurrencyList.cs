@@ -87,9 +87,29 @@ namespace HECSFramework.Core
                 valueData = lockFreeStep;
             }
             while (!CAS(ref lockFreeStep, valueData + 1, valueData));
-
-            Interlocked.Increment(ref lockFreeStep);
+            
+            unchecked
+            {
+                Interlocked.Increment(ref lockFreeStep);
+            }
+            
             return true;
+        }
+
+        public bool Any(Func<T, bool> predicate)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                IsLockFree();
+                
+                if (data[i] == null)
+                    continue;
+
+                if (predicate(data[i]))
+                    return true;
+            }
+
+            return false;
         }
 
         private void Lock()
