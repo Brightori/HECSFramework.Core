@@ -433,6 +433,17 @@ namespace HECSFramework.Core
             component = default;
             return false;   
         }
+
+        public IEnumerable<T> GetComponentsByType<T>() where T : IComponent
+        {
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i] != null && components[i] is T needed)
+                    yield return needed;
+            }
+
+            yield return default;
+        }
     }
 
     public interface IChangeWorldIndex
