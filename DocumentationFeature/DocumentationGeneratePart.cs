@@ -42,7 +42,7 @@ namespace HECSFramework.Core.Generator
 
             var typeHolder = new Dictionary<Type, (List<string> segments, List<string> comments, string Type)>(64);
 
-            foreach (var t in assembly)
+            foreach (var t in Assembly)
             {
                 if (!t.CustomAttributes.Any(x => x.AttributeType == typeof(DocumentationAttribute)))
                     continue;
