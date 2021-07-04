@@ -1,18 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HECSFramework.Core
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
     public class DocumentationAttribute : Attribute
     {
-        public string SegmentType;
+        public List<string> SegmentType = new List<string>(4);
         public string Comment;
 
         public DocumentationAttribute(string segmentType, string comment = "")
         {
-            SegmentType = segmentType;
+            SegmentType.Add(segmentType);
             Comment = comment;
+        }
+
+        /// <summary>
+        /// last of tagsAndComment would be comment, all others going to tags
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="tagsAndComment"></param>
+        public DocumentationAttribute(string tag, params string[] tagsAndComment)
+        {
+            SegmentType.Add(tag);
+
+            if (tagsAndComment != null && tagsAndComment.Length > 0)
+            {
+                var index = Array.IndexOf(tagsAndComment, tagsAndComment.Last());
+                for (int i = 0; i < tagsAndComment.Length; i++)
+                {
+                    if (i != index)
+                    {
+                        SegmentType.Add(tagsAndComment[i]);
+                    }
+                    else
+                        Comment = tagsAndComment[i];
+                }
+            }
         }
     }
 

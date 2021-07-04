@@ -57,7 +57,9 @@ namespace HECSFramework.Core.Generator
                     {
                         if (a is DocumentationAttribute documentation)
                         {
-                            typeHolder[t].segments.Add(documentation.SegmentType);
+                            foreach (var d in documentation.SegmentType)
+                                typeHolder[t].segments.Add(d);
+
                             typeHolder[t].comments.Add(documentation.Comment);
                         }
                     }
