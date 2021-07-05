@@ -8,7 +8,7 @@ namespace HECSFramework.Core
     {
         public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
 
-        private List<IReactEntity> reactEntities = new List<IReactEntity>(16);
+        private ConcurrencyList<IReactEntity> reactEntities = new ConcurrencyList<IReactEntity>();
 
         public void RegisterEntity(IEntity entity, bool isAdded)
         {
