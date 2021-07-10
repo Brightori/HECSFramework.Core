@@ -20,6 +20,7 @@ namespace HECSFramework.Core
         private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
 
         private Dictionary<Type, ISystem> singleSystems = new Dictionary<Type, ISystem>();
+        private Dictionary<Type, IComponent> singleComponents = new Dictionary<Type, IComponent>();
 
         private WaitingCommandsSystems waitingCommandsSystems;
 
@@ -187,7 +188,9 @@ namespace HECSFramework.Core
 
         public T GetSingleSystem<T>() where T : ISystem
         {
-            if (singleSystems.TryGetValue(typeof(T), out var system))
+            var key = typeof(T);
+
+            if (singleSystems.TryGetValue(key, out var system))
             {
                 if (system.Owner.IsAlive)
                     return (T)system;
@@ -199,7 +202,46 @@ namespace HECSFramework.Core
                 {
                     if (needed.Owner.IsAlive)
                     {
+                        if (singleSystems.ContainsKey(key))
+                        {
+                            singleSystems[key] = needed;
+                            return needed;
+                        }
+
                         singleSystems.Add(typeof(T), needed);   
+                        return needed;   
+                    }
+                }
+            }
+
+            return default;
+        }
+        
+        public T GetSingleComponent<T>() where T : IComponent
+        {
+            var key = typeof(T);
+
+            if (singleComponents.TryGetValue(key, out var component))
+            {
+                if (component.Owner.IsAlive)
+                    return (T)component;
+            }
+
+            var mask = HMasks.GetMask<T>();
+
+            for (int i = 0; i < entityService.Entities.Count; i++)
+            {
+                if (entityService.Entities[i].TryGetHecsComponent(mask, out T needed))
+                {
+                    if (needed.Owner.IsAlive)
+                    {
+                        if (singleComponents.ContainsKey(key))
+                        {
+                            singleComponents[key] = needed;
+                            return needed;
+                        }
+
+                        singleComponents.Add(key, needed);   
                         return needed;   
                     }
                 }

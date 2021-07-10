@@ -67,7 +67,21 @@ namespace HECSFramework.Core
             return world.TryGetEntityByComponents(out outEntity, ref mask);
         }
 
+        /// <summary>
+        /// на самом деле возвращаем первый попавшийся/закешированный, то что он единственный и неповторимый - на вашей совести
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="worldIndex"></param>
+        /// <returns></returns>
         public static T GetSingleSystem<T>(int worldIndex = 0) where T : ISystem => Instance.worlds[worldIndex].GetSingleSystem<T>();
+        
+        /// <summary>
+        /// на самом деле возвращаем первый попавшийся/закешированный, то что он единственный и неповторимый - на вашей совести
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="worldIndex"></param>
+        /// <returns></returns>
+        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent => Instance.worlds[worldIndex].GetSingleComponent<T>();
 
         public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0)
         {
