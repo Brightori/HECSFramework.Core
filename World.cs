@@ -223,7 +223,7 @@ namespace HECSFramework.Core
 
             if (singleComponents.TryGetValue(key, out var component))
             {
-                if (component.Owner.IsAlive)
+                if (component != null && component.Owner.IsAlive)
                     return (T)component;
             }
 
