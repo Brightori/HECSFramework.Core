@@ -97,9 +97,9 @@ namespace HECSFramework.Core
                 ComponentAdditionalProcessing(component, owner);
             }
 
-
             components[component.ComponentsMask.Index] = component;
             ComponentContext.AddComponent(component);
+            component.IsAlive = true;
 
             if (IsInited)
             {
@@ -209,6 +209,7 @@ namespace HECSFramework.Core
             components[component.ComponentsMask.Index] = null;
             ComponentContext.RemoveComponent(component);
             ComponentsMask -= component.ComponentsMask;
+            component.IsAlive = false;
             World.AddOrRemoveComponentEvent(component, false);
         }
 

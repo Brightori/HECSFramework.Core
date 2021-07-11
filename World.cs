@@ -223,7 +223,7 @@ namespace HECSFramework.Core
 
             if (singleComponents.TryGetValue(key, out var component))
             {
-                if (component != null && component.Owner.IsAlive)
+                if (component != null && component.Owner.IsAlive && component.IsAlive)
                     return (T)component;
             }
 
@@ -233,7 +233,7 @@ namespace HECSFramework.Core
             {
                 if (entityService.Entities[i].TryGetHecsComponent(mask, out T needed))
                 {
-                    if (needed.Owner.IsAlive)
+                    if (needed.Owner.IsAlive && needed.IsAlive)
                     {
                         if (singleComponents.ContainsKey(key))
                         {

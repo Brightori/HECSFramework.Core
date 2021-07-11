@@ -5,7 +5,8 @@
         private int typeHashCode = -1;
         public HECSMask ComponentsMask { get; set; }
         public IEntity Owner { get; set; }
-        
+        public bool IsAlive { get; set; }
+
         public BaseComponent()
         {
             ConstructorCall();
