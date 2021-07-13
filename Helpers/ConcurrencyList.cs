@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace HECSFramework.Core
@@ -79,6 +80,7 @@ namespace HECSFramework.Core
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLockFree()
         {
             int valueData;
@@ -111,7 +113,8 @@ namespace HECSFramework.Core
 
             return false;
         }
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Lock()
         {
             var spinWait = new SpinWait();
@@ -127,11 +130,13 @@ namespace HECSFramework.Core
                 lockFreeStep = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CAS(ref int currentValue, int wantedValue, int oldValue)
         {
             return Interlocked.CompareExchange(ref currentValue, wantedValue, oldValue) == oldValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UnLock()
         {
             Interlocked.Exchange(ref locked, 0);
