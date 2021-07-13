@@ -140,6 +140,7 @@ namespace HECSFramework.Core
         public void Clear()
         {
             Array.Clear(data, 0, Count);
+            Count = 0;
         }
 
         public bool Contains(T item)
