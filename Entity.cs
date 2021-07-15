@@ -209,6 +209,15 @@ namespace HECSFramework.Core
             components[component.ComponentsMask.Index] = null;
             ComponentContext.RemoveComponent(component);
             ComponentsMask -= component.ComponentsMask;
+
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i] == null)
+                    continue;
+
+                componentsMask += components[i].ComponentsMask;
+            }
+
             component.IsAlive = false;
             World.AddOrRemoveComponentEvent(component, false);
         }
