@@ -49,6 +49,12 @@ namespace HECSFramework.Core
         {
             dispatchModule.AddToDispatch(func);
         }
+            
+        
+        public void AddToDispatch(Action action)
+        {
+            dispatchModule.AddToDispatch(action);
+        }
 
         partial void UnityFuncs(IRegisterUpdatable registerUpdatable, bool add);
         partial void AdditionalFuncs(IRegisterUpdatable registerUpdatable, bool add);

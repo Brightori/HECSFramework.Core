@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace HECSFramework.Core
@@ -7,6 +8,7 @@ namespace HECSFramework.Core
     {
         private List<Func<bool>> dispatchItems = new List<Func<bool>>(4);
         private Queue<Func<bool>> remove = new Queue<Func<bool>>(4);
+        private ConcurrentQueue<Action> actions  = new ConcurrentQueue<Action>();
 
         public void UpdateLocal()
         {
@@ -22,11 +24,19 @@ namespace HECSFramework.Core
 
             while(remove.Count > 0)
                 dispatchItems.Remove(remove.Dequeue());
+
+            while (actions.TryDequeue(out var action))
+                action?.Invoke();
         }
 
         public void AddToDispatch(Func<bool> func)
         {
             dispatchItems.Add(func);
+        }
+
+        public void AddToDispatch(Action action)
+        {
+            actions.Enqueue(action);
         }
     }
 }
