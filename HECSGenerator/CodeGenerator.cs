@@ -871,7 +871,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new LeftScopeSyntax(2));
             tree.Add(new TabSimpleSyntax(3, "unchecked"));
             tree.Add(new LeftScopeSyntax(3));
-            tree.Add(new TabSimpleSyntax(4, "int hash = 256;"));
+            tree.Add(new TabSimpleSyntax(4, "int hash = mask.Index;"));
             tree.Add(body);
             tree.Add(new TabSimpleSyntax(4, "return hash;"));
             tree.Add(new RightScopeSyntax(3));
