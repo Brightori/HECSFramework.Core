@@ -38,7 +38,7 @@ namespace HECSFramework.Core
             modifiers[(int)modifier.GetCalculationType].AddOrRemoveElement(modifier, false);
         }
 
-        public U GetCalculatedValue(in U value)
+        public U GetCalculatedValue(U value)
         {
             U currentMod = value;
 
