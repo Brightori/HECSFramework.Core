@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public interface IPredicate
+    public partial interface IPredicate
     {
         bool IsReady(IEntity target);
     }
