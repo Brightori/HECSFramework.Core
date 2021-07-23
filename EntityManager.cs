@@ -63,6 +63,20 @@ namespace HECSFramework.Core
         /// <param name="componentIDs"></param>
         public static bool TryGetEntityByComponents(out IEntity outEntity, ref HECSMask mask, int worldIndex = 0)
         {
+            if (worldIndex == -1)
+            {
+                foreach (var w in Worlds)
+                {
+                    if (w.TryGetEntityByComponents(out outEntity, ref mask))
+                    {
+                        return true;
+                    }
+                }
+
+                outEntity = null;
+                return false;
+            }
+
             var world = Instance.worlds[worldIndex];
             return world.TryGetEntityByComponents(out outEntity, ref mask);
         }
