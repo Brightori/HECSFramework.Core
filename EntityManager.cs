@@ -5,6 +5,8 @@ namespace HECSFramework.Core
 {
     public partial class EntityManager : IDisposable
     {
+        public const int AllWorld = -1;
+
         private World[] worlds;
         private static EntityManager Instance;
 
@@ -29,8 +31,22 @@ namespace HECSFramework.Core
             }
         }
 
+        /// <summary>
+        /// рассылка команд всем подписчикам в мире
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="command"></param>
+        /// <param name="world"> здесь мы говорим в какой мир отправить, если индекс -1, то отправляем во все миры </param>
         public static void Command<T>(T command, int world = 0) where T : IGlobalCommand
         {
+            if (world == -1)
+            {
+                foreach (var w in Worlds)
+                    w.Command(command);
+
+                return;
+            }
+
             Instance.worlds[world].Command(command);
         }
 
