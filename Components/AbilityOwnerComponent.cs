@@ -5,7 +5,6 @@ namespace Components
 {
     [Serializable]
     [Documentation("Ability", "Этот компонент обязателен для абилки, в оунера прокидывается персонаж что им владеет")]
-    [CustomResolver]
     public class AbilityOwnerComponent : BaseComponent
     {
         public IEntity AbilityOwner;

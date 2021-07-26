@@ -9,6 +9,5 @@ namespace HECSFramework.Core
     }
 
     public interface IActiveAbilitySystem : AbilitySystem, IReactCommand<ExecuteActiveAbilityCommand> {}  
-
-    public interface IPassiveAbilitySystem : AbilitySystem { }
+    public interface IPassiveAbilitySystem : AbilitySystem, IReactCommand<ExecutePassiveAbilityCommand> {}  
 }
