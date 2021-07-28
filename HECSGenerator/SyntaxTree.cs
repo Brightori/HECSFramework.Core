@@ -23,7 +23,7 @@ namespace HECSFramework.Core.Generator
 
         public void Add(ISyntax syntax)
         {
-            Tree.AddOrRemoveElement(syntax, true);
+            Tree.Add(syntax);
         }
 
         public override string ToString()
