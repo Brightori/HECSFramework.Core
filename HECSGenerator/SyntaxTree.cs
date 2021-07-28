@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HECSFramework.Core.Helpers;
+using System.Collections.Generic;
 
 namespace HECSFramework.Core.Generator
 {
@@ -22,7 +23,7 @@ namespace HECSFramework.Core.Generator
 
         public void Add(ISyntax syntax)
         {
-            Tree.Add(syntax);
+            Tree.AddOrRemoveElement(syntax, true);
         }
 
         public override string ToString()
