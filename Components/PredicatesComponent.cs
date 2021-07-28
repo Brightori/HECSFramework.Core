@@ -12,9 +12,7 @@ namespace Components
         {
             foreach (var p in predicates)
             {
-                if (p.IsReady(entity))
-                    continue;
-                else
+                if (!p.IsReady(entity))
                     return false;
             }
 
