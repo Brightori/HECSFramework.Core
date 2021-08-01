@@ -1,5 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
+    //тестовый коммит
     public abstract class BaseComponent : IComponent
     {
         private int typeHashCode = -1;

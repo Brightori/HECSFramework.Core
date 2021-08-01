@@ -238,7 +238,7 @@ namespace HECSFramework.Core
             }
 
             if (systems.Any(x => x.GetTypeHashCode == system.GetTypeHashCode))
-                throw new Exception($"we alrdy have this type of system  + { system.ToString() } {ID}");
+                return;
 
             systems.Add(system);
 

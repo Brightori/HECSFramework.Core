@@ -117,7 +117,7 @@ namespace HECSFramework.Core
         {
             foreach (var w in Worlds)
             {
-                if (Worlds[worldIndex].TryGetEntityByID(entityGuid, out entity))
+                if (w.TryGetEntityByID(entityGuid, out entity))
                     return true;
             }
 
