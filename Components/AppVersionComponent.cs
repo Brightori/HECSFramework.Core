@@ -5,7 +5,7 @@ namespace Components
 {
     [Serializable]
     [Documentation("GameLogic", "Компонент в котором мы храним версию")]
-    public partial class AppVersionComponent : BaseComponent
+    public class AppVersionComponent : BaseComponent
     {
         [Field(0)]
         public int Version = 101;
