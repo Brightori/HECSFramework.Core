@@ -219,7 +219,7 @@ namespace HECSFramework.Core
             }
 
             component.IsAlive = false;
-            World.AddOrRemoveComponentEvent(component, false);
+            World?.AddOrRemoveComponentEvent(component, false);
         }
 
         protected virtual void Reset()
