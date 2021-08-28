@@ -1,4 +1,6 @@
-﻿namespace HECSFramework.Core
+﻿using System;
+
+namespace HECSFramework.Core
 {
     public interface IModifier 
     {
@@ -7,8 +9,8 @@
 
     public interface IModifier<T> : IModifier where T : struct
     {
+        Guid ModifiersOwner { get; }
         T GetValue { get; }
-
         void Modify(ref T currentMod);
     }
 

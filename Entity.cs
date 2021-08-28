@@ -148,6 +148,9 @@ namespace HECSFramework.Core
 
         public void Init(bool needRegister = true)
         {
+            if (IsInited)
+                throw new InvalidOperationException($"Entity already inited: {GUID}");
+
             SetWorld();
             InitComponentsAndSystems();
             
@@ -276,6 +279,7 @@ namespace HECSFramework.Core
 
         public virtual void Dispose()
         {
+            EntityManager.RegisterEntity(this, false);
             IsAlive = false;
             IsPaused = true;
 
@@ -444,7 +448,7 @@ namespace HECSFramework.Core
             return false;   
         }
 
-        public IEnumerable<T> GetComponentsByType<T>() where T : IComponent
+        public IEnumerable<T> GetComponentsByType<T>() 
         {
             for (int i = 0; i < components.Length; i++)
             {

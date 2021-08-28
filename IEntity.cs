@@ -19,9 +19,23 @@ namespace HECSFramework.Core
         List<ISystem> GetAllSystems { get; }
         ComponentContext ComponentContext { get; }
 
-        IEnumerable<T> GetComponentsByType<T>() where T : IComponent;
+        IEnumerable<T> GetComponentsByType<T>();
 
+        /// <summary>
+        /// это быстрый способ для рантайма
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="mask">сюда берем маску из HMask. </param>
+        /// <param name="component"></param>
+        /// <returns></returns>
         bool TryGetHecsComponent<T>(HECSMask mask, out T component) where T : IComponent;
+
+        /// <summary>
+        /// это медленный способ, его нужно использовать при ините
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="component"></param>
+        /// <returns></returns>
         bool TryGetHecsComponent<T>(out T component) where T : IComponent;
 
         T GetOrAddComponent<T>(IEntity owner = null) where T : class, IComponent;

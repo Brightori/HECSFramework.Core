@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core.Helpers
 {
-    // TODO: IDisposable and use dispose everywhere...
-    public class ReactiveValue<T>
+    public class ReactiveValue<T> : IDisposable
     {
         private T currentState;
 
@@ -42,6 +41,9 @@ namespace HECSFramework.Core.Helpers
                 }
             }
         }
+
+        public void Dispose()
+            => OnChange = null;
     }
 
     public class ReactiveValueClamped<T> : IDisposable where T : IComparable<T>, IEquatable<T>

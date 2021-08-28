@@ -6,11 +6,11 @@ namespace Components
     [Documentation("Ability", "тут мы храним предикаты для абилок")]
     public partial class PredicatesComponent : BaseComponent
     {
-        public List<IPredicate> predicates = new List<IPredicate>(4);
+        public List<IPredicate> Predicates = new List<IPredicate>(4);
 
         public bool IsReady(IEntity entity)
         {
-            foreach (var p in predicates)
+            foreach (var p in Predicates)
             {
                 if (p.IsReady(entity))
                     continue;

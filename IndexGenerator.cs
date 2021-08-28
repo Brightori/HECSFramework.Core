@@ -4,6 +4,11 @@ namespace HECSFramework.Core
 {
     public static class IndexGenerator
     {
+        public static int GenerateIndex(this string data)
+        {
+            return GetIndexForType(data);
+        }
+
         public static int GetIndexForType(Type c)
         {
             var typeName = c.Name;

@@ -32,6 +32,19 @@ namespace HECSFramework.Core
         }
 
         /// <summary>
+        /// Этот метод цепляется к ивенту закрытия приложения и рассылает его по всем системам, размеченным интерфейсом <code>IOnApplicationQuit</code>
+        /// </summary>
+        public static void OnApplicationExitInvoke()
+        {
+            foreach (var world in Worlds)
+            foreach (var entity in world.Entities)
+            foreach (ISystem system in entity.GetAllSystems)
+            {
+                if (system is IOnApplicationQuit sys) sys.OnApplicationExit();
+            }
+        }
+
+        /// <summary>
         /// рассылка команд всем подписчикам в мире
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -48,6 +61,12 @@ namespace HECSFramework.Core
             }
 
             Instance.worlds[world].Command(command);
+        }
+
+        public static void GlobalCommand<T>(T command) where T : IGlobalCommand
+        {
+            foreach (var w in Worlds) 
+                w.Command(command);
         }
 
         /// <summary>

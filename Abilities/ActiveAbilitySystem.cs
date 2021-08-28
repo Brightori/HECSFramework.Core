@@ -1,5 +1,4 @@
-﻿
-using Commands;
+﻿using Commands;
 using Components;
 
 namespace HECSFramework.Core
