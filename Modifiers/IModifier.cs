@@ -2,7 +2,7 @@
 
 namespace HECSFramework.Core
 {
-    public interface IModifier 
+    public interface IModifier
     {
         ModifierCalculationType GetCalculationType { get; }
     }
@@ -20,5 +20,11 @@ namespace HECSFramework.Core
         Subtract = 1,
         Multiply = 2,
         Divide = 3,
+    }
+
+    public enum ModifierValueType
+    {
+        Value = 0,
+        Percent = 1
     }
 }

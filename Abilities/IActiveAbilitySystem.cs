@@ -1,13 +1,7 @@
-﻿
-using Commands;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
-    public interface AbilitySystem : ISystem
+    public interface IAbilitySystem : ISystem
     {
         void Execute(IEntity owner = null, IEntity target = null, bool enable = true);
     }
-
-    public interface IActiveAbilitySystem : AbilitySystem, IReactCommand<ExecuteActiveAbilityCommand> {}  
-    public interface IPassiveAbilitySystem : AbilitySystem, IReactCommand<ExecutePassiveAbilityCommand> {}  
 }
