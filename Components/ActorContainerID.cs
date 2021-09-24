@@ -11,11 +11,23 @@ namespace Components
     public partial class ActorContainerID : BaseComponent, IActorContainerID
     {
         private string id;
+        private int containerID = -1;
 
         public string ID
         {
             get => id;
             set => id = value;
+        }
+        
+        public int ContainerIndex 
+        {
+            get
+            {
+                if (containerID == -1 && id != null)
+                    containerID = IndexGenerator.GenerateIndex(id);
+
+                return containerID;
+            }
         }
     }
 

@@ -16,21 +16,9 @@ namespace HECSFramework.Core
             {(int)ModifierCalculationType.Divide, new HashSet<T>()},
         };
 
-        public bool Contains(Func<T,bool> predicate)
-        {
-            foreach (var modifier in modifiers)
-            {
-                foreach (var value in modifier.Value)
-                {
-                    if (predicate(value))
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
-        public void AddUniqieModifier(T modifier)
+        public IReadOnlyDictionary<int, HashSet<T>> Modifiers => modifiers;
+        
+        public void AddUniqueModifier(T modifier)
         {
             if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == modifier.ModifiersOwner))
                 return;
@@ -78,6 +66,11 @@ namespace HECSFramework.Core
                 valueMod.Modify(ref currentMod);
 
             return currentMod;
+        }
+
+        public void Clear()
+        {
+            foreach (var kvp in modifiers) kvp.Value.Clear();
         }
     }
 }

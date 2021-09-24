@@ -1,8 +1,8 @@
 ﻿namespace HECSFramework.Core
 {
-    public struct ModifiersCalculation
+    public static class ModifiersCalculation
     {
-        public float GetResult(float modifiedValue, in float parametr, ModifierCalculationType modifierCalculationType, ModifierValueType modifierValueType)
+        public static float GetResult(float modifiedValue, in float parametr, ModifierCalculationType modifierCalculationType, ModifierValueType modifierValueType)
         {
             switch (modifierValueType)
             {
@@ -43,7 +43,7 @@
             return -1;
         }
 
-        public int GetResult(in int modifiedValue, in int parametr, ModifierCalculationType modifierCalculationType, ModifierValueType modifierValueType)
+        public static int GetResult(in int modifiedValue, in int parametr, ModifierCalculationType modifierCalculationType, ModifierValueType modifierValueType)
         {
             switch (modifierValueType)
             {

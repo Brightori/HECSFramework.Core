@@ -104,6 +104,8 @@ namespace HECSFramework.Core
 
             public System.Guid ListenerGuid { get; } = Guid.NewGuid();
 
+            private Queue<IEntity> removeQueue = new Queue<IEntity>();
+
             public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
             {
                 this.world = world;
@@ -229,26 +231,29 @@ namespace HECSFramework.Core
 
             public void ComponentReact(IComponent component, bool isAdded)
             {
-                var cMask = component.ComponentsMask;
-
                 if (isAdded)
                 {
+                    var entity = component.Owner;
 
-                    if (summaryInclude.Contain(ref cMask) || summaryExclude.Contain(ref cMask))
+                    if (ContainsMask(entity))
                     {
-                        if (ContainsMask(component.Owner))
-                        {
-                            entitiesAtFilter.Add(component.Owner.GUID);
-                            Entities.Add(component.Owner);
-                        }
+                        Entities.AddOrRemoveElement(entity, true);
+                        entitiesAtFilter.Add(entity.GUID);
                     }
                 }
                 else
                 {
-                    if ((summaryInclude.Contain(ref cMask) || summaryExclude.Contain(ref cMask)) && entitiesAtFilter.Contains(component.Owner.GUID))
+                    foreach (var e in Entities)
                     {
-                        entitiesAtFilter.Remove(component.Owner.GUID);
-                        Entities.Remove(component.Owner);
+                        if (e == null || ContainsMask(e))
+                            continue;
+
+                        removeQueue.Enqueue(e);
+                    }
+
+                    while (removeQueue.Count > 0)
+                    {
+                        Entities.Remove(removeQueue.Dequeue());
                     }
                 }
             }
