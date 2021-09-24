@@ -17,7 +17,21 @@ namespace HECSFramework.Core
         };
 
         public IReadOnlyDictionary<int, HashSet<T>> Modifiers => modifiers;
-        
+
+        public bool Contains(Func<T, bool> predicate)
+        {
+            foreach (var modifier in modifiers)
+            {
+                foreach (var value in modifier.Value)
+                {
+                    if (predicate(value))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         public void AddUniqueModifier(T modifier)
         {
             if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == modifier.ModifiersOwner))
