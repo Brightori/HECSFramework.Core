@@ -201,4 +201,3 @@ namespace HECSFramework.Core
         }
     }
 }
-#pragma warning enable

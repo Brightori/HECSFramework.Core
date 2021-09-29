@@ -43,13 +43,6 @@ namespace HECSFramework.Core.Helpers
             }
         }
 
-        public static void AddUniqueElement<T>(this List<T> list, T element)
-        {
-            if (list.Contains(element)) return;
-
-            list.Add(element);
-        }
-
         public static bool AddOrRemoveElement<T>(this List<T> list, T element, bool add)
         {
             if (add)
