@@ -10,8 +10,15 @@ namespace HECSFramework.Core.Helpers
                 dictionary[key] = value;
             else
                 dictionary.Add(key, value);
-        }      
-        
+        }
+
+        public static void AddUniqueElement<T>(this List<T> list, T element)
+        {
+            if (list.Contains(element)) return;
+
+            list.Add(element);
+        }
+
         public static void AddOrGet<T,U>(this Dictionary<T,U> dictionary, T key, out U value) where U: new()
         {
             if (dictionary.ContainsKey(key))

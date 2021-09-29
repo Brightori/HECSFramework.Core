@@ -1,6 +1,4 @@
-﻿#pragma warning disable //unity make warning about field ordering
-using HECSFramework.Unity.Helpers;
-using System;
+﻿using HECSFramework.Core.Helpers;
 using System.Collections.Generic;
 
 namespace HECSFramework.Core
