@@ -13,7 +13,7 @@ namespace HECSFramework.Core
 
 
         Guid GUID { get; }
-        ref HECSMask ComponentsMask { get; }
+        HECSMultiMask ComponentsMask { get; }
 
         IComponent[] GetAllComponents { get; }
         List<ISystem> GetAllSystems { get; }
@@ -61,6 +61,8 @@ namespace HECSFramework.Core
         void SetGuid(Guid guid);
 
         bool ContainsMask(ref HECSMask mask);
+        bool ContainsMask(HECSMultiMask mask);
+
         bool ContainsMask<T>() where T: IComponent;
 
         void HecsDestroy();

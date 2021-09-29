@@ -1,7 +1,6 @@
 ﻿using HECSFramework.Core.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace HECSFramework.Core
 {
@@ -22,60 +21,20 @@ namespace HECSFramework.Core
                 f.Value.Dispose();
         }
 
-        public ConcurrencyList<IEntity> GetFilter(HECSMask include)
-        {
-            return GetFilter(include, HECSMask.Empty);
-        }
-
-        public ConcurrencyList<IEntity> GetFilter(HECSMultiMask include)
-        {
-            return GetFilter(include, HECSMask.Empty);
-        }
-
-        public ConcurrencyList<IEntity> GetFilter(HECSMultiMask include, HECSMask exclude)
+        public ConcurrencyList<IEntity> GetFilter(FilterMask include)
         {
             int sumMask = include.GetHashCode();
-            sumMask += exclude.GetHashCode();
 
             if (filters.TryGetValue(sumMask, out var filter))
                 return filter.Entities;
 
-            var nf = new Filter(world, include, exclude);
+            var nf = new Filter(world, include, new FilterMask());
 
             filters.Add(sumMask, nf);
             return nf.Entities;
         }
 
-        public ConcurrencyList<IEntity> GetFilter(HECSMultiMask include, HECSMultiMask exclude)
-        {
-            int sumMask = include.GetHashCode();
-            sumMask += exclude.GetHashCode();
-
-            if (filters.TryGetValue(sumMask, out var filter))
-                return filter.Entities;
-
-            var nf = new Filter(world, include, exclude);
-
-            filters.Add(sumMask, nf);
-            return nf.Entities;
-        }
-
-        public ConcurrencyList<IEntity> GetFilter(HECSMask include, HECSMultiMask exclude)
-        {
-            int sumMask = include.GetHashCode();
-            sumMask += exclude.GetHashCode();
-
-            if (filters.TryGetValue(sumMask, out var filter))
-                return filter.Entities;
-
-            var nf = new Filter(world, include, exclude);
-
-            filters.Add(sumMask, nf);
-            return nf.Entities;
-        }
-
-
-        public ConcurrencyList<IEntity> GetFilter(HECSMask include, HECSMask exclude)
+        public ConcurrencyList<IEntity> GetFilter(FilterMask include, FilterMask exclude)
         {
             int sumMask = include.GetHashCode();
             sumMask += exclude.GetHashCode();
@@ -94,11 +53,9 @@ namespace HECSFramework.Core
             private readonly World world;
 
             private HashSet<Guid> entitiesAtFilter = new HashSet<Guid>();
-            private HashSet<HECSMask> include = new HashSet<HECSMask>();
-            private HashSet<HECSMask> exclude = new HashSet<HECSMask>();
 
-            private HECSMask summaryInclude;
-            private HECSMask summaryExclude;
+            private HECSMultiMask summaryInclude;
+            private HECSMultiMask summaryExclude;
 
             public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
 
@@ -106,87 +63,16 @@ namespace HECSFramework.Core
 
             private Queue<IEntity> removeQueue = new Queue<IEntity>();
 
-            public Filter(World world, HECSMask includeComponents, HECSMask excludeComponents)
+            public Filter(World world, FilterMask include, FilterMask exclude)
             {
                 this.world = world;
 
-                include.Add(includeComponents);
-                exclude.Add(excludeComponents);
+                summaryInclude = new HECSMultiMask(include);
+                summaryExclude = new HECSMultiMask(exclude);
 
                 world.AddGlobalReactComponent(this);
                 world.AddEntityListener(this, true);
-
-                summaryInclude = includeComponents;
-                summaryExclude = excludeComponents;
                 GatherEntities(world);
-            }
-
-            public Filter(World world, HECSMultiMask includeComponents, HECSMask excludeComponents)
-            {
-                this.world = world;
-
-                AddMask(ref include, includeComponents);
-                exclude.Add(excludeComponents);
-
-                summaryExclude = GetMaskFromMultiMask(includeComponents);
-                summaryInclude = excludeComponents;
-
-                world.AddGlobalReactComponent(this);
-                world.AddEntityListener(this, true);
-
-                GatherEntities(world);
-            }
-
-            private HECSMask GetMaskFromMultiMask(HECSMultiMask multiMask)
-            {
-                return multiMask.A + multiMask.B + multiMask.C + multiMask.D;
-            }
-
-            public Filter(World world, HECSMask includeComponents, HECSMultiMask excludeComponents)
-            {
-                this.world = world;
-
-                include.Add(includeComponents);
-                AddMask(ref exclude, excludeComponents);
-
-                summaryInclude = includeComponents;
-                summaryExclude = GetMaskFromMultiMask(excludeComponents);
-
-                world.AddGlobalReactComponent(this);
-                world.AddEntityListener(this, true);
-
-                GatherEntities(world);
-            }
-
-            public Filter(World world, HECSMultiMask includeComponents, HECSMultiMask excludeComponents)
-            {
-                this.world = world;
-
-                AddMask(ref include, includeComponents);
-                AddMask(ref exclude, excludeComponents);
-
-                summaryInclude = GetMaskFromMultiMask(includeComponents);
-                summaryExclude = GetMaskFromMultiMask(excludeComponents);
-
-                world.AddGlobalReactComponent(this);
-                world.AddEntityListener(this, true);
-
-                GatherEntities(world);
-            }
-
-            private void AddMask(ref HashSet<HECSMask> masks, HECSMultiMask processmask)
-            {
-                if (processmask.A.Index != HECSMask.Empty.Index)
-                    masks.Add(processmask.A);
-
-                if (processmask.B.Index != HECSMask.Empty.Index)
-                    masks.Add(processmask.B);
-
-                if (processmask.C.Index != HECSMask.Empty.Index)
-                    masks.Add(processmask.C);
-
-                if (processmask.D.Index != HECSMask.Empty.Index)
-                    masks.Add(processmask.D);
             }
 
             private void GatherEntities(World world)
@@ -211,22 +97,7 @@ namespace HECSFramework.Core
 
             private bool ContainsMask(IEntity target)
             {
-                foreach (var incl in include)
-                {
-                    var mask = incl;
-
-                    if (!target.ContainsMask(ref mask))
-                        return false;
-                }
-
-                foreach (var excl in exclude)
-                {
-                    var mask = excl;
-                    if (target.ContainsMask(ref mask))
-                        return false;
-                }
-
-                return true;
+                return target.ContainsMask(summaryInclude) && !target.ContainsMask(summaryExclude);
             }
 
             public void ComponentReact(IComponent component, bool isAdded)

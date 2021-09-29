@@ -1,25 +1,206 @@
 ﻿#pragma warning disable //unity make warning about field ordering
+using HECSFramework.Unity.Helpers;
 using System;
+using System.Collections.Generic;
 
-namespace HECSFramework.Core 
+namespace HECSFramework.Core
 {
-    public partial struct HECSMask
+    public struct HECSMask
     {
-        public static HECSMask Empty => TypesMap.MaskProvider.Empty();
-        
-        public static HECSMask operator +(HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetPlus(l, r);
-        public static HECSMask operator -(HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetMinus(l, r);
-        public bool Contain(ref HECSMask mask) => TypesMap.MaskProvider.Contains(ref this, ref mask);
-
-        public override bool Equals(object obj) => TypesMap.MaskProvider.GetMaskIsEqual(ref this, obj);
-
-        public override int GetHashCode() => TypesMap.MaskProvider.GetMaskHashCode(ref this);
-
-        public static bool operator == (HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetMaskIsEqual(ref l, r);
-        public static bool operator != (HECSMask l, HECSMask r) => TypesMap.MaskProvider.GetMaskIsEqual(ref l, r);
-
         public int Index;
-        public ulong Mask01;
+        public int TypeHashCode;
+
+        public static HECSMask Empty = new HECSMask { Index = 99999, TypeHashCode = -999999 };
+
+        public override bool Equals(object obj)
+        {
+            return obj is HECSMask mask &&
+                   Index == mask.Index &&
+                   TypeHashCode == mask.TypeHashCode;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -523170829;
+            hashCode = hashCode * -1521134295 + Index;
+            hashCode = hashCode * -1521134295 + TypeHashCode;
+            return hashCode;
+        }
+    }
+
+    public struct FilterMask
+    {
+        public HECSMask Mask01;
+        public HECSMask Mask02;
+        public HECSMask Mask03;
+        public HECSMask Mask04;
+        public HECSMask Mask05;
+        public HECSMask Mask06;
+
+        public FilterMask(HECSMask mask01) : this()
+        {
+            Mask01 = mask01;
+        }
+        
+        public FilterMask(HECSMask mask01, HECSMask mask02) : this()
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+        }
+
+        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03) : this()
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+            Mask03 = mask03;
+        } 
+        
+        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04) : this()
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+            Mask03 = mask03;
+            Mask04 = mask04;
+        }
+
+        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04, HECSMask mask05, HECSMask mask06)
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+            Mask03 = mask03;
+            Mask04 = mask04;
+            Mask05 = mask05;
+            Mask06 = mask06;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FilterMask mask &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask01, mask.Mask01) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask02, mask.Mask02) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask03, mask.Mask03) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask04, mask.Mask04) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask05, mask.Mask05) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask06, mask.Mask06);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -830334321;
+            hashCode = hashCode * -1521134295 + Mask01.GetHashCode();
+            hashCode = hashCode * -1521134295 + Mask02.GetHashCode();
+            hashCode = hashCode * -1521134295 + Mask03.GetHashCode();
+            hashCode = hashCode * -1521134295 + Mask04.GetHashCode();
+            hashCode = hashCode * -1521134295 + Mask05.GetHashCode();
+            hashCode = hashCode * -1521134295 + Mask06.GetHashCode();
+            return hashCode;
+        }
+    }
+
+    public class HECSMultiMask
+    {
+        public List<int> CurrentIndexes = new List<int>(8);
+        private readonly byte[] Components = new byte[TypesMap.SizeOfComponents];
+
+        public HECSMultiMask() { }
+
+        public HECSMultiMask(HECSMask mask, params HECSMask[] masks)
+        {
+            CurrentIndexes.Add(mask.Index);
+            Components[mask.Index] = 1;
+
+            for (int i = 0; i < masks.Length; i++)
+            {
+                Components[masks[i].Index] = 1;
+                CurrentIndexes.AddUniqueElement(masks[i].Index);
+            }
+        }
+
+        public HECSMultiMask(FilterMask mask)
+        {
+            if (mask.Mask01.TypeHashCode != 0)
+                AddMask(mask.Mask01.Index);
+
+            if (mask.Mask02.TypeHashCode != 0)
+                AddMask(mask.Mask02.Index);
+
+            if (mask.Mask03.TypeHashCode != 0)
+                AddMask(mask.Mask03.Index);
+            
+            if (mask.Mask04.TypeHashCode != 0)
+                AddMask(mask.Mask04.Index);
+            
+            if (mask.Mask05.TypeHashCode != 0)
+                AddMask(mask.Mask05.Index);
+
+            if (mask.Mask06.TypeHashCode != 0)
+                AddMask(mask.Mask06.Index);
+        }
+
+        public void AddMask(int index)
+        {
+            CurrentIndexes.Add(index);
+            Components[index] = 1;
+        }
+
+        public void RemoveMask(int index)
+        {
+            CurrentIndexes.Remove(index);
+            Components[index] = 0;
+        }
+
+        public bool Contains(HECSMultiMask multiMask)
+        {
+            var indexes = multiMask.CurrentIndexes;
+            var count = indexes.Count;
+
+            if (count == 0)
+                return false;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (Components[indexes[i]] == 0)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool Contains(HECSMask mask)
+        {
+            return Components[mask.Index] == 1;
+        }
+
+        public bool Contains(HECSMask mask1, HECSMask mask2)
+        {
+            return Contains(mask1) && Contains(mask2);
+        }
+
+        public bool Contains(HECSMask mask1, HECSMask mask2, HECSMask mask3)
+        {
+            return Contains(mask1) && Contains(mask2) && Contains(mask3);
+        }
+
+        public bool Contains(HECSMask mask1, HECSMask mask2, HECSMask mask3, HECSMask mask4)
+        {
+            return Contains(mask1, mask2) && Contains(mask3, mask4);
+        }
+
+        public bool Contains(HECSMask mask, params HECSMask[] moreMasks)
+        {
+            return Contains(mask) && Contains(moreMasks);
+        }
+
+        private bool Contains(HECSMask[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (Components[array[i].Index] == 0)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
 #pragma warning enable

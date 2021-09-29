@@ -26,19 +26,13 @@ namespace HECSFramework.Core
 
         private IComponent[] components = new IComponent[TypesMap.SizeOfComponents];
         public IComponent[] GetAllComponents => components;
-
-
         private IRegisterService RegisterService = new RegisterService();
-        private HECSMask componentsMask;
-
         public ICommandService EntityCommandService { get; } = new EntityCommandService();
 
         public bool IsInited { get; protected set; }
         public bool IsAlive { get; private set; } = true;
         public bool IsPaused { get; private set; }
         public bool IsLoaded { get; set; }
-
-        public ref HECSMask ComponentsMask => ref componentsMask;
 
         /// <summary>
         /// this is slow method, purpose - using at Editor or for debugging
@@ -56,6 +50,8 @@ namespace HECSFramework.Core
                 return "Container Empty";
             }
         }
+
+        public HECSMultiMask ComponentsMask { get; } = new HECSMultiMask();
 
         public Entity() { }
 
@@ -110,7 +106,7 @@ namespace HECSFramework.Core
                     afterEntityInit.AfterEntityInit();
             }
 
-            ComponentsMask += component.ComponentsMask;
+            ComponentsMask.AddMask(component.ComponentsMask.Index);
 
             if (!silently && IsInited)
                 EntityManager.AddOrRemoveComponent(component, true);
@@ -153,10 +149,10 @@ namespace HECSFramework.Core
 
             SetWorld();
             InitComponentsAndSystems();
-            
+
             if (needRegister)
                 EntityManager.RegisterEntity(this, true);
-            
+
             AfterInit();
         }
 
@@ -186,7 +182,7 @@ namespace HECSFramework.Core
             {
                 sys.InitSystem();
 
-                if(needRegister)
+                if (needRegister)
                     RegisterService.RegisterSystem(sys);
             }
 
@@ -211,15 +207,7 @@ namespace HECSFramework.Core
 
             components[component.ComponentsMask.Index] = null;
             ComponentContext.RemoveComponent(component);
-            ComponentsMask -= component.ComponentsMask;
-
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i] == null)
-                    continue;
-
-                componentsMask += components[i].ComponentsMask;
-            }
+            ComponentsMask.RemoveMask(component.ComponentsMask.Index);
 
             component.IsAlive = false;
             World?.AddOrRemoveComponentEvent(component, false);
@@ -389,7 +377,12 @@ namespace HECSFramework.Core
 
         public bool ContainsMask(ref HECSMask mask)
         {
-            return componentsMask.Contain(ref mask);
+            return ComponentsMask.Contains(mask);
+        }
+
+        public bool ContainsMask(HECSMultiMask mask)
+        {
+            return ComponentsMask.Contains(mask);
         }
 
         public void HecsDestroy()
@@ -417,7 +410,6 @@ namespace HECSFramework.Core
 
             AddHecsComponent(component, owner, silently);
         }
-
         partial void ComponentAdditionalProcessing(IComponent component, IEntity owner);
         partial void SystemAdditionalProcessing(ISystem system, IEntity owner);
 
@@ -427,7 +419,7 @@ namespace HECSFramework.Core
             return components[index] != null;
         }
 
-        public void RemoveHecsComponent<T>() where T: IComponent
+        public void RemoveHecsComponent<T>() where T : IComponent
         {
             var index = TypesMap.GetIndexByType<T>();
             if (components[index] != null)
@@ -437,7 +429,7 @@ namespace HECSFramework.Core
         public bool TryGetHecsComponent<T>(out T component) where T : IComponent
         {
             var index = TypesMap.GetIndexByType<T>();
-            
+
             if (components[index] != null)
             {
                 component = (T)components[index];
@@ -445,10 +437,10 @@ namespace HECSFramework.Core
             }
 
             component = default;
-            return false;   
+            return false;
         }
 
-        public IEnumerable<T> GetComponentsByType<T>() 
+        public IEnumerable<T> GetComponentsByType<T>()
         {
             for (int i = 0; i < components.Length; i++)
             {
