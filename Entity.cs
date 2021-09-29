@@ -267,6 +267,9 @@ namespace HECSFramework.Core
 
         public virtual void Dispose()
         {
+            if (!EntityManager.IsAlive)
+                return;
+
             EntityManager.RegisterEntity(this, false);
             IsAlive = false;
             IsPaused = true;

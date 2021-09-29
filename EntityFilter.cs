@@ -100,31 +100,39 @@ namespace HECSFramework.Core
                 return target.ContainsMask(summaryInclude) && !target.ContainsMask(summaryExclude);
             }
 
+
             public void ComponentReact(IComponent component, bool isAdded)
             {
-                if (isAdded)
+                if (summaryInclude.Contains(component.ComponentsMask) || summaryExclude.Contains(component.ComponentsMask))
                 {
-                    var entity = component.Owner;
-
-                    if (ContainsMask(entity))
+                    if (isAdded)
                     {
-                        Entities.AddOrRemoveElement(entity, true);
-                        entitiesAtFilter.Add(entity.GUID);
+                        var entity = component.Owner;
+
+                        if (ContainsMask(entity))
+                        {
+                            Entities.AddOrRemoveElement(entity, true);
+                            entitiesAtFilter.Add(entity.GUID);
+                        }
                     }
-                }
-                else
-                {
-                    foreach (var e in Entities)
+                    else
                     {
-                        if (e == null || ContainsMask(e))
-                            continue;
+                        if (entitiesAtFilter.Contains(component.Owner.GUID))
+                        {
+                            if (ContainsMask(component.Owner))
+                                return;
 
-                        removeQueue.Enqueue(e);
-                    }
-
-                    while (removeQueue.Count > 0)
-                    {
-                        Entities.Remove(removeQueue.Dequeue());
+                            entitiesAtFilter.Remove(component.Owner.GUID);
+                            Entities.Remove(component.Owner);
+                        }
+                        else
+                        {
+                            if (ContainsMask(component.Owner))
+                            {
+                                entitiesAtFilter.Add(component.Owner.GUID);
+                                Entities.Add(component.Owner);
+                            }
+                        }
                     }
                 }
             }
