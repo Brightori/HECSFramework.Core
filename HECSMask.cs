@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public struct HECSMask
+    public partial struct HECSMask
     {
         public int Index;
         public int TypeHashCode;

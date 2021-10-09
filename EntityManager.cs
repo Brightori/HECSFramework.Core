@@ -87,9 +87,8 @@ namespace HECSFramework.Core
         public static ConcurrencyList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include);
         public static ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(include, exclude);
         public static ConcurrencyList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(new FilterMask(mask));
-        public static ConcurrencyList<IEntity> Filter(HECSMask mask, HECSMask mask2, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(new FilterMask(mask, mask2));
-        public static ConcurrencyList<IEntity> Filter(HECSMask mask, HECSMask mask2, HECSMask mask3, int worldIndex = 0) => Instance.worlds[worldIndex].Filter(new FilterMask(mask, mask2, mask3));
 
+        
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты
         /// </summary>

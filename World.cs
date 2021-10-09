@@ -43,10 +43,7 @@ namespace HECSFramework.Core
 
         public ConcurrencyList<IEntity> Filter(FilterMask include) => entityFilter.GetFilter(include);
         public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude) => entityFilter.GetFilter(include, exclude);
-
         public  ConcurrencyList<IEntity> Filter(HECSMask mask) => entityFilter.GetFilter(new FilterMask(mask));
-        public  ConcurrencyList<IEntity> Filter(HECSMask mask, HECSMask mask2) => entityFilter.GetFilter(new FilterMask(mask, mask2));
-        public  ConcurrencyList<IEntity> Filter(HECSMask mask, HECSMask mask2, HECSMask mask3) => entityFilter.GetFilter(new FilterMask(mask, mask2, mask3));
 
         public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
         {

@@ -20,7 +20,7 @@
         public void UnRegisterSystem(ISystem system)
         {
             if (system is IRegisterUpdatable asyncupdate)
-                system.Owner.World.RegisterUpdatable(asyncupdate, true);
+                system.Owner.World.RegisterUpdatable(asyncupdate, false);
 
             if (system is IReactEntity enitiesChanges)
                 system.Owner.World.AddEntityListener(enitiesChanges, false);

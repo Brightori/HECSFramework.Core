@@ -289,6 +289,9 @@ namespace HECSFramework.Core
 
             systems.Clear();
             Array.Clear(components, 0, components.Length);
+         
+            ComponentContext.Dispose();
+            EntityCommandService.Dispose();
         }
 
         public bool TryGetSystem<T>(out T system) where T : ISystem
@@ -380,7 +383,7 @@ namespace HECSFramework.Core
 
         public bool ContainsMask(ref HECSMask mask)
         {
-            return ComponentsMask.Contains(mask);
+            return GetAllComponents[mask.Index] != null;
         }
 
         public bool ContainsMask(HECSMultiMask mask)
