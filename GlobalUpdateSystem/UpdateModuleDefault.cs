@@ -6,7 +6,7 @@ namespace HECSFramework.Core
     public class UpdateModuleDefault : IUpdatable, IRegisterUpdate<IUpdatable>
     {
         private readonly List<IUpdatable> updatables = new List<IUpdatable>(64);
-        private readonly List<(IEntity, IUpdatable)> updateOnEntities = new List<(IEntity, IUpdatable)>(32);
+        private readonly ConcurrencyList<(IEntity, IUpdatable)> updateOnEntities = new ConcurrencyList<(IEntity, IUpdatable)>();
 
         public void Register(IUpdatable updatable, bool add)
         {
@@ -29,14 +29,14 @@ namespace HECSFramework.Core
 
         public void UpdateLocal()
         {
-            UpdateWithOwners();
-
             var count = updatables.Count;
             for (int i = 0; i < count; i++)
             {
                 IUpdatable updatable = updatables[i];
                 updatable.UpdateLocal();
             }
+
+            UpdateWithOwners();
         }
     }
 }
