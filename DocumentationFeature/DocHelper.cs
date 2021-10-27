@@ -16,5 +16,8 @@ namespace HECSFramework.Documentation
         public const string Battle = "Battle";
         public const string Strategy = "Strategy";
         public const string Rewards = "Rewards";
+        public const string Input = "Input";
+        public const string Sound = "Sound";
+        public const string Ability = "Ability";
     }
 }
