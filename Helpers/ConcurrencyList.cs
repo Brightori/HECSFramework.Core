@@ -52,6 +52,12 @@ namespace HECSFramework.Core
             UnLock();
         }
 
+        /// <summary>
+        /// это прямой доступ к коллекции, когда нам надо быстро без локов и проверок
+        /// </summary>
+        /// <returns></returns>
+        public T[] DirectAccess() => data;
+
         private int capacity
         {
             get
