@@ -18,12 +18,14 @@ namespace HECSFramework.Core
         public List<ISystem> GetAllSystems { get; } = new List<ISystem>();
         public ComponentContext ComponentContext { get; } = new ComponentContext();
         public string ID => ContainerID;
-        
+
+        private HECSMask ActorContainerMask = HMasks.GetMask<ActorContainerID>();
+
         public string ContainerID 
         {
             get
             {
-                if (TryGetHecsComponent(HMasks.ActorContainerID, out ActorContainerID actorContainerID))
+                if (TryGetHecsComponent(ActorContainerMask, out ActorContainerID actorContainerID))
                     return actorContainerID.ID;
                 else
                     return DefaultContainerName;
@@ -121,8 +123,8 @@ namespace HECSFramework.Core
                     RemoveHecsComponent(c);
             }
 
+            ComponentContext.DisposeContext();
             Array.Clear(GetAllComponents, 0, GetAllComponents.Length);
-            ComponentContext.Dispose();
         }
 
         public bool Equals(IEntity other)
