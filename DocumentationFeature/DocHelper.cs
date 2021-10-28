@@ -1,6 +1,6 @@
 namespace HECSFramework.Documentation
 {
-    //если нужны проектозависимые/свои хелперы для документации, то делаем в проект свой парт класс
+    //РµСЃР»Рё РЅСѓР¶РЅС‹ РїСЂРѕРµРєС‚РѕР·Р°РІРёСЃРёРјС‹Рµ/СЃРІРѕРё С…РµР»РїРµСЂС‹ РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё, С‚Рѕ РґРµР»Р°РµРј РІ РїСЂРѕРµРєС‚ СЃРІРѕР№ РїР°СЂС‚ РєР»Р°СЃСЃ
     public static partial class Doc
     {
         public const string Character = "Character";
@@ -19,5 +19,6 @@ namespace HECSFramework.Documentation
         public const string Input = "Input";
         public const string Sound = "Sound";
         public const string Ability = "Ability";
+        public const string UI = "UI";
     }
 }
