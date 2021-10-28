@@ -20,5 +20,6 @@ namespace HECSFramework.Documentation
         public const string Sound = "Sound";
         public const string Ability = "Ability";
         public const string UI = "UI";
+        public const string AI = "AI";
     }
 }

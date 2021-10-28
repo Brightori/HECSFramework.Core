@@ -10,7 +10,7 @@ namespace HECSFramework.Rewards
         
     }
 
-    public interface IReward
+    public partial interface IReward
     {
         /// <summary>
         /// здесь мы передаём того - кого надо наградить
