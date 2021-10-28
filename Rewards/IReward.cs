@@ -1,13 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HECSFramework.Core;
 
-namespace HECSFramework.Core
+namespace HECSFramework.Rewards
 {
+    /// <summary>
+    /// этот интерфейс нужен для локальной системы награды, в случае если что то происходит локально
+    /// </summary>
     public interface IRewardSystem : IReactCommand<ExecuteReward>
     {
         
+    }
+
+    public interface IReward
+    {
+        /// <summary>
+        /// здесь мы передаём того - кого надо наградить
+        /// </summary>
+        /// <param name="entity"> эта ентити цель награды (если нам нужна цель) </param>
+        public void Award(IEntity entity);
+    }
+
+    public abstract class RewardBase : IReward
+    {
+        public abstract void Award(IEntity entity);
     }
 }
