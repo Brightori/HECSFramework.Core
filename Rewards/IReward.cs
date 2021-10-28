@@ -19,7 +19,7 @@ namespace HECSFramework.Rewards
         public void Award(IEntity entity);
     }
 
-    public abstract class RewardBase : IReward
+    public abstract partial class RewardBase : IReward
     {
         public abstract void Award(IEntity entity);
     }
