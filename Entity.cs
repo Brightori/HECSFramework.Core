@@ -290,7 +290,7 @@ namespace HECSFramework.Core
             systems.Clear();
             Array.Clear(components, 0, components.Length);
          
-            ComponentContext.DisposeContext();
+            ComponentContext.DisposeContext?.Invoke();
             EntityCommandService.Dispose();
         }
 
