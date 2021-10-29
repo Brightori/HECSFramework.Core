@@ -8,6 +8,5 @@ namespace Commands
         public IEntity Target;
         public IEntity Owner;
         public bool Enabled;
-        public bool PredicatesUseCommandOwner;
     }
 }
