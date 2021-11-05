@@ -1,10 +1,11 @@
-﻿using Components;
+﻿using Commands;
 using HECSFramework.Core;
+using HECSFramework.Documentation;
 using System.Collections.Generic;
 
 namespace Systems
 {
-    [Documentation(Doc.Gamelogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
+    [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
     public class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
     {
         private Queue<IEntity> entitiesForDelete = new Queue<IEntity>(8); 
@@ -18,7 +19,10 @@ namespace Systems
         {
             while (entitiesForDelete.Count > 0)
             {
-                entitiesForDelete.Dequeue().HecsDestroy();
+                var entity = entitiesForDelete.Dequeue();
+
+                if (entity != null && entity.IsAlive)
+                    entity.HecsDestroy();
             }
         }
 
@@ -33,7 +37,10 @@ namespace Systems
             entitiesForDelete.Enqueue(command.Entity);
         }
     }
+}
 
+namespace Commands
+{
     public struct DestroyEntityWorldCommand : IGlobalCommand
     {
         public IEntity Entity;
