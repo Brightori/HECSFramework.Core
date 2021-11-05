@@ -1,12 +1,12 @@
-﻿using HECSFramework.Core.Helpers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using HECSFramework.Core.Helpers;
 
 namespace HECSFramework.Core
 {
     public class UpdateModuleDefault : IUpdatable, IRegisterUpdate<IUpdatable>
     {
         private readonly List<IUpdatable> updatables = new List<IUpdatable>(64);
-        private readonly ConcurrencyList<(IEntity, IUpdatable)> updateOnEntities = new ConcurrencyList<(IEntity, IUpdatable)>();
+        private readonly List<(IEntity, IUpdatable)> updateOnEntities = new List<(IEntity, IUpdatable)>(32);
 
         public void Register(IUpdatable updatable, bool add)
         {
@@ -22,21 +22,21 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < count; i++)
             {
-                if (!updateOnEntities[i].Item1.IsAlive || updateOnEntities[i].Item1.IsPaused) continue;
+                if (i >= updateOnEntities.Count || !updateOnEntities[i].Item1.IsAlive || updateOnEntities[i].Item1.IsPaused) continue;
                 updateOnEntities[i].Item2.UpdateLocal();
             }
         }
 
         public void UpdateLocal()
         {
+            UpdateWithOwners();
+
             var count = updatables.Count;
             for (int i = 0; i < count; i++)
             {
                 IUpdatable updatable = updatables[i];
                 updatable.UpdateLocal();
             }
-
-            UpdateWithOwners();
         }
     }
 }

@@ -11,6 +11,8 @@ namespace HECSFramework.Core
         private UpdateModuleAsync updateModuleAsync;
         private DispatchModule dispatchModule;
 
+        public Action FinishUpdate { get; set; }
+
         public GlobalUpdateSystem()
         {
             fixedModule = new UpdateModuleFixed();

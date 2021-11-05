@@ -27,9 +27,9 @@ namespace HECSFramework.Core
         }
 
         [Conditional("DEBUG")]
-        public static void LogDebug(object info)
+        public static void LogDebug(object info, object context = null)
         {
-            Dispatcher.LogDebug(info.ToString());
+            Dispatcher.LogDebug(info.ToString(), context);
         }
         
         public static void Log(object info)
@@ -51,7 +51,7 @@ namespace HECSFramework.Core
 
 public interface IDebugDispatcher
 {
-    void LogDebug(string info);
+    void LogDebug(string info, object context);
     void Log(string info);
     void LogWarning(string info);
     void LogError(string info);

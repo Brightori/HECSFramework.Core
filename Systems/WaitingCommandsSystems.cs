@@ -33,7 +33,6 @@ namespace Systems
                 }
             }
         }
-
         public void AddWaitingCommand<T>(T command, HECSMask mask) where T: IGlobalCommand
         {
             if (waitingCommands.TryGetValue(mask, out var globalCommands))

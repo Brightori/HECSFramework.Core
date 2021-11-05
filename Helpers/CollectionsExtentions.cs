@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace HECSFramework.Core.Helpers
@@ -75,6 +76,17 @@ namespace HECSFramework.Core.Helpers
             else
             {
                 return list.Remove(element); 
+            }
+        }
+        
+        public static void RemoveElement<T>(this ConcurrencyList<T> list, Func<T, bool> predicate)
+        {
+            for (var i = 0; i < list.Count; i++)
+            {
+                var element = list[i];
+                if (element == null) continue;
+                
+                if (predicate(element)) list.RemoveAt(i--);
             }
         }
 
