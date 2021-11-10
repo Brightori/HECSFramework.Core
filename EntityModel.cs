@@ -64,8 +64,7 @@ namespace HECSFramework.Core
             if (component is IInitable initable)
                 initable.Init();
 
-            if (component is IAfterEntityInit afterEntityInit)
-                afterEntityInit.AfterEntityInit();
+         
 
             ComponentsMask.AddMask(component.ComponentsMask.Index);
         }
@@ -153,13 +152,21 @@ namespace HECSFramework.Core
 
         public void Init(bool needRegister = true)
         {
-            Init();
+            Init(WorldId, needRegister);
         }
 
         public void Init(int worldIndex, bool needRegister = true)
         {
             WorldId = worldIndex;
             World = EntityManager.Worlds[worldIndex];
+
+            foreach (var index in ComponentsMask.CurrentIndexes)
+            {
+                var component = GetAllComponents[index];
+
+                if (component is IAfterEntityInit afterEntityInit)
+                    afterEntityInit.AfterEntityInit();
+            }
         }
 
         public void InjectEntity(IEntity entity, IEntity owner = null, bool additive = false)

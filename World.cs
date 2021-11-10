@@ -37,6 +37,7 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(waitingCommandsSystems);
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
+            worldService.AddHecsSystem(new PoolingSystem());
             worldService.Init();
         }
 
