@@ -289,8 +289,7 @@ namespace HECSFramework.Core
 
             systems.Clear();
             Array.Clear(components, 0, components.Length);
-         
-            ComponentContext.DisposeContext?.Invoke();
+
             EntityCommandService.Dispose();
         }
 
@@ -387,6 +386,16 @@ namespace HECSFramework.Core
             return GetAllComponents[mask.Index] != null;
         }
 
+        public bool ContainsAnyFromMask(FilterMask mask)
+        {
+            return ComponentsMask.ContainsAny(mask);
+        }
+
+        public bool ContainsAnyFromMask(HECSMultiMask mask)
+        {
+            return ComponentsMask.ContainsAny(mask);
+        }
+
         public bool ContainsMask(HECSMultiMask mask)
         {
             return ComponentsMask.Contains(mask);
@@ -454,6 +463,11 @@ namespace HECSFramework.Core
                 if (components[i] != null && components[i] is T needed)
                     yield return needed;
             }
+        }
+
+        public bool ContainsMask(FilterMask mask)
+        {
+            return ComponentsMask.Contains(mask);
         }
     }
 
