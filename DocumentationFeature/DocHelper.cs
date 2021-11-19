@@ -21,5 +21,6 @@ namespace HECSFramework.Documentation
         public const string Ability = "Ability";
         public const string UI = "UI";
         public const string AI = "AI";
+        public const string NONE = "NONE";
     }
 }
