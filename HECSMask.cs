@@ -35,15 +35,40 @@ namespace HECSFramework.Core
         public HECSMask Mask05;
         public HECSMask Mask06;
 
+        public int Lenght;
+
+        public HECSMask this[int index]
+        {
+            get
+            {
+                if (index == 0 && Mask01.TypeHashCode != 0)
+                    return Mask01;
+                if (index == 1 && Mask02.TypeHashCode != 0)
+                        return Mask02;
+                if (index == 2 && Mask03.TypeHashCode != 0)
+                    return Mask03;
+                if (index == 3 && Mask04.TypeHashCode != 0)
+                    return Mask04;
+                if (index == 4 && Mask05.TypeHashCode != 0)
+                    return Mask05;
+                if (index == 5 && Mask06.TypeHashCode != 0)
+                    return Mask06;
+
+                return HECSMask.Empty;
+            }
+        }
+
         public FilterMask(HECSMask mask01) : this()
         {
             Mask01 = mask01;
+            Lenght = 1;
         }
         
         public FilterMask(HECSMask mask01, HECSMask mask02) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
+            Lenght = 2;
         }
 
         public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03) : this()
@@ -51,6 +76,7 @@ namespace HECSFramework.Core
             Mask01 = mask01;
             Mask02 = mask02;
             Mask03 = mask03;
+            Lenght = 3;
         } 
         
         public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04) : this()
@@ -59,8 +85,18 @@ namespace HECSFramework.Core
             Mask02 = mask02;
             Mask03 = mask03;
             Mask04 = mask04;
+            Lenght = 4;
         }
 
+        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04, HECSMask mask05) : this()
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+            Mask03 = mask03;
+            Mask04 = mask04;
+            Mask05 = mask05;
+            Lenght = 5;
+        }
         public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04, HECSMask mask05, HECSMask mask06)
         {
             Mask01 = mask01;
@@ -69,12 +105,22 @@ namespace HECSFramework.Core
             Mask04 = mask04;
             Mask05 = mask05;
             Mask06 = mask06;
+            Lenght = 6;
         }
 
         public override bool Equals(object obj)
         {
             return obj is FilterMask mask &&
                    EqualityComparer<HECSMask>.Default.Equals(Mask01, mask.Mask01) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask02, mask.Mask02) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask03, mask.Mask03) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask04, mask.Mask04) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask05, mask.Mask05) &&
+                   EqualityComparer<HECSMask>.Default.Equals(Mask06, mask.Mask06);
+        }
+        public bool Equals(FilterMask mask)
+        {
+            return EqualityComparer<HECSMask>.Default.Equals(Mask01, mask.Mask01) &&
                    EqualityComparer<HECSMask>.Default.Equals(Mask02, mask.Mask02) &&
                    EqualityComparer<HECSMask>.Default.Equals(Mask03, mask.Mask03) &&
                    EqualityComparer<HECSMask>.Default.Equals(Mask04, mask.Mask04) &&
@@ -164,6 +210,17 @@ namespace HECSFramework.Core
             return true;
         }
 
+        public bool Contains(FilterMask multiMask)
+        {
+            for (int i = 0; i < multiMask.Lenght; i++)
+            {
+                if (Components[multiMask[i].Index] == 0)
+                    return false;
+            }
+
+            return true;
+        }
+
         public bool Contains(HECSMask mask)
         {
             return Components[mask.Index] == 1;
@@ -172,6 +229,11 @@ namespace HECSFramework.Core
         public bool Contains(HECSMask mask1, HECSMask mask2)
         {
             return Contains(mask1) && Contains(mask2);
+        }
+
+        public bool ContainsAny(HECSMask mask1, HECSMask mask2)
+        {
+            return Contains(mask1) || Contains(mask2);
         }
 
         public bool Contains(HECSMask mask1, HECSMask mask2, HECSMask mask3)
@@ -198,6 +260,30 @@ namespace HECSFramework.Core
             }
 
             return true;
+        }
+
+        public bool ContainsAny(FilterMask mask)
+        {
+            for (int i = 0; i < mask.Lenght; i++)
+            {
+                var currentMask = mask[i];
+
+                if (Contains(currentMask))
+                    return true;
+            }
+
+            return false;
+        }
+
+        internal bool ContainsAny(HECSMultiMask mask)
+        {
+            foreach (var index in mask.CurrentIndexes)
+            {
+                if (Components[index] == 1)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

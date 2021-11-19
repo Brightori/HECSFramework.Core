@@ -21,20 +21,20 @@ namespace HECSFramework.Core
                 f.Value.Dispose();
         }
 
-        public ConcurrencyList<IEntity> GetFilter(FilterMask include)
+        public ConcurrencyList<IEntity> GetFilter(FilterMask include, bool includeAny = false)
         {
             int sumMask = include.GetHashCode();
 
             if (filters.TryGetValue(sumMask, out var filter))
                 return filter.Entities;
 
-            var nf = new Filter(world, include, new FilterMask());
+            var nf = new Filter(world, include, new FilterMask(), includeAny);
 
             filters.Add(sumMask, nf);
             return nf.Entities;
         }
 
-        public ConcurrencyList<IEntity> GetFilter(FilterMask include, FilterMask exclude)
+        public ConcurrencyList<IEntity> GetFilter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
         {
             int sumMask = include.GetHashCode();
             sumMask += exclude.GetHashCode();
@@ -42,7 +42,7 @@ namespace HECSFramework.Core
             if (filters.TryGetValue(sumMask, out var filter))
                 return filter.Entities;
 
-            var nf = new Filter(world, include, exclude);
+            var nf = new Filter(world, include, exclude, includeAny, excludeAny);
 
             filters.Add(sumMask, nf);
             return nf.Entities;
@@ -51,7 +51,8 @@ namespace HECSFramework.Core
         private class Filter : IReactComponent, IDisposable, IReactEntity
         {
             private readonly World world;
-
+            private readonly bool includeAny;
+            private readonly bool exludeAny;
             private HashSet<Guid> entitiesAtFilter = new HashSet<Guid>();
 
             private HECSMultiMask summaryInclude;
@@ -63,10 +64,11 @@ namespace HECSFramework.Core
 
             private Queue<IEntity> removeQueue = new Queue<IEntity>();
 
-            public Filter(World world, FilterMask include, FilterMask exclude)
+            public Filter(World world, FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
             {
                 this.world = world;
-
+                this.includeAny = includeAny;
+                this.exludeAny = excludeAny;
                 summaryInclude = new HECSMultiMask(include);
                 summaryExclude = new HECSMultiMask(exclude);
 
@@ -84,7 +86,7 @@ namespace HECSFramework.Core
                 {
                     var currentEntity = worldEntities[i];
 
-                    if (currentEntity == null || !currentEntity.IsInited || !currentEntity.IsAlive)
+                    if (!currentEntity.IsAlive())
                         continue;
 
                     if (ContainsMask(currentEntity))
@@ -97,7 +99,16 @@ namespace HECSFramework.Core
 
             private bool ContainsMask(IEntity target)
             {
-                return target.ContainsMask(summaryInclude) && !target.ContainsMask(summaryExclude);
+                if (!includeAny && exludeAny)
+                    return target.ContainsMask(summaryInclude) && !target.ContainsAnyFromMask(summaryExclude);
+
+                if (includeAny && exludeAny)
+                    return target.ContainsAnyFromMask(summaryInclude) && !target.ContainsAnyFromMask(summaryExclude);
+
+                if (!includeAny && !exludeAny)
+                    return target.ContainsMask(summaryInclude) && !target.ContainsMask(summaryExclude);
+
+                return false;
             }
 
 

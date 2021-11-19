@@ -1,12 +1,11 @@
 using HECSFramework.Core;
-using HECSFramework.Documentation;
 using System;
 
 namespace Components
 {
     [Serializable]
-    [Documentation(Doc.GameLogic, "Компонент который отмечает ентити которые надо пулить, по дефолту используюется в Unity части")]
-    public class PoolableTagComponent : BaseComponent
+    [Documentation(Doc.GameLogic, "РљРѕРјРїРѕРЅРµРЅС‚ РєРѕС‚РѕСЂС‹Р№ РѕС‚РјРµС‡Р°РµС‚ РµРЅС‚РёС‚Рё РєРѕС‚РѕСЂС‹Рµ РЅР°РґРѕ РїСѓР»РёС‚СЊ, РїРѕ РґРµС„РѕР»С‚Сѓ РёСЃРїРѕР»СЊР·СѓСЋРµС‚СЃСЏ РІ Unity С‡Р°СЃС‚Рё")]
+    public partial class PoolableTagComponent : BaseComponent, IAfterLife
     {
     }
 }

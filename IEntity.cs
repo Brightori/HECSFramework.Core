@@ -61,7 +61,10 @@ namespace HECSFramework.Core
         void SetGuid(Guid guid);
 
         bool ContainsMask(ref HECSMask mask);
+        bool ContainsMask(FilterMask mask);
+        bool ContainsAnyFromMask(FilterMask mask);
         bool ContainsMask(HECSMultiMask mask);
+        bool ContainsAnyFromMask(HECSMultiMask mask);
 
         bool ContainsMask<T>() where T: IComponent;
 

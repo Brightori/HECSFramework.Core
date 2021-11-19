@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, AllowMultiple = true)]
     public class DocumentationAttribute : Attribute
     {
         public List<string> SegmentType = new List<string>(4);

@@ -1,14 +1,14 @@
 ﻿using Commands;
+using Components;
 using HECSFramework.Core;
-using HECSFramework.Documentation;
 using System.Collections.Generic;
 
 namespace Systems
 {
     [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
-    public class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
+    public partial class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
     {
-        private Queue<IEntity> entitiesForDelete = new Queue<IEntity>(8); 
+        private Queue<IEntity> entitiesForDelete = new Queue<IEntity>(8);
 
         public override void InitSystem()
         {

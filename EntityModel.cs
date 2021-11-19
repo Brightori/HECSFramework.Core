@@ -122,7 +122,7 @@ namespace HECSFramework.Core
                     RemoveHecsComponent(c);
             }
 
-            ComponentContext.DisposeContext();
+            ComponentContext?.DisposeContext();
             Array.Clear(GetAllComponents, 0, GetAllComponents.Length);
         }
 
@@ -171,7 +171,7 @@ namespace HECSFramework.Core
 
         public void InjectEntity(IEntity entity, IEntity owner = null, bool additive = false)
         {
-            throw new Exception("Это ентити модель, в ней только данные, сюда нельзя инжектить ентити");
+            throw new Exception("Р­С‚Рѕ РµРЅС‚РёС‚Рё РјРѕРґРµР»СЊ, РІ РЅРµР№ С‚РѕР»СЊРєРѕ РґР°РЅРЅС‹Рµ, СЃСЋРґР° РЅРµР»СЊР·СЏ РёРЅР¶РµРєС‚РёС‚СЊ РµРЅС‚РёС‚Рё");
         }
 
         public void Pause()
@@ -267,6 +267,21 @@ namespace HECSFramework.Core
             var newComp = TypesMap.GetComponentFromFactory<T>();
             AddHecsComponent(newComp, owner);
             return newComp;
+        }
+
+        public bool ContainsAnyFromMask(FilterMask mask)
+        {
+            return ComponentsMask.ContainsAny(mask);
+        }
+
+        public bool ContainsAnyFromMask(HECSMultiMask mask)
+        {
+            return ComponentsMask.ContainsAny(mask);
+        }
+
+        public bool ContainsMask(FilterMask mask)
+        {
+            return ComponentsMask.Contains(mask);
         }
     }
 }

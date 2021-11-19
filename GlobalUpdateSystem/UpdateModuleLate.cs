@@ -5,7 +5,7 @@ namespace HECSFramework.Core
 {
     public class UpdateModuleLate : ILateUpdatable, IRegisterUpdate<ILateUpdatable>
     {
-        private readonly List<ILateUpdatable> lateUpdatables = new List<ILateUpdatable>(64);
+        private readonly ConcurrencyList<ILateUpdatable> lateUpdatables = new ConcurrencyList<ILateUpdatable>();
         private int count;
 
         public void Register(ILateUpdatable updatable, bool add)
@@ -20,6 +20,8 @@ namespace HECSFramework.Core
             for (int i = 0; i < count; i++)
             {
                 ILateUpdatable lateUpdatable = lateUpdatables[i];
+                if (lateUpdatable == null) continue;
+
                 lateUpdatable.UpdateLateLocal();
             }
         }

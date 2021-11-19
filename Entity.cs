@@ -316,7 +316,8 @@ namespace HECSFramework.Core
 
         public virtual void RemoveHecsSystem(ISystem system)
         {
-            RegisterService.UnRegisterSystem(system);
+            if (IsInited)
+                RegisterService.UnRegisterSystem(system);
             system.Dispose();
             systems.Remove(system);
         }
