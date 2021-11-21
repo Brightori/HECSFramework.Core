@@ -17,8 +17,8 @@
         void AfterEntityInit();
     }
 
-    public interface IInitable<T> where T : IEntity
+    public interface IInitable<T> 
     {
-        void Init(T actor);
+        void Init(T obj);
     }
 }
