@@ -469,6 +469,11 @@ namespace HECSFramework.Core
         {
             return ComponentsMask.Contains(mask);
         }
+
+        public override int GetHashCode()
+        {
+            return -762187988 + GUID.GetHashCode();
+        }
     }
 
     public interface IChangeWorldIndex

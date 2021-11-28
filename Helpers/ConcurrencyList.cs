@@ -113,8 +113,7 @@ namespace HECSFramework.Core
                 if (data[i] == null)
                     continue;
 
-                if (predicate(data[i]))
-                    return true;
+                return predicate(data[i]);
             }
 
             return false;

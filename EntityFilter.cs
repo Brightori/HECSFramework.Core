@@ -171,8 +171,8 @@ namespace HECSFramework.Core
 
                 if (!isAdded && entitiesAtFilter.Contains(entity.GUID))
                 {
-                    Entities.AddOrRemoveElement(entity, false);
-                    entitiesAtFilter.AddOrRemoveElement(entity.GUID, false);
+                    Entities.Remove(entity);
+                    entitiesAtFilter.Remove(entity.GUID);
                 }
             }
         }
