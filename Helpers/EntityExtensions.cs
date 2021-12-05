@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Systems;
 
 namespace HECSFramework.Core
 {
@@ -19,7 +20,7 @@ namespace HECSFramework.Core
                 return component;
             else
             {
-                var comp = TypesMap.GetComponentFromFactory<T>();
+                var comp = entity.World.GetSingleSystem<PoolingSystem>().GetComponentFromPool<T>(ref mask);
                 entity.AddHecsComponent(comp);
                 return comp;
             }

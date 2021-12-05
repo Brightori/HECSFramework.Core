@@ -48,6 +48,12 @@ namespace HECSFramework.Core
             return MapIndexes[hashTypeCode];
         }
 
+        public static ComponentMaskAndIndex GetComponentInfo(IComponent component) 
+        {
+            var hashTypeCode = TypeToHash[component.GetType()];
+            return MapIndexes[hashTypeCode];
+        }
+
         /// <summary>
         /// Static extention for getting by generic type
         /// </summary>

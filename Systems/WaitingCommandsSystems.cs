@@ -1,12 +1,15 @@
-﻿using HECSFramework.Core;
+﻿using Commands;
+using HECSFramework.Core;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Systems
 {
-    public class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity
+    public class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatable, IReactGlobalCommand<WaitAndCallbackCommand>
     {
         private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
+        private WaitAndCallbackCommand[] waitAndCallbackCommands = new WaitAndCallbackCommand[128];
 
         public Guid ListenerGuid { get; } = Guid.NewGuid();
 
@@ -14,7 +17,7 @@ namespace Systems
         {
             if (waitingCommands.TryGetValue(component.ComponentsMask, out var globalCommands))
             {
-                while(globalCommands.Count > 0)
+                while (globalCommands.Count > 0)
                     globalCommands.Dequeue().NowYourTime(Owner.WorldId);
             }
         }
@@ -33,7 +36,7 @@ namespace Systems
                 }
             }
         }
-        public void AddWaitingCommand<T>(T command, HECSMask mask) where T: IGlobalCommand
+        public void AddWaitingCommand<T>(T command, HECSMask mask) where T : IGlobalCommand
         {
             if (waitingCommands.TryGetValue(mask, out var globalCommands))
                 globalCommands.Enqueue(new WaitingCommand<T>(command));
@@ -47,6 +50,51 @@ namespace Systems
 
         public override void InitSystem()
         {
+        }
+
+        public void UpdateLocal()
+        {
+            var count = waitAndCallbackCommands.Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                ref var timer = ref waitAndCallbackCommands[i];
+
+                if (timer.IsOnRun)
+                {
+                    timer.Timer -= Time.deltaTime;
+
+                    if (timer.Timer <= 0)
+                    {
+                        timer.IsOnRun = false;
+                        timer.CallBack?.Invoke();
+                    }
+                }
+            }
+        }
+
+        public void CommandGlobalReact(WaitAndCallbackCommand command)
+        {
+            Add(ref command);
+        }
+
+        private void Add(ref WaitAndCallbackCommand command)
+        {
+            var count = waitAndCallbackCommands.Length;
+
+            for (int i = 0; i < count; i++)
+            {
+                ref var timer = ref waitAndCallbackCommands[i];
+                if (timer.IsOnRun == false)
+                {
+                    command.IsOnRun = true;
+                    timer = command;
+                    return;
+                }
+            }
+
+            Array.Resize(ref waitAndCallbackCommands, count * 2);
+            waitAndCallbackCommands[count] = command;
         }
     }
 
