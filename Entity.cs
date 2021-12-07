@@ -472,6 +472,11 @@ namespace HECSFramework.Core
         {
             return -762187988 + GUID.GetHashCode();
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is IEntity entity &&  entity.GUID == GUID;
+        }
     }
 
     public interface IChangeWorldIndex

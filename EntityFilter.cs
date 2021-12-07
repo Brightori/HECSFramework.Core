@@ -128,7 +128,7 @@ namespace HECSFramework.Core
 
                         if (summaryExclude.Contains(component.ComponentsMask) && entitiesAtFilter.Contains(component.Owner.GUID))
                         {
-                            Entities.AddOrRemoveElement(entity, false);
+                            Entities.Remove(entity);
                             entitiesAtFilter.Remove(entity.GUID);
                         }
                     }
