@@ -1,9 +1,11 @@
-﻿using HECSFramework.Core.Helpers;
+﻿using System;
+using HECSFramework.Core.Helpers;
 using System.Collections.Generic;
+using HECSFramework.Core.Generator;
 
 namespace HECSFramework.Core
 {
-    public partial struct HECSMask
+    public partial struct HECSMask : IEquatable<HECSMask>
     {
         public int Index;
         public int TypeHashCode;
@@ -17,6 +19,11 @@ namespace HECSFramework.Core
                    TypeHashCode == mask.TypeHashCode;
         }
 
+        public bool Equals(HECSMask mask)
+        {
+            return Index == mask.Index &&
+                   TypeHashCode == mask.TypeHashCode;
+        }
         public override int GetHashCode()
         {
             int hashCode = -523170829;
@@ -44,7 +51,7 @@ namespace HECSFramework.Core
                 if (index == 0 && Mask01.TypeHashCode != 0)
                     return Mask01;
                 if (index == 1 && Mask02.TypeHashCode != 0)
-                        return Mask02;
+                    return Mask02;
                 if (index == 2 && Mask03.TypeHashCode != 0)
                     return Mask03;
                 if (index == 3 && Mask04.TypeHashCode != 0)
@@ -63,7 +70,7 @@ namespace HECSFramework.Core
             Mask01 = mask01;
             Lenght = 1;
         }
-        
+
         public FilterMask(HECSMask mask01, HECSMask mask02) : this()
         {
             Mask01 = mask01;
@@ -77,8 +84,8 @@ namespace HECSFramework.Core
             Mask02 = mask02;
             Mask03 = mask03;
             Lenght = 3;
-        } 
-        
+        }
+
         public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04) : this()
         {
             Mask01 = mask01;
@@ -139,6 +146,42 @@ namespace HECSFramework.Core
             hashCode = hashCode * -1521134295 + Mask06.GetHashCode();
             return hashCode;
         }
+        public static FilterMask operator -(FilterMask left, HECSMask right)
+        {
+            left.Lenght--;
+            if (left.Mask01.Equals(right))
+            {
+                left.Mask01 = default;
+                return left;
+            }
+            if (left.Mask02.Equals(right))
+            {
+                left.Mask02 = default;
+                return left;
+            }
+            if (left.Mask03.Equals(right))
+            {
+                left.Mask03 = default;
+                return left;
+            }
+            if (left.Mask04.Equals(right))
+            {
+                left.Mask04 = default;
+                return left;
+            }
+            if (left.Mask05.Equals(right))
+            {
+                left.Mask05 = default;
+                return left;
+            }
+            if (left.Mask06.Equals(right))
+            {
+                left.Mask06 = default;
+                return left;
+            }
+            left.Lenght++;
+            return left;
+        }
     }
 
     public class HECSMultiMask
@@ -170,10 +213,10 @@ namespace HECSFramework.Core
 
             if (mask.Mask03.TypeHashCode != 0)
                 AddMask(mask.Mask03.Index);
-            
+
             if (mask.Mask04.TypeHashCode != 0)
                 AddMask(mask.Mask04.Index);
-            
+
             if (mask.Mask05.TypeHashCode != 0)
                 AddMask(mask.Mask05.Index);
 

@@ -67,7 +67,7 @@ namespace Systems
                     if (timer.Timer <= 0)
                     {
                         timer.IsOnRun = false;
-                        timer.CallBack?.Invoke();
+                        timer.CallBack?.Invoke(timer.CallBackWaiter);
                     }
                 }
             }

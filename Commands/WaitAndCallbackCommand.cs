@@ -2,6 +2,7 @@
 using HECSFramework.Documentation;
 using System.Collections.Generic;
 using System;
+using Strategies;
 
 namespace Commands
 {
@@ -9,8 +10,8 @@ namespace Commands
     public struct WaitAndCallbackCommand : IGlobalCommand
     {
         public float Timer;
-        public Action CallBack;
+        public Action<IEntity> CallBack;
         public bool IsOnRun;
-
+        public IEntity CallBackWaiter;
     }
 }
