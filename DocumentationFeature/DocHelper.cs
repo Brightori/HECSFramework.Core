@@ -21,6 +21,8 @@ public static partial class Doc
     public const string AI = "AI";
     public const string NONE = "NONE";
     public const string State = "State";
+    public const string Equipment = "Equipment";
+    public const string Predicate = "Predicate";
     public const string Animation = "Animation";
 }
 

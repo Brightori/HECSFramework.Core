@@ -1,7 +1,8 @@
-﻿namespace HECSFramework.Core
+﻿using Commands;
+
+namespace HECSFramework.Core
 {
-    public interface IAbility : IEntity
+    public interface IAbility : IReactCommand<ExecuteAbilityCommand>
     {
-        void Execute(IEntity owner = null, IEntity target = null, bool enable = true);
     }
 }

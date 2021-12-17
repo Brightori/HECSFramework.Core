@@ -1,8 +1,6 @@
 ﻿using HECSFramework.Core;
 using HECSFramework.Documentation;
-using System.Collections.Generic;
 using System;
-using Strategies;
 
 namespace Commands
 {
