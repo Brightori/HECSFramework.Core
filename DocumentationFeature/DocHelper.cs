@@ -21,9 +21,23 @@ public static partial class Doc
     public const string AI = "AI";
     public const string NONE = "NONE";
     public const string State = "State";
-    public const string Equipment = "Equipment";
-    public const string Predicate = "Predicate";
+    public const string Predicates = "Predicates";
     public const string Animation = "Animation";
+    public const string Perks = "Perks";
+    public const string Resources = "Resources";
+    public const string Goods = "Goods";
+    public const string Transport = "Transport";
+    public const string Building = "Building";
+    public const string Counters = "Counters";
+    public const string Network = "Network";
+    public const string Server = "Server";
+    public const string Inventory = "Inventory";
+    public const string Spawn = "Spawn";
+    public const string Equipment = "Equipment";
+    public const string Item = "Item";
+    public const string Seed = "Seed";
+    public const string Modifiers = "Modifiers";
+    public const string Test = "Test";
+    public const string Debug = "Debug";
+    public const string Triggers = "Triggers";
 }
-
-namespace HECSFramework.Documentation { }

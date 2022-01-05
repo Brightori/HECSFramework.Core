@@ -419,11 +419,13 @@ namespace HECSFramework.Core
 
         public void AddOrReplaceComponent(IComponent component, IEntity owner = null, bool silently = false)
         {
-            if (GetAllComponents[component.ComponentsMask.Index] != null)
-                RemoveHecsComponent(component.ComponentsMask);
+            var index = TypesMap.GetComponentInfo(component);
+            if (GetAllComponents[index.ComponentsMask.Index] != null)
+                RemoveHecsComponent(index.ComponentsMask);
 
             AddHecsComponent(component, owner, silently);
         }
+
         partial void ComponentAdditionalProcessing(IComponent component, IEntity owner);
         partial void SystemAdditionalProcessing(ISystem system, IEntity owner);
 

@@ -47,6 +47,7 @@ namespace HECSFramework.Core
         public string[] Comments;
         public string DataType;
         public DocumentationType DocumentationType;
+        public string FilePath;
 
         public override bool Equals(object obj)
         {

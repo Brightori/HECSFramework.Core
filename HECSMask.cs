@@ -10,7 +10,7 @@ namespace HECSFramework.Core
         public int Index;
         public int TypeHashCode;
 
-        public static HECSMask Empty = new HECSMask { Index = 99999, TypeHashCode = -999999 };
+        public static HECSMask Empty = new HECSMask { Index = 0, TypeHashCode = 0 };
 
         public override bool Equals(object obj)
         {
@@ -51,7 +51,7 @@ namespace HECSFramework.Core
                 if (index == 0 && Mask01.TypeHashCode != 0)
                     return Mask01;
                 if (index == 1 && Mask02.TypeHashCode != 0)
-                    return Mask02;
+                        return Mask02;
                 if (index == 2 && Mask03.TypeHashCode != 0)
                     return Mask03;
                 if (index == 3 && Mask04.TypeHashCode != 0)
@@ -70,7 +70,7 @@ namespace HECSFramework.Core
             Mask01 = mask01;
             Lenght = 1;
         }
-
+        
         public FilterMask(HECSMask mask01, HECSMask mask02) : this()
         {
             Mask01 = mask01;
@@ -84,8 +84,8 @@ namespace HECSFramework.Core
             Mask02 = mask02;
             Mask03 = mask03;
             Lenght = 3;
-        }
-
+        } 
+        
         public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04) : this()
         {
             Mask01 = mask01;
@@ -181,7 +181,7 @@ namespace HECSFramework.Core
             }
             left.Lenght++;
             return left;
-        }
+        }   
     }
 
     public class HECSMultiMask
@@ -213,10 +213,10 @@ namespace HECSFramework.Core
 
             if (mask.Mask03.TypeHashCode != 0)
                 AddMask(mask.Mask03.Index);
-
+            
             if (mask.Mask04.TypeHashCode != 0)
                 AddMask(mask.Mask04.Index);
-
+            
             if (mask.Mask05.TypeHashCode != 0)
                 AddMask(mask.Mask05.Index);
 

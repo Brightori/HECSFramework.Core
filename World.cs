@@ -289,8 +289,8 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-            componentsService.Dispose();
             entityService.Dispose();
+            componentsService.Dispose();
             commandService.Dispose();
             entityFilter.Dispose();
         }

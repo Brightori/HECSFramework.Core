@@ -1,5 +1,4 @@
 ﻿using HECSFramework.Core;
-using HECSFramework.Documentation;
 
 namespace Components
 {

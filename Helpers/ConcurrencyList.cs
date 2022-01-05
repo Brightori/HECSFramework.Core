@@ -385,5 +385,21 @@ namespace HECSFramework.Core
                 current = default(T);
             }
         }
+
+        public void RemoveAll(Func<T, bool> predicate)
+        {
+            for (int i = 0; i < Count; i++)
+                if (predicate(this[i]))
+                    Remove(this[i--]);
+        }
+
+        public bool Exists(Func<T, bool> func)
+        {
+            for (int i = 0; i < Count; i++)
+                if (func(this[i]))
+                    return true;
+
+            return false;
+        }
     }
 }
