@@ -1,6 +1,4 @@
-﻿using Commands;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
     public interface IAbilitySystem : ISystem, IAbility
     {

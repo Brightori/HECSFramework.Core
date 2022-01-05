@@ -1,9 +1,8 @@
-﻿using HECSFramework.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HECSFramework.Core 
+namespace HECSFramework.Core
 {
     public class EntityCommandService : ICommandService
     {
@@ -54,7 +53,7 @@ namespace HECSFramework.Core
     }
 }
 
-namespace HECSFramework.Core 
+namespace HECSFramework.Core
 {
     public class CommandListener<T> : IRemoveSystemListener where T : ICommand
     {

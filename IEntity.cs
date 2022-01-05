@@ -1,8 +1,7 @@
-﻿using HECSFramework.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace HECSFramework.Core 
+namespace HECSFramework.Core
 {
     public interface IEntity : IDisposable, IHavePause, IEquatable<IEntity>
     {

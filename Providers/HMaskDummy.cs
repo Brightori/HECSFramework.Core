@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
     public static partial class HMasks
     {

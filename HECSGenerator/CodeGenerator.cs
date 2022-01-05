@@ -1,5 +1,4 @@
-﻿using HECSFramework.Core.Generator;
-using HECSFramework.Core.Helpers;
+﻿using HECSFramework.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
