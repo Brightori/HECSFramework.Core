@@ -40,4 +40,5 @@ public static partial class Doc
     public const string Test = "Test";
     public const string Debug = "Debug";
     public const string Triggers = "Triggers";
+    public const string HECS = "HECS";
 }
