@@ -6,14 +6,14 @@ using System.Linq;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public partial class Entity : IEntity, IChangeWorldIndex
+    public sealed partial class Entity : IEntity, IChangeWorldIndex
     {
         public int WorldId { get; private set; } = 0;
         public World World { get; private set; }
 
         public Guid GUID { get; private set; }
         public ComponentContext ComponentContext { get; } = new ComponentContext();
-        public string ID { get; protected set; }
+        public string ID { get; private set; }
 
         public Entity(string id)
         {
@@ -29,7 +29,7 @@ namespace HECSFramework.Core
         private IRegisterService RegisterService = new RegisterService();
         public ICommandService EntityCommandService { get; } = new EntityCommandService();
 
-        public bool IsInited { get; protected set; }
+        public bool IsInited { get; private set; }
         public bool IsAlive { get; private set; } = true;
         public bool IsPaused { get; private set; }
         public bool IsLoaded { get; set; }
@@ -92,7 +92,7 @@ namespace HECSFramework.Core
             }
 
             components[component.ComponentsMask.Index] = component;
-            ComponentContext.AddComponent(component);
+            TypesMap.SetComponent(this, component);
             component.IsAlive = true;
 
             if (IsInited)
@@ -204,19 +204,19 @@ namespace HECSFramework.Core
                 disposable.Dispose();
 
             components[component.ComponentsMask.Index] = null;
-            ComponentContext.RemoveComponent(component);
+            TypesMap.RemoveComponent(this, component);
             ComponentsMask.RemoveMask(component.ComponentsMask.Index);
 
             component.IsAlive = false;
             World?.AddOrRemoveComponentEvent(component, false);
         }
 
-        protected virtual void Reset()
+        private void Reset()
         {
             GenerateId();
         }
 
-        public virtual void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
+        public void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
         {
             if (owner == null)
                 system.Owner = this;
@@ -263,7 +263,7 @@ namespace HECSFramework.Core
             }
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             if (!EntityManager.IsAlive)
                 return;
@@ -311,7 +311,7 @@ namespace HECSFramework.Core
             GUID = System.Guid.NewGuid();
         }
 
-        public virtual void RemoveHecsSystem(ISystem system)
+        public void RemoveHecsSystem(ISystem system)
         {
             if (IsInited)
                 RegisterService.UnRegisterSystem(system);

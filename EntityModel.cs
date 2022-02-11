@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-    public class EntityModel : IEntity
+    public sealed class EntityModel : IEntity
     {
         private const string DefaultContainerName = "Default";
 
@@ -58,7 +58,7 @@ namespace HECSFramework.Core
             component.Owner = this;
 
             GetAllComponents[component.ComponentsMask.Index] = component;
-            ComponentContext.AddComponent(component);
+            TypesMap.SetComponent(this, component);
             component.IsAlive = true;
 
             if (component is IInitable initable)
@@ -123,7 +123,6 @@ namespace HECSFramework.Core
                     RemoveHecsComponent(c);
             }
 
-            ComponentContext?.DisposeContext();
             Array.Clear(GetAllComponents, 0, GetAllComponents.Length);
         }
 
@@ -189,7 +188,7 @@ namespace HECSFramework.Core
                 disposable.Dispose();
 
             GetAllComponents[component.ComponentsMask.Index] = null;
-            ComponentContext.RemoveComponent(component);
+            TypesMap.RemoveComponent(this, component);
             ComponentsMask.RemoveMask(component.ComponentsMask.Index);
 
             component.IsAlive = false;

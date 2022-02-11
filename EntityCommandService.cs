@@ -8,7 +8,7 @@ namespace HECSFramework.Core
     {
         private Dictionary<Type, object> commandListeners = new Dictionary<Type, object>();
 
-        public void Invoke<T>(T data) where T : ICommand
+        public void Invoke<T>(T data) 
         {
             var key = typeof(T);
             if (!commandListeners.TryGetValue(key, out var commandListenerContainer))
@@ -23,7 +23,7 @@ namespace HECSFramework.Core
                 (l.Value as IRemoveSystemListener).RemoveListener(listener);
         }
 
-        public void RemoveListener<T>(ISystem listener) where T : ICommand
+        public void RemoveListener<T>(ISystem listener) 
         {
             var key = typeof(T);
             if (commandListeners.TryGetValue(key, out var container))
@@ -33,7 +33,7 @@ namespace HECSFramework.Core
             }
         }
 
-        public void AddListener<T>(ISystem listener, Action<T> action) where T : ICommand
+        public void AddListener<T>(ISystem listener, Action<T> action) 
         {
             var key = typeof(T);
 
@@ -55,53 +55,87 @@ namespace HECSFramework.Core
 
 namespace HECSFramework.Core
 {
-    public class CommandListener<T> : IRemoveSystemListener where T : ICommand
+    public sealed class CommandListener<T> : IRemoveSystemListener 
     {
-        private List<(ISystem listener, Action<T> react)> listeners =
-            new List<(ISystem listener, Action<T> react)>(8);
+        private sealed class ListenerActionContainer
+        {
+            public readonly Action<T> Action;
+            public readonly ISystem Listener;
+            public Guid Guid;
 
-        private Queue<(ISystem listener, Action<T> react)> listenersToRemove = new Queue<(ISystem listener, Action<T> react)>(4);
+            public ListenerActionContainer(ISystem listener, Action<T> action)
+            {
+                Listener = listener;
+                Action = action;
+                Guid = listener.SystemGuid;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is ListenerActionContainer container &&
+                       Guid.Equals(container.Guid);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(Guid);
+            }
+        }
+
+        private List<ListenerActionContainer> listeners =
+            new List<ListenerActionContainer>(8);
+
+        private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
 
         public CommandListener(ISystem listener, Action<T> action)
         {
-            listeners.Add((listener, action));
+            listeners.Add(new ListenerActionContainer(listener, action));
         }
 
         public void ListenCommand(ISystem listener, Action<T> action)
         {
-            if (listeners.Any(x => x.listener == listener))
+            if (listeners.Any(x => x.Guid == listener.SystemGuid))
                 return;
 
-            listeners.Add((listener, action));
+            listeners.Add(new ListenerActionContainer(listener, action));
         }
 
         public void Invoke(T data)
         {
             for (int i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i].listener.Owner == null || !listeners[i].listener.Owner.IsAlive)
+                if (listeners[i].Listener == null || !listeners[i].Listener.Owner.IsAlive)
                 {
-                    listenersToRemove.Enqueue(listeners[i]);
+                    listenersToRemove.Enqueue(listeners[i].Guid);
                     continue;
                 }
 
-                if (listeners[i].listener.Owner.IsPaused)
+                if (listeners[i].Listener.Owner.IsPaused)
                     continue;
 
-                listeners[i].react(data);
+                listeners[i].Action(data);
             }
 
             while (listenersToRemove.Count > 0)
             {
-                listeners.Remove(listenersToRemove.Dequeue());
+                var remove = listenersToRemove.Dequeue();
+
+                for (int i = 0; i < listeners.Count; i++)
+                {
+                    if (listeners[i].Guid == remove)
+                    {
+                        listeners.RemoveAt(i);
+                        break;
+                    }
+                }   
             }
         }
 
         public void RemoveListener(ISystem listener)
         {
-            var needed = listeners.FirstOrDefault(x => x.listener == listener);
+            var needed = listeners.FirstOrDefault(x => x.Guid == listener.SystemGuid);
 
-            if (needed.listener != null)
+            if (needed != null)
                 listeners.Remove(needed);
         }
     }
@@ -113,9 +147,9 @@ namespace HECSFramework.Core
 
     public interface ICommandService : IDisposable
     {
-        void AddListener<T>(ISystem listener, Action<T> action) where T : ICommand;
-        void Invoke<T>(T data) where T : ICommand;
-        void RemoveListener<T>(ISystem listener) where T : ICommand;
+        void AddListener<T>(ISystem listener, Action<T> action);
+        void Invoke<T>(T data);
+        void RemoveListener<T>(ISystem listener);
         void ReleaseListener(ISystem listener);
     }
 }
