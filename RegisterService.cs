@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public partial class RegisterService : IRegisterService
+    public sealed partial class RegisterService : IRegisterService
     {
         public void RegisterSystem(ISystem system)
         {

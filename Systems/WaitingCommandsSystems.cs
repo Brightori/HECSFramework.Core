@@ -6,7 +6,8 @@ using UnityEngine;
 
 namespace Systems
 {
-    public class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatable, IReactGlobalCommand<WaitAndCallbackCommand>
+
+    public sealed class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatable, IReactGlobalCommand<WaitAndCallbackCommand>
     {
         private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
         private WaitAndCallbackCommand[] waitAndCallbackCommands = new WaitAndCallbackCommand[128];

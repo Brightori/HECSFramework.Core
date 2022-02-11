@@ -52,6 +52,7 @@ namespace HECSFramework.Core
         }
 
         public HECSMultiMask ComponentsMask { get; } = new HECSMultiMask();
+        public RegisterComponentListenersService RegisterComponentListenersService { get; } = new RegisterComponentListenersService();
 
         public Entity() { }
 
@@ -289,6 +290,7 @@ namespace HECSFramework.Core
             Array.Clear(components, 0, components.Length);
 
             EntityCommandService.Dispose();
+            RegisterComponentListenersService.Dispose();
         }
 
         public bool TryGetSystem<T>(out T system) where T : ISystem

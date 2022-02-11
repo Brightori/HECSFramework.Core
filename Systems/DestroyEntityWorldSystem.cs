@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Systems
 {
     [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
-    public partial class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
+    public sealed partial class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
     {
         private Queue<IEntity> entitiesForDelete = new Queue<IEntity>(8);
 

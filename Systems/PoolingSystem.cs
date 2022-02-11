@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Systems
 {
-    public partial class PoolingSystem : BaseSystem, IReactComponent
+    public sealed partial class PoolingSystem : BaseSystem, IReactComponent
     {
         private int maxCapacity = 512;
 
