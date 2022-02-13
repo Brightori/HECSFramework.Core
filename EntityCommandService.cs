@@ -57,7 +57,7 @@ namespace HECSFramework.Core
 {
     public sealed class CommandListener<T> : IRemoveSystemListener 
     {
-        private sealed class ListenerActionContainer
+        private struct ListenerActionContainer
         {
             public readonly Action<T> Action;
             public readonly ISystem Listener;
@@ -82,61 +82,54 @@ namespace HECSFramework.Core
             }
         }
 
-        private List<ListenerActionContainer> listeners =
-            new List<ListenerActionContainer>(8);
+        private Dictionary<Guid, ListenerActionContainer> listeners = new Dictionary<Guid, ListenerActionContainer>();
 
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
 
         public CommandListener(ISystem listener, Action<T> action)
         {
-            listeners.Add(new ListenerActionContainer(listener, action));
+            listeners.Add(listener.SystemGuid, new ListenerActionContainer(listener, action));
         }
 
         public void ListenCommand(ISystem listener, Action<T> action)
         {
-            if (listeners.Any(x => x.Guid == listener.SystemGuid))
+            var listenerGuid = listener.SystemGuid;
+
+            if (listeners.ContainsKey(listenerGuid))
                 return;
 
-            listeners.Add(new ListenerActionContainer(listener, action));
+            listeners.Add(listenerGuid, new ListenerActionContainer(listener, action));
         }
 
         public void Invoke(T data)
         {
-            for (int i = 0; i < listeners.Count; i++)
+            foreach (var listener in listeners)
             {
-                if (listeners[i].Listener == null || !listeners[i].Listener.Owner.IsAlive)
+                var actualListener = listener.Value;
+
+                if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
                 {
-                    listenersToRemove.Enqueue(listeners[i].Guid);
+                    listenersToRemove.Enqueue(listener.Value.Guid);
                     continue;
                 }
 
-                if (listeners[i].Listener.Owner.IsPaused)
+                if (actualListener.Listener.Owner.IsPaused)
                     continue;
 
-                listeners[i].Action(data);
+                actualListener.Action(data);
             }
 
             while (listenersToRemove.Count > 0)
             {
                 var remove = listenersToRemove.Dequeue();
-
-                for (int i = 0; i < listeners.Count; i++)
-                {
-                    if (listeners[i].Guid == remove)
-                    {
-                        listeners.RemoveAt(i);
-                        break;
-                    }
-                }   
+                listeners.Remove(remove);
             }
         }
 
         public void RemoveListener(ISystem listener)
         {
-            var needed = listeners.FirstOrDefault(x => x.Guid == listener.SystemGuid);
-
-            if (needed != null)
-                listeners.Remove(needed);
+           if (listeners.ContainsKey(listener.SystemGuid))
+                listeners.Remove(listener.SystemGuid);
         }
     }
 

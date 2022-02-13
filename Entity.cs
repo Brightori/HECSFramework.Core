@@ -227,8 +227,11 @@ namespace HECSFramework.Core
                 SystemAdditionalProcessing(system, owner);
             }
 
-            if (systems.Any(x => x.GetTypeHashCode == system.GetTypeHashCode))
-                return;
+            foreach (var s in systems)
+            {
+                if (s.GetTypeHashCode == system.GetTypeHashCode)
+                    return;
+            }
 
             systems.Add(system);
 
