@@ -179,10 +179,10 @@ namespace HECSFramework.Core
 
             foreach (var sys in systems)
             {
-                sys.InitSystem();
-
                 if (needRegister)
                     RegisterService.RegisterSystem(sys);
+                
+                sys.InitSystem();
             }
 
             IsInited = true;
