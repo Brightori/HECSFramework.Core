@@ -2,7 +2,7 @@
 {
     public sealed partial class RegisterService : IRegisterService
     {
-        public void RegisterSystem(ISystem system)
+        public void RegisterSystem<T>(T system) where T : ISystem
         {
             if (system is IRegisterUpdatable asyncupdate)
                 system.Owner.World.RegisterUpdatable(asyncupdate, true);
@@ -14,10 +14,10 @@
                 system.Owner.World.AddGlobalReactComponent(componentsChanges);
 
             RegisterAdditionalSystems(system);
-            BindSystem(system);
+            TypesMap.BindSystem(system);
         }
 
-        public void UnRegisterSystem(ISystem system)
+        public void UnRegisterSystem<T>(T system) where T: ISystem
         {
             if (system is IRegisterUpdatable asyncupdate)
                 system.Owner.World.RegisterUpdatable(asyncupdate, false);
@@ -29,15 +29,7 @@
                 system.Owner.World.RemoveGlobalReactComponent(componentsChanges);
 
             UnRegisterAdditionalSystems(system);
-            UnBindSystem(system);
-        }
-
-        partial void BindSystem(ISystem system);
-        
-        private void UnBindSystem(ISystem system)
-        {
-            system.Owner.EntityCommandService.ReleaseListener(system);
-            system.Owner.World.RemoveGlobalReactCommand(system);
+            TypesMap.UnBindSystem(system);
         }
         
         //for different custom systems on unity or server side
@@ -50,7 +42,7 @@ namespace HECSFramework.Core
 {
     public interface IRegisterService
     {
-        void RegisterSystem(ISystem system);
-        void UnRegisterSystem(ISystem system);
+        void RegisterSystem<T>(T system) where T: ISystem;
+        void UnRegisterSystem<T>(T system) where T : ISystem;
     }
 }

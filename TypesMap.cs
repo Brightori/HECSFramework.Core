@@ -14,7 +14,7 @@ namespace HECSFramework.Core
         private static readonly Dictionary<Type, int> TypeToHash;
         private static readonly Dictionary<int, Type> componentHashToType;
         private static Dictionary<int, IComponentContextSetter> componentsSetters;
-        private static Dictionary<int, ISystemSetter> systemsSetters;
+        private static Dictionary<Type, object> systemsSetters;
         private static IHECSFactory factory;
 
         static TypesMap()
@@ -33,6 +33,20 @@ namespace HECSFramework.Core
 
         static partial void SetComponentsSetters();
         static partial void SetSystemSetters();
+
+        public static void BindSystem<T>(T system) where T: ISystem
+        {
+            var key = typeof(T);
+            var neededContainer = systemsSetters[key] as ISystemSetter<T>;
+            neededContainer.BindSystem(system);
+        }
+
+        public static void UnBindSystem<T>(T system) where T : ISystem
+        {
+            var key = typeof(T);
+            var neededContainer = systemsSetters[key] as ISystemSetter<T>;
+            neededContainer.UnBindSystem(system);
+        }
 
         public static void SetComponent(IEntity entity, IComponent component)
         {
@@ -137,9 +151,9 @@ namespace HECSFramework.Core
         public void RemoveComponent(IEntity entity, IComponent component);
     }
 
-    public interface ISystemSetter 
+    public interface ISystemSetter<T> 
     {
-        public void BindSystem(ISystem system);
-        public void UnBindSystem(ISystem system);
+        public void BindSystem(T system);
+        public void UnBindSystem(T system);
     }
 }
