@@ -12,6 +12,8 @@ namespace HECSFramework.Core
         private ComponentsService componentsService = new ComponentsService();
         private EntityService entityService = new EntityService();
         private EntityCommandService commandService = new EntityCommandService();
+        private RegisterComponentListenersService registerComponentListenersService = new RegisterComponentListenersService();
+
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private EntityFilter entityFilter;
 
@@ -50,6 +52,7 @@ namespace HECSFramework.Core
         public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
         {
             componentsService.ProcessComponent(component, isAdded);
+            registerComponentListenersService.Invoke(component, isAdded);
         }
 
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable
@@ -107,14 +110,28 @@ namespace HECSFramework.Core
             commandService.ReleaseListener(system);
         }
 
+        public void RemoveGlobalReactCommand<T>(ISystem system)
+        {
+            commandService.RemoveListener<T>(system);
+        }
+
         public void AddGlobalReactComponent(IReactComponent reactComponent)
         {
             componentsService.AddListener(reactComponent);
+        }
+        public void AddGlobalReactComponent<T>(ISystem system, Action<T, bool> action) where T: IComponent
+        {
+            registerComponentListenersService.AddListener(system, action);
         }
 
         public void RemoveGlobalReactComponent(IReactComponent reactComponent)
         {
             componentsService.RemoveListener(reactComponent);
+        }
+
+        public void RemoveGlobalReactComponent<T>(T system) where T: ISystem
+        {
+            registerComponentListenersService.RemoveListener<T>(system);
         }
 
         /// <summary>

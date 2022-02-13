@@ -24,7 +24,7 @@ namespace HECSFramework.Core
                 (l.Value as IRemoveSystemListener).RemoveListener(listener);
         }
 
-        public void RemoveListener<T>(ISystem listener)
+        public void RemoveListener<T>(T listener) where T: ISystem
         {
             var key = typeof(T);
             if (componentListeners.TryGetValue(key, out var container))
