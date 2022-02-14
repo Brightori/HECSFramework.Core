@@ -49,7 +49,7 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="world"> здесь мы говорим в какой мир отправить, если индекс -1, то отправляем во все миры </param>
-        public static void Command<T>(T command, int world = 0) where T : IGlobalCommand
+        public static void Command<T>(T command, int world = 0) where T : struct, IGlobalCommand
         {
             if (world == -1)
             {
@@ -62,7 +62,7 @@ namespace HECSFramework.Core
             Instance.worlds[world].Command(command);
         }
 
-        public static void GlobalCommand<T>(T command) where T : IGlobalCommand
+        public static void GlobalCommand<T>(T command) where T : struct, IGlobalCommand
         {
             foreach (var w in Worlds) 
                 w.Command(command);
@@ -75,7 +75,7 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : ICommand, IGlobalCommand 
+        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : struct, ICommand, IGlobalCommand 
             => Worlds[worldIndex].Command(command, ref waitForComponent);
 
         public static void RegisterEntity(IEntity entity, bool add)

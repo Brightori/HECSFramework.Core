@@ -5,7 +5,7 @@ namespace HECSFramework.Core
 {
     public interface IEntity : IDisposable, IHavePause, IEquatable<IEntity>
     {
-        ICommandService EntityCommandService { get; }
+        EntityLocalCommandService EntityCommandService { get; }
 
         int WorldId { get; }
         World World { get; }
@@ -49,7 +49,7 @@ namespace HECSFramework.Core
         void RemoveHecsComponent<T>() where T: IComponent;
         
         void RemoveHecsSystem(ISystem system);
-        void Command<T>(T command) where T : ICommand;
+        void Command<T>(T command) where T : struct, ICommand;
 
         bool TryGetSystem<T>(out T system) where T : ISystem;
   

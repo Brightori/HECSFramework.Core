@@ -37,7 +37,7 @@ namespace Systems
                 }
             }
         }
-        public void AddWaitingCommand<T>(T command, HECSMask mask) where T : IGlobalCommand
+        public void AddWaitingCommand<T>(T command, HECSMask mask) where T :  struct, IGlobalCommand
         {
             if (waitingCommands.TryGetValue(mask, out var globalCommands))
                 globalCommands.Enqueue(new WaitingCommand<T>(command));
@@ -99,7 +99,7 @@ namespace Systems
         }
     }
 
-    public struct WaitingCommand<T> : IWaitingCommand where T : IGlobalCommand
+    public struct WaitingCommand<T> : IWaitingCommand where T : struct, IGlobalCommand
     {
         private T command;
 

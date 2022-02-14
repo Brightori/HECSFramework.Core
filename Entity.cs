@@ -27,7 +27,7 @@ namespace HECSFramework.Core
         private IComponent[] components = new IComponent[TypesMap.SizeOfComponents];
         public IComponent[] GetAllComponents => components;
         private IRegisterService RegisterService = new RegisterService();
-        public ICommandService EntityCommandService { get; } = new EntityCommandService();
+        public EntityLocalCommandService EntityCommandService { get; } = new EntityLocalCommandService();
 
         public bool IsInited { get; private set; }
         public bool IsAlive { get; private set; } = true;
@@ -188,7 +188,7 @@ namespace HECSFramework.Core
             IsInited = true;
         }
 
-        public void Command<T>(T command) where T : ICommand
+        public void Command<T>(T command) where T : struct, ICommand
         {
             if (IsPaused || !IsAlive)
                 return;

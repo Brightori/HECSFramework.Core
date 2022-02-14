@@ -9,7 +9,7 @@ namespace HECSFramework.Core
     {
         private const string DefaultContainerName = "Default";
 
-        public ICommandService EntityCommandService => null;
+        public EntityLocalCommandService EntityCommandService => null;
         public int WorldId { get; private set; }
         public World World { get; private set; }
         public Guid GUID { get; private set; }
@@ -89,7 +89,7 @@ namespace HECSFramework.Core
             AddHecsComponent(component, owner, silently);
         }
 
-        public void Command<T>(T command) where T : ICommand
+        public void Command<T>(T command) where T : struct, ICommand
         {
             return;
         }

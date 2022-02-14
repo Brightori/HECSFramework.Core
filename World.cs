@@ -11,7 +11,7 @@ namespace HECSFramework.Core
 
         private ComponentsService componentsService = new ComponentsService();
         private EntityService entityService = new EntityService();
-        private EntityCommandService commandService = new EntityCommandService();
+        private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
         private RegisterComponentListenersService registerComponentListenersService = new RegisterComponentListenersService();
 
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
@@ -78,7 +78,7 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="isGlobalOnly"></param>
-        public void Command<T>(T command) where T : ICommand, IGlobalCommand
+        public void Command<T>(T command) where T : struct, ICommand, IGlobalCommand
         {
             commandService.Invoke(command);
         }
@@ -90,7 +90,7 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public void Command<T>(T command, ref HECSMask waitForComponent) where T : ICommand, IGlobalCommand
+        public void Command<T>(T command, ref HECSMask waitForComponent) where T : struct, ICommand, IGlobalCommand
         {
             if (TryGetEntityByComponents(out var entity, ref waitForComponent))
             {
@@ -100,7 +100,7 @@ namespace HECSFramework.Core
             waitingCommandsSystems.AddWaitingCommand(command, waitForComponent);
         }
 
-        public void AddGlobalReactCommand<T>(ISystem system, Action<T> react) where T : IGlobalCommand
+        public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
         {
             commandService.AddListener(system, react);
         }
@@ -110,7 +110,7 @@ namespace HECSFramework.Core
             commandService.ReleaseListener(system);
         }
 
-        public void RemoveGlobalReactCommand<T>(ISystem system)
+        public void RemoveGlobalReactCommand<T>(ISystem system) where T : struct, IGlobalCommand
         {
             commandService.RemoveListener<T>(system);
         }
