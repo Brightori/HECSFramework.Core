@@ -56,6 +56,11 @@ namespace HECSFramework.Core
             componentsSetters[component.ComponentsMask.Index].RemoveComponent(entity, component);
         }
 
+        public static void RegisterComponent(int index, IEntity entity, bool isAdded)
+        {
+            componentsSetters[index].RegisterComponent(entity, isAdded);
+        }
+
         public static int GetHashOfComponentByType(Type type)
         {
             return TypeToHash[type];
@@ -147,6 +152,7 @@ namespace HECSFramework.Core
     {
         public void SetComponent(IEntity entity, IComponent component);
         public void RemoveComponent(IEntity entity, IComponent component);
+        public void RegisterComponent(IEntity entity, bool isAdded);
     }
 
     public interface ISystemSetter 

@@ -36,7 +36,7 @@ namespace HECSFramework.Core
         public bool IsAlive => false;
         public bool IsPaused => true;
 
-        public RegisterComponentListenersService RegisterComponentListenersService { get; } 
+        public LocalComponentListenersService RegisterComponentListenersService { get; } 
 
         public EntityModel(int index, string ID)
         {

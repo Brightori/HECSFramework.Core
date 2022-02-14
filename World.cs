@@ -9,12 +9,14 @@ namespace HECSFramework.Core
     {
         public int Index { get; private set; }
 
+        public GlobalComponentListenersService GlobalComponentListenerService = new GlobalComponentListenersService();
+        
+        public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private ComponentsService componentsService = new ComponentsService();
+        
         private EntityService entityService = new EntityService();
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
-        private RegisterComponentListenersService registerComponentListenersService = new RegisterComponentListenersService();
 
-        public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private EntityFilter entityFilter;
 
         private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
@@ -49,10 +51,9 @@ namespace HECSFramework.Core
         public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
         public  ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
 
-        public void AddOrRemoveComponentEvent(IComponent component, bool isAdded)
+        public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T: IComponent
         {
             componentsService.ProcessComponent(component, isAdded);
-            registerComponentListenersService.Invoke(component, isAdded);
         }
 
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable
@@ -119,9 +120,9 @@ namespace HECSFramework.Core
         {
             componentsService.AddListener(reactComponent);
         }
-        public void AddGlobalReactComponent<T>(ISystem system, Action<T, bool> action) where T: IComponent
+        public void AddGlobalReactComponent<T>(ISystem system, IReactComponentGlobal<T> action) where T: IComponent
         {
-            registerComponentListenersService.AddListener(system, action);
+            GlobalComponentListenerService.AddListener(system, action);
         }
 
         public void RemoveGlobalReactComponent(IReactComponent reactComponent)
@@ -129,9 +130,9 @@ namespace HECSFramework.Core
             componentsService.RemoveListener(reactComponent);
         }
 
-        public void RemoveGlobalReactComponent<T>(T system) where T: ISystem
+        public void RemoveGlobalReactComponent<T>(ISystem system) where T: IComponent
         {
-            registerComponentListenersService.RemoveListener<T>(system);
+            GlobalComponentListenerService.RemoveListener<T>(system);
         }
 
         /// <summary>

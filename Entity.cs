@@ -52,7 +52,7 @@ namespace HECSFramework.Core
         }
 
         public HECSMultiMask ComponentsMask { get; } = new HECSMultiMask();
-        public RegisterComponentListenersService RegisterComponentListenersService { get; } = new RegisterComponentListenersService();
+        public LocalComponentListenersService RegisterComponentListenersService { get; } = new LocalComponentListenersService();
 
         public Entity() { }
 
@@ -108,7 +108,10 @@ namespace HECSFramework.Core
             ComponentsMask.AddMask(component.ComponentsMask.Index);
 
             if (!silently && IsInited)
+            {
                 EntityManager.AddOrRemoveComponent(component, true);
+                TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, true);
+            }
         }
 
         public bool TryGetHecsComponent<T>(HECSMask mask, out T component) where T : IComponent
@@ -204,6 +207,7 @@ namespace HECSFramework.Core
             if (component is IDisposable disposable)
                 disposable.Dispose();
 
+            TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, false);
             components[component.ComponentsMask.Index] = null;
             TypesMap.RemoveComponent(this, component);
             ComponentsMask.RemoveMask(component.ComponentsMask.Index);

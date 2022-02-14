@@ -17,7 +17,7 @@ namespace HECSFramework.Core
         IComponent[] GetAllComponents { get; }
         List<ISystem> GetAllSystems { get; }
         ComponentContext ComponentContext { get; }
-        RegisterComponentListenersService RegisterComponentListenersService { get; }
+        LocalComponentListenersService RegisterComponentListenersService { get; }
 
         IEnumerable<T> GetComponentsByType<T>();
 
