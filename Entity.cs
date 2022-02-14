@@ -77,7 +77,7 @@ namespace HECSFramework.Core
         {
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
-            
+
             if (IsAlive)
                 component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
 
@@ -184,7 +184,7 @@ namespace HECSFramework.Core
             {
                 if (needRegister)
                     RegisterService.RegisterSystem(sys);
-                
+
                 sys.InitSystem();
             }
 
@@ -207,13 +207,17 @@ namespace HECSFramework.Core
             if (component is IDisposable disposable)
                 disposable.Dispose();
 
-            TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, false);
+            if (IsInited)
+                TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, false);
+
             components[component.ComponentsMask.Index] = null;
             TypesMap.RemoveComponent(this, component);
             ComponentsMask.RemoveMask(component.ComponentsMask.Index);
 
             component.IsAlive = false;
-            World?.AddOrRemoveComponentEvent(component, false);
+
+            if (IsInited)
+                World?.AddOrRemoveComponentEvent(component, false);
         }
 
         private void Reset()
@@ -486,7 +490,7 @@ namespace HECSFramework.Core
 
         public override bool Equals(object obj)
         {
-            return obj is IEntity entity &&  entity.GUID == GUID;
+            return obj is IEntity entity && entity.GUID == GUID;
         }
     }
 
