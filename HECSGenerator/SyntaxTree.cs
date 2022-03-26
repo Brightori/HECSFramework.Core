@@ -247,8 +247,11 @@ namespace HECSFramework.Core.Generator
         public RightScopeSyntax(int tabspace, bool isClosed) : this(tabspace)
         {
             if (!isClosed)
+            {
+                StringValue += CParse.Comma;
                 return;
-
+            }
+                
             StringValue += CParse.Semicolon;
         }
 

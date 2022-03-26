@@ -53,7 +53,7 @@ namespace HECSFramework.Core
         }
 
         /// <summary>
-        /// это прямой доступ к коллекции, когда нам надо быстро без локов и проверок
+        /// direct access to array for manual data reading/manipulations
         /// </summary>
         /// <returns></returns>
         public T[] DirectAccess() => data;
