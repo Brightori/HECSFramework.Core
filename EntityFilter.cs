@@ -84,7 +84,7 @@ namespace HECSFramework.Core
 
                 for (int i = 0; i < count; i++)
                 {
-                    var currentEntity = worldEntities[i];
+                    var currentEntity = worldEntities.Data[i];
 
                     if (!currentEntity.IsAlive())
                         continue;

@@ -10,6 +10,7 @@ namespace HECSFramework.Core
         private UpdateModuleGlobalStart startModule;
         private UpdateModuleAsync updateModuleAsync;
         private DispatchModule dispatchModule;
+        private PriorutyUpdateModule priorityUpdateModule = new();
 
         public Action FinishUpdate { get; set; }
 
@@ -25,11 +26,14 @@ namespace HECSFramework.Core
 
         public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable
         {
+            if (registerUpdate is IPriorityUpdatable priorityUpdatable)
+                priorityUpdateModule.Register(priorityUpdatable, add);
+
             if (registerUpdate is INeedGlobalStart needGlobalStart)
-                startModule.Register(needGlobalStart, true);
+                startModule.Register(needGlobalStart, add);
 
             if (registerUpdate is ILateStart needLateStart)
-                startModule.Register(needLateStart, true);
+                startModule.Register(needLateStart, add);
 
             if (registerUpdate is IUpdatable updatable)
                 defaultModule.Register(updatable, add);
@@ -51,7 +55,6 @@ namespace HECSFramework.Core
         {
             dispatchModule.AddToDispatch(func);
         }
-            
         
         public void AddToDispatch(Action action)
         {
@@ -76,8 +79,8 @@ namespace HECSFramework.Core
         public void Update()
         {
             dispatchModule.UpdateLocal();
+            priorityUpdateModule.UpdateLocal();
             defaultModule.UpdateLocal();
         }
     }
 }
-

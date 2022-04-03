@@ -5,7 +5,7 @@ namespace HECSFramework.Core.Helpers
 {
     public static class CollectionsExtentions
     {
-        public static void AddOrReplace<T,U>(this Dictionary<T,U> dictionary, T key,  U value)
+        public static void AddOrReplace<T, U>(this Dictionary<T, U> dictionary, T key, U value)
         {
             if (dictionary.ContainsKey(key))
                 dictionary[key] = value;
@@ -20,7 +20,7 @@ namespace HECSFramework.Core.Helpers
             list.Add(element);
         }
 
-        public static void AddOrGet<T,U>(this Dictionary<T,U> dictionary, T key, out U value) where U: new()
+        public static void AddOrGet<T, U>(this Dictionary<T, U> dictionary, T key, out U value) where U : new()
         {
             if (dictionary.ContainsKey(key))
                 value = dictionary[key];
@@ -30,9 +30,9 @@ namespace HECSFramework.Core.Helpers
                 value = data;
                 dictionary.Add(key, data);
             }
-        }   
-        
-        public static void AddOrGet<T,U,Z>(this Dictionary<T,Z> dictionary, T key, out Z value) where Z: List<U>, new()
+        }
+
+        public static void AddOrGet<T, U, Z>(this Dictionary<T, Z> dictionary, T key, out Z value) where Z : List<U>, new()
         {
             if (dictionary.ContainsKey(key))
                 value = dictionary[key];
@@ -62,30 +62,29 @@ namespace HECSFramework.Core.Helpers
 
             return false;
         }
-        
-        public static bool AddOrRemoveElement<T>(this ConcurrencyList<T> list, T element, bool add)
+
+        public static void AddOrRemoveElement<T>(this ConcurrencyList<T> list, T element, bool add)
         {
             if (add)
             {
                 if (list.Contains(element))
-                    return false;
+                    return;
 
                 list.Add(element);
-                return true;
             }
             else
             {
-                return list.Remove(element); 
+                list.Remove(element);
             }
         }
-        
+
         public static void RemoveElement<T>(this ConcurrencyList<T> list, Func<T, bool> predicate)
         {
             for (var i = 0; i < list.Count; i++)
             {
-                var element = list[i];
+                var element = list.Data[i];
                 if (element == null) continue;
-                
+
                 if (predicate(element)) list.RemoveAt(i--);
             }
         }
@@ -103,7 +102,7 @@ namespace HECSFramework.Core.Helpers
                 list.Remove(element);
         }
 
-        public static T GetHECSComponent<T>(this List<IComponent> components) where T: IComponent
+        public static T GetHECSComponent<T>(this List<IComponent> components) where T : IComponent
         {
             for (int i = 0; i < components.Count; i++)
             {

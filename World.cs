@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Systems;
 
 namespace HECSFramework.Core
@@ -154,7 +155,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < count; i++)
             {
-                var currentEntity = Entities[i];
+                var currentEntity = Entities.Data[i];
 
                 if (currentEntity.ContainsMask(ref mask))
                 {
@@ -215,7 +216,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < entityService.Entities.Count; i++)
             {
-                if (entityService.Entities[i].TryGetSystem(out T needed))
+                if (entityService.Entities.Data[i].TryGetSystem(out T needed))
                 {
                     if (needed.Owner.IsAlive)
                     {
@@ -248,7 +249,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < entityService.Entities.Count; i++)
             {
-                if (entityService.Entities[i].TryGetHecsComponent(mask, out T needed))
+                if (entityService.Entities.Data[i].TryGetHecsComponent(mask, out T needed))
                 {
                     if (needed.Owner.IsAlive && needed.IsAlive)
                     {
@@ -297,7 +298,7 @@ namespace HECSFramework.Core
                     cacheTryGetbyGuid.TryRemove(entityGuid, out var entityOut);
             }
 
-            entity = Entities.FirstOrDefault(a => a.GUID == entityGuid);
+            entity = Entities.Data.FirstOrDefault(a => a.GUID == entityGuid);
 
             if (entity != null)
                 cacheTryGetbyGuid.TryAdd(entityGuid, entity);

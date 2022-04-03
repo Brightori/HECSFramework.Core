@@ -18,7 +18,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < count; i++)
             {
-                ILateUpdatable lateUpdatable = lateUpdatables[i];
+                ILateUpdatable lateUpdatable = lateUpdatables.Data[i];
                 if (lateUpdatable == null) continue;
 
                 lateUpdatable.UpdateLateLocal();

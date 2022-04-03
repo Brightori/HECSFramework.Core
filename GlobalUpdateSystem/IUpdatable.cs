@@ -18,5 +18,9 @@
         void FixedUpdateLocal();
     }
 
-
+    public interface IPriorityUpdatable : IRegisterUpdatable
+    {
+        int Priority { get; }
+        void PriorityUpdateLocal();
+    }
 }

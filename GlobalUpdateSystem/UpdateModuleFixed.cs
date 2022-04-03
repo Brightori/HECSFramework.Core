@@ -1,27 +1,30 @@
-﻿using HECSFramework.Core.Helpers;
-using System.Collections.Generic;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
-    public class UpdateModuleFixed : IFixedUpdatable, IRegisterUpdate<IFixedUpdatable>
+    public sealed class UpdateModuleFixed : BaseUpdatableModule<IFixedUpdatable>
     {
-        private readonly List<IFixedUpdatable> fixedUpdatables = new List<IFixedUpdatable>(64);
-        private int count;
-
         public void FixedUpdateLocal()
         {
-            count = fixedUpdatables.Count;
+            ProcessAddRemove();
+
+            var count2 = updateOnEntities.Count;
+
+            for (int i = 0; i < count2; i++)
+            {
+                if (!updateOnEntities[i].Entity.IsAlive || updateOnEntities[i].Entity.IsPaused) continue;
+                updateOnEntities[i].Updatable.FixedUpdateLocal();
+            }
+
+            var count = updatables.Count;
 
             for (int i = 0; i < count; i++)
             {
-                IFixedUpdatable fixedUpdatable = fixedUpdatables[i];
+                IFixedUpdatable fixedUpdatable = updatables[i];
                 fixedUpdatable.FixedUpdateLocal();
             }
         }
 
-        public void Register(IFixedUpdatable updatable, bool add)
+        protected override void AfterAddOrRemove()
         {
-            fixedUpdatables.AddOrRemoveElement(updatable, add);
         }
     }
 }

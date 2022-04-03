@@ -42,4 +42,5 @@ public static partial class Doc
     public const string Triggers = "Triggers";
     public const string HECS = "HECS";
     public const string Editor = "Editor";
+    public const string Actor = "Actor";
 }

@@ -29,7 +29,7 @@ namespace HECSFramework.Core
             var count = reactEntities.Count;
 
             for (int i = 0; i < count; i++)
-                reactEntities[i].EntityReact(entity, isAdded);
+                reactEntities.Data[i].EntityReact(entity, isAdded);
         }
 
         public void Dispose()
