@@ -16,7 +16,7 @@ namespace HECSFramework.Rewards
         /// здесь мы передаём того - кого надо наградить
         /// </summary>
         /// <param name="entity"> эта ентити цель награды (если нам нужна цель) </param>
-        public void Award(IEntity entity);
+        void Award(IEntity entity);
     }
 
     public abstract partial class RewardBase : IReward

@@ -10,7 +10,7 @@ namespace HECSFramework.Core
         private UpdateModuleGlobalStart startModule;
         private UpdateModuleAsync updateModuleAsync;
         private DispatchModule dispatchModule;
-        private PriorutyUpdateModule priorityUpdateModule = new();
+        private PriorutyUpdateModule priorityUpdateModule;
 
         public Action FinishUpdate { get; set; }
 
@@ -22,6 +22,7 @@ namespace HECSFramework.Core
             startModule = new UpdateModuleGlobalStart();
             updateModuleAsync = new UpdateModuleAsync();
             dispatchModule = new DispatchModule();
+            priorityUpdateModule = new PriorutyUpdateModule();
         }
 
         public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable

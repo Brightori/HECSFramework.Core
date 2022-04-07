@@ -24,7 +24,7 @@ namespace HECSFramework.Core
 
             public override int GetHashCode()
             {
-                return HashCode.Combine(Listener.SystemGuid);
+                return Listener.SystemGuid.GetHashCode();
             }
         }
 

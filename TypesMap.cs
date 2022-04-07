@@ -150,14 +150,14 @@ namespace HECSFramework.Core
 
     public interface IComponentContextSetter
     {
-        public void SetComponent(IEntity entity, IComponent component);
-        public void RemoveComponent(IEntity entity, IComponent component);
-        public void RegisterComponent(IEntity entity, bool isAdded);
+        void SetComponent(IEntity entity, IComponent component);
+        void RemoveComponent(IEntity entity, IComponent component);
+        void RegisterComponent(IEntity entity, bool isAdded);
     }
 
     public interface ISystemSetter 
     {
-        public void BindSystem(ISystem system);
-        public void UnBindSystem(ISystem system);
+        void BindSystem(ISystem system);
+        void UnBindSystem(ISystem system);
     }
 }
