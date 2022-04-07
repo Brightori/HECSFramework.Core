@@ -8,7 +8,7 @@ namespace Components
     ///if u need new functionality like add InetworkComponent interface - add them to part class
 
     [Serializable]
-    public partial class ActorContainerID : BaseComponent, IActorContainerID
+    public partial class ActorContainerID : BaseComponent
     {
         private string id;
         private int containerID = -1;
@@ -29,10 +29,5 @@ namespace Components
                 return containerID;
             }
         }
-    }
-
-    public partial interface IActorContainerID : IComponent 
-    {
-        string ID { get; }
     }
 }
