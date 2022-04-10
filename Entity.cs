@@ -471,9 +471,9 @@ namespace HECSFramework.Core
 
         public IEnumerable<T> GetComponentsByType<T>()
         {
-            for (int i = 0; i < components.Length; i++)
+            for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
             {
-                if (components[i] != null && components[i] is T needed)
+                if (components[ComponentsMask.CurrentIndexes[i]] is T needed)
                     yield return needed;
             }
         }

@@ -4,12 +4,13 @@ namespace HECSFramework.Core
 {
     public interface IModifier
     {
+        Guid ModifierGuid { get; }
         ModifierCalculationType GetCalculationType { get; }
+        ModifierValueType GetModifierType { get; }
     }
 
     public interface IModifier<T> : IModifier where T : struct
     {
-        Guid ModifiersOwner { get; }
         T GetValue { get; }
         void Modify(ref T currentMod);
     }

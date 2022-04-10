@@ -3,12 +3,12 @@ using Components;
 
 namespace HECSFramework.Core
 {
-    [Documentation(Doc.Ability, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
-    public abstract class BaseAbilitySystem : BaseSystem, IActiveAbilitySystem
+    [Documentation(Doc.Ability, "Basic system for passive abilities, they are launched through the command only at the stage of adding, 1 time")]
+    public abstract class BasePassiveAbilitySystem : BaseSystem, IPassiveAbilitySystem
     {
         private HECSMask predicateMask = HMasks.GetMask<AbilityPredicateComponent>();
 
-        public void CommandReact(ExecuteAbilityCommand command)
+        public void CommandReact(ExecutePassiveAbilityCommand command)
         {
             if (command.Enabled && Owner.TryGetHecsComponent(predicateMask, out AbilityPredicateComponent predicatesComponent))
             {
@@ -23,6 +23,7 @@ namespace HECSFramework.Core
             }
 
             Execute(command.Owner, command.Target, command.Enabled);
+
             Owner.Command(new AbilityWasExecutedCommand { Enabled = command.Enabled });
         }
 

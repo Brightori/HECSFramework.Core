@@ -1,22 +1,55 @@
-﻿using HECSFramework.Core.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace HECSFramework.Core
 {
-    //todo вернуть кэшированное значение и разметку грязный
-    public class ModifiersContainer<T, U> where U : struct where T : IModifier<U>
+    public sealed partial class ModifiersContainer<T, U> where U : struct where T : IModifier<U>
     {
-        private readonly Dictionary<int, HashSet<T>> modifiers = new Dictionary<int, HashSet<T>>()
+        public struct OwnerModifier
         {
-            {(int)ModifierCalculationType.Add, new HashSet<T>()},
-            {(int)ModifierCalculationType.Subtract, new HashSet<T>()},
-            {(int)ModifierCalculationType.Multiply, new HashSet<T>()},
-            {(int)ModifierCalculationType.Divide, new HashSet<T>()},
+            public Guid ModifiersOwner;
+            public T Modifier;
+
+            public override bool Equals(object obj)
+            {
+                return obj is OwnerModifier modifier &&
+                       ModifiersOwner.Equals(modifier.ModifiersOwner) &&
+                       EqualityComparer<T>.Default.Equals(Modifier, modifier.Modifier);
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 2083788928;
+                hashCode = hashCode * -1521134295 + ModifiersOwner.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<T>.Default.GetHashCode(Modifier);
+                return hashCode;
+            }
+        }
+
+        public U CurrentValue { get; private set; }
+        private U baseValue;
+        private U calculatedValue;
+        private bool isDirty;
+
+        private readonly Dictionary<int, List<OwnerModifier>> modifiers = new Dictionary<int, List<OwnerModifier>>()
+        {
+            {(int)ModifierCalculationType.Add, new List<OwnerModifier>()},
+            {(int)ModifierCalculationType.Subtract, new List<OwnerModifier>()},
+            {(int)ModifierCalculationType.Multiply, new List<OwnerModifier>()},
+            {(int)ModifierCalculationType.Divide, new List<OwnerModifier>()},
         };
 
-        public IReadOnlyDictionary<int, HashSet<T>> Modifiers => modifiers;
+        private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>();
+
+        public ModifiersContainer(U baseValue)
+        {
+            this.baseValue = baseValue;
+            CurrentValue = baseValue;
+            calculatedValue = baseValue;
+        }
+
+        public IReadOnlyDictionary<int, List<OwnerModifier>> Modifiers => modifiers;
 
         public bool Contains(Func<T, bool> predicate)
         {
@@ -24,7 +57,7 @@ namespace HECSFramework.Core
             {
                 foreach (var value in modifier.Value)
                 {
-                    if (predicate(value))
+                    if (predicate(value.Modifier))
                         return true;
                 }
             }
@@ -32,54 +65,72 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public void AddUniqueModifier(T modifier)
+        public void SetCurrentValue(U value)
         {
-            if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == modifier.ModifiersOwner))
+            CurrentValue = value;
+        }
+
+        public void AddUniqueModifier(Guid owner, T modifier)
+        {
+            if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == owner || x.Modifier.ModifierGuid == modifier.ModifierGuid))
                 return;
 
-            AddModifier(modifier);
+            AddModifier(owner, modifier);
         }
 
-        public void AddModifier(T modifier)
+        public void AddModifier(Guid owner, T modifier)
         {
-            modifiers[(int)modifier.GetCalculationType].AddOrRemoveElement(modifier, true);
+            modifiers[(int)modifier.GetCalculationType].Add(new OwnerModifier { Modifier = modifier , ModifiersOwner = owner});
         }
 
-        public void RemoveModifier(T modifier)
+        public void RemoveModifier(Guid owner, T modifier)
         {
-            modifiers[(int)modifier.GetCalculationType].AddOrRemoveElement(modifier, false);
+            foreach (var currentmodifier in modifiers[(int)modifier.GetCalculationType])
+            {
+                if (currentmodifier.Modifier.ModifierGuid == modifier.ModifierGuid && currentmodifier.ModifiersOwner == owner)
+                {
+                    modifiers[(int)modifier.GetCalculationType].Remove(currentmodifier);
+                }
+            }
         }  
         
         public void RemoveModifier(Guid modifierOwner)
         {
             foreach (var m in modifiers)
             {
-                foreach (var mf in m.Value.ToArray())
+                foreach (var mf in m.Value)
+                {
                     if (mf.ModifiersOwner == modifierOwner)
-                    {
-                        m.Value.Remove(mf);
-                    }
+                        cleanQueue.Enqueue(mf);
+                }
+
+                while (cleanQueue.Count > 0)
+                    m.Value.Remove(cleanQueue.Dequeue());
             }
         }
 
-        public U GetCalculatedValue(U value)
+        public U GetCalculatedValue()
         {
-            U currentMod = value;
+            if (!isDirty)
+                return calculatedValue;
 
-            //todo оч странное решение, надо пересмотреть, мы не гарантируем что внутри контейнера заявленная арифметическая операция
+            var currentMod = baseValue;
+
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Add])
-                valueMod.Modify(ref currentMod);
+                valueMod.Modifier.Modify(ref currentMod);
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Subtract])
-                valueMod.Modify(ref currentMod);
+                valueMod.Modifier.Modify(ref currentMod);
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Multiply])
-                valueMod.Modify(ref currentMod);
+                valueMod.Modifier.Modify(ref currentMod);
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Divide])
-                valueMod.Modify(ref currentMod);
+                valueMod.Modifier.Modify(ref currentMod);
 
-            return currentMod;
+            isDirty = false;
+            calculatedValue = currentMod;
+            return calculatedValue;
         }
 
         public void Clear()

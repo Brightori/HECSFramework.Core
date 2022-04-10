@@ -2,6 +2,6 @@
 {
     public struct AbilityWasExecutedCommand : ICommand
     {
-        public int AbilityIndex;
+        public bool Enabled;
     }
 }

@@ -43,4 +43,5 @@ public static partial class Doc
     public const string HECS = "HECS";
     public const string Editor = "Editor";
     public const string Actor = "Actor";
+    public const string Stats = "Stats";
 }
