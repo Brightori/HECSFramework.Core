@@ -76,11 +76,13 @@ namespace HECSFramework.Core
                 return;
 
             AddModifier(owner, modifier);
+            isDirty = true;
         }
 
         public void AddModifier(Guid owner, T modifier)
         {
             modifiers[(int)modifier.GetCalculationType].Add(new OwnerModifier { Modifier = modifier , ModifiersOwner = owner});
+            isDirty = true;
         }
 
         public void RemoveModifier(Guid owner, T modifier)
@@ -92,8 +94,15 @@ namespace HECSFramework.Core
                     modifiers[(int)modifier.GetCalculationType].Remove(currentmodifier);
                 }
             }
-        }  
-        
+            isDirty = true;
+        }
+
+        public void Reset()
+        {
+            Clear();
+            isDirty = true;
+        }
+
         public void RemoveModifier(Guid modifierOwner)
         {
             foreach (var m in modifiers)
@@ -107,6 +116,8 @@ namespace HECSFramework.Core
                 while (cleanQueue.Count > 0)
                     m.Value.Remove(cleanQueue.Dequeue());
             }
+
+            isDirty = true;
         }
 
         public U GetCalculatedValue()

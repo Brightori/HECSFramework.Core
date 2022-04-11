@@ -60,8 +60,10 @@ namespace HECSFramework.Core
 
             public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
 
-            public System.Guid ListenerGuid { get; } = Guid.NewGuid();
+            public Guid ListenerGuid { get; } = Guid.NewGuid();
 
+
+            private Queue<IEntity> addQueue = new Queue<IEntity>();
             private Queue<IEntity> removeQueue = new Queue<IEntity>();
 
             public Filter(World world, FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
@@ -75,6 +77,17 @@ namespace HECSFramework.Core
                 world.AddGlobalReactComponent(this);
                 world.AddEntityListener(this, true);
                 GatherEntities(world);
+
+                world.GlobalUpdateSystem.FinishUpdate += ProcessEntities;
+            }
+
+            private void ProcessEntities()
+            {
+                while (addQueue.Count > 0)
+                    Entities.AddOrRemoveElement(addQueue.Dequeue(), true);
+
+                while (removeQueue.Count > 0)
+                    Entities.AddOrRemoveElement(removeQueue.Dequeue(), false);
             }
 
             private void GatherEntities(World world)
@@ -122,13 +135,13 @@ namespace HECSFramework.Core
 
                         if (ContainsMask(entity))
                         {
-                            Entities.AddOrRemoveElement(entity, true);
+                            addQueue.Enqueue(entity);
                             entitiesAtFilter.Add(entity.GUID);
                         }
 
                         if (summaryExclude.Contains(component.ComponentsMask) && entitiesAtFilter.Contains(component.Owner.GUID))
                         {
-                            Entities.Remove(entity);
+                            removeQueue.Enqueue(entity);
                             entitiesAtFilter.Remove(entity.GUID);
                         }
                     }
@@ -140,14 +153,14 @@ namespace HECSFramework.Core
                                 return;
 
                             entitiesAtFilter.Remove(component.Owner.GUID);
-                            Entities.Remove(component.Owner);
+                            removeQueue.Enqueue(component.Owner);
                         }
                         else
                         {
                             if (ContainsMask(component.Owner))
                             {
                                 entitiesAtFilter.Add(component.Owner.GUID);
-                                Entities.Add(component.Owner);
+                                addQueue.Enqueue(component.Owner);
                             }
                         }
                     }
@@ -158,6 +171,10 @@ namespace HECSFramework.Core
             {
                 world.RemoveGlobalReactComponent(this);
                 world.AddEntityListener(this, false);
+                world.GlobalUpdateSystem.FinishUpdate -= ProcessEntities;
+                Entities.Clear();
+                addQueue.Clear();
+                removeQueue.Clear();
             }
 
             public void EntityReact(IEntity entity, bool isAdded)

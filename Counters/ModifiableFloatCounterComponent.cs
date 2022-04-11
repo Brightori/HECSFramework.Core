@@ -7,6 +7,7 @@ namespace Components
     public abstract partial class ModifiableFloatCounterComponent : BaseComponent, ICounterModifiable<float>, IInitable, IDisposable
     {
         public float Value => modifiersContainer.CurrentValue;
+        public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public abstract int Id { get; }
         public abstract float SetupValue { get; }
 
@@ -23,6 +24,8 @@ namespace Components
             var oldCalculated = modifiersContainer.GetCalculatedValue();
             
             modifiersContainer.AddModifier(owner, modifier);
+            modifiersContainer.GetCalculatedValue();
+
             UpdatValueWithModifiers(Value, oldCalculated);
 
             if (CheckModifiedDiff(oldValue, out var command))
@@ -68,7 +71,11 @@ namespace Components
         {
             var oldValue = Value;
             var upd = modifiersContainer.CurrentValue + value;
-            modifiersContainer.SetCurrentValue(upd);
+
+            if (upd > modifiersContainer.GetCalculatedValue())
+                modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue());
+            else
+                modifiersContainer.SetCurrentValue(upd);
 
             if (CheckModifiedDiff(oldValue, out var command))
                 Owner.Command(command);
@@ -88,13 +95,21 @@ namespace Components
 
         private void UpdatValueWithModifiers(float oldValue, float oldCalculated)
         {
-            var percent = oldValue / oldCalculated;
+            var percent = oldCalculated > 0 ? oldValue / oldCalculated : 1;
             modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue()*percent);
         }
 
         public void Dispose()
         {
             modifiersContainer.Clear();
+        }
+
+        public void Reset()
+        {
+            var oldValue = modifiersContainer.CurrentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
+            modifiersContainer.Reset();
+            UpdatValueWithModifiers(oldValue, oldCalculated);
         }
     }
 }

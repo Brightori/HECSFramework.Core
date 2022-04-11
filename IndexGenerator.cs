@@ -32,6 +32,11 @@ namespace HECSFramework.Core
 
                 if (charC == 'e')
                     index += -7;
+
+                if (i > 0)
+                {
+                    index += typeName[i - 1].GetHashCode();
+                }
             }
 
             return index;

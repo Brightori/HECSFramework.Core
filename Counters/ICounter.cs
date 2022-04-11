@@ -29,5 +29,6 @@ namespace HECSFramework.Core
         void AddModifier(Guid owner, IModifier<T> modifier);
         void AddUniqueModifier(Guid owner, IModifier<T> modifier);
         void RemoveModifier(Guid owner, IModifier<T> modifier);
+        void Reset();
     }
 }
