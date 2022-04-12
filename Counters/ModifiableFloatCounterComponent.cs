@@ -106,10 +106,7 @@ namespace Components
 
         public void Reset()
         {
-            var oldValue = modifiersContainer.CurrentValue;
-            var oldCalculated = modifiersContainer.GetCalculatedValue();
             modifiersContainer.Reset();
-            UpdatValueWithModifiers(oldValue, oldCalculated);
         }
     }
 }

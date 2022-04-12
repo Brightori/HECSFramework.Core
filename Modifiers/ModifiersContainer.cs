@@ -100,6 +100,7 @@ namespace HECSFramework.Core
         public void Reset()
         {
             Clear();
+            CurrentValue = baseValue;
             isDirty = true;
         }
 
