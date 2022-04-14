@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HECSFramework.Core 
+namespace HECSFramework.Core
 {
     public static class IndexGenerator
     {
@@ -12,59 +12,19 @@ namespace HECSFramework.Core
         public static int GetIndexForType(Type c)
         {
             var typeName = c.Name;
-            int index = typeName.Length + typeName[0].GetHashCode();
-            int half = typeName.Length / 2;
 
-            for (int i = 0; i < typeName.Length; i++)
-            {
-                char charC = typeName[i];
-                index += charC.GetHashCode();
-                index += typeName.Length;
+            return GetIndexForType(typeName);
+        }
 
-                if (i > half)
-                    index += -1531;
-
-                if (charC == 'a')
-                    index += -51;
-
-                if (charC == 'o')
-                    index += 33;
-
-                if (charC == 'e')
-                    index += -7;
-
-                if (i > 0)
-                {
-                    index += typeName[i - 1].GetHashCode();
-                }
-            }
-
-            return index;
-        } 
-        
-        public static int GetIndexForType(string c)
+        public static int GetIndexForType(string typeName)
         {
-            var typeName = c;
-            int index = typeName.Length + typeName[0].GetHashCode();
-            int half = typeName.Length / 2;
+            var lenght = typeName.Length;
+            int index = lenght + typeName[0].GetHashCode() + 10070531;
 
-            for (int i = 0; i < typeName.Length; i++)
+            for (int i = 0; i < lenght; i++)
             {
-                char charC = typeName[i];
-                index += charC.GetHashCode();
-                index += typeName.Length;
-
-                if (i > half)
-                    index += -1531;
-
-                if (charC == 'a')
-                    index += -51;
-
-                if (charC == 'o')
-                    index += 33;
-
-                if (charC == 'e')
-                    index += -7;
+                int charC = typeName[i].GetHashCode();
+                index += (charC + 101161 + (index ^ charC));
             }
 
             return index;
