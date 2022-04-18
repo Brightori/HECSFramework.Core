@@ -23,7 +23,7 @@ namespace HECSFramework.Core
                 (l.Value as IRemoveSystemListener).RemoveListener(listener);
         }
 
-        public void RemoveListener<T>(ISystem listener) where T: IComponent
+        public void RemoveListener<T>(ISystem listener) 
         {
             var key = typeof(T);
             if (componentListeners.TryGetValue(key, out var container))
@@ -33,7 +33,7 @@ namespace HECSFramework.Core
             }
         }
 
-        public void AddListener<T>(ISystem listener, IReactComponentLocal<T> action) where T: IComponent
+        public void AddListener<T>(ISystem listener, IReactComponentLocal<T> action) 
         {
             var key = typeof(T);
 

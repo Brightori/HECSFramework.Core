@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public sealed class LocalComponentsListenerContainer<T> : IRemoveSystemListener  where T: IComponent
+    public sealed class LocalComponentsListenerContainer<T> : IRemoveSystemListener  
     {
         private struct LocalListener 
         {

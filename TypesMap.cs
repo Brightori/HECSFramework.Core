@@ -84,8 +84,15 @@ namespace HECSFramework.Core
 
         public static ComponentMaskAndIndex GetComponentInfo(IComponent component) 
         {
-            var hashTypeCode = TypeToHash[component.GetType()];
-            return MapIndexes[hashTypeCode];
+            try
+            {
+                var hashTypeCode = TypeToHash[component.GetType()];
+                return MapIndexes[hashTypeCode];
+            }
+            catch
+            {
+                throw new InvalidOperationException();
+            }
         }
 
         /// <summary>
