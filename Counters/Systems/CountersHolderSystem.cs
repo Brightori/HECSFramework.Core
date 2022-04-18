@@ -20,12 +20,7 @@ namespace Systems
 
                 if (c is ICounterModifiable<float> modifCounter)
                 {
-                    if (c is ISubCounter subCounter)
-                    {
-                        countersHolder.AddComplexFloatModifiableCounter((subCounter.Id, subCounter.SubId), modifCounter);
-                    }
-                    else
-                        countersHolder.AddFloatModifiableCounter(modifCounter);
+                    countersHolder.AddFloatModifiableCounter(modifCounter);
                 }
             }
         }
@@ -49,38 +44,11 @@ namespace Systems
         {
             countersHolder.ResetCounters();
         }
-
-        public void CommandReact(AddComplexCounterModifierCommand<float> command)
-        {
-            var key = (command.Id, command.SubId);
-
-            if (countersHolder.ComplexFloatCounters.ContainsKey(key))
-            {
-                if (command.IsUnique)
-                    countersHolder.ComplexFloatCounters[key].AddUniqueModifier(command.Owner, command.Modifier);
-                else
-                {
-                    countersHolder.ComplexFloatCounters[key].AddModifier(command.Owner, command.Modifier);
-                }
-            }
-        }
-
-        public void CommandReact(RemoveComplexCounterModifierCommand<float> command)
-        {
-            var key = (command.Id, command.SubId);
-
-            if (countersHolder.ComplexFloatCounters.ContainsKey(key))
-            {
-                countersHolder.ComplexFloatCounters[key].RemoveModifier(command.Owner, command.Modifier);
-            }
-        }
     }
 
     public interface ICountersHolderSystem : ISystem,
         IReactCommand<AddCounterModifierCommand<float>>,
-        IReactCommand<AddComplexCounterModifierCommand<float>>,
         IReactCommand<RemoveCounterModifierCommand<float>>,
-        IReactCommand<RemoveComplexCounterModifierCommand<float>>,
         IReactCommand<ResetCountersCommand>
     {
     }
