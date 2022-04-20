@@ -2,9 +2,9 @@
 
 namespace HECSFramework.Core
 {
-    public class UpdateModuleGlobalStart : INeedGlobalStart, IRegisterUpdate<INeedGlobalStart>, IRegisterUpdate<ILateStart>
+    public class UpdateModuleGlobalStart : IGlobalStart, IRegisterUpdate<IGlobalStart>, IRegisterUpdate<ILateStart>
     {
-        private readonly Queue<INeedGlobalStart> globalStartups = new Queue<INeedGlobalStart>(64);
+        private readonly Queue<IGlobalStart> globalStartups = new Queue<IGlobalStart>(64);
         private readonly Queue<ILateStart> lateStartups = new Queue<ILateStart>(64);
         private bool isStarted;
         private bool isLateStarted;
@@ -33,7 +33,7 @@ namespace HECSFramework.Core
 
         //тут адд не нужен, но мы оставляем его ради однообразия сигнатуры
         //we dont needed bool add here, but we keep it for same signature in all register methods 
-        public void Register(INeedGlobalStart updatable, bool add)
+        public void Register(IGlobalStart updatable, bool add)
         {
             if (isStarted)
                 updatable.GlobalStart();
@@ -56,7 +56,7 @@ namespace HECSFramework.Core
         }
     }
     
-    public interface INeedGlobalStart : IRegisterUpdatable
+    public interface IGlobalStart : IRegisterUpdatable
     {
         void GlobalStart();
     }

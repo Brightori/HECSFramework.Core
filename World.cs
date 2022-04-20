@@ -249,6 +249,8 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < entityService.Entities.Count; i++)
             {
+                if (!entityService.Entities.Data[i].ContainsMask(ref mask)) continue;
+
                 if (entityService.Entities.Data[i].TryGetHecsComponent(mask, out T needed))
                 {
                     if (needed.Owner.IsAlive && needed.IsAlive)

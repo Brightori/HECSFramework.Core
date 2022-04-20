@@ -17,6 +17,12 @@ namespace Systems
 
         public Guid ListenerGuid { get; } = Guid.NewGuid();
 
+        public override void InitSystem()
+        {
+            removerCallbackCommands = new Remover<WaitAndCallbackCommand>(waitCallbackCommands);
+            removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
+        }
+
         public void ComponentReact(IComponent component, bool isAdded)
         {
             if (waitingCommands.TryGetValue(component.ComponentsMask, out var globalCommands))
@@ -54,11 +60,6 @@ namespace Systems
                 newQueue.Enqueue(new WaitingCommand<T>(command));
                 waitingCommands.Add(mask, newQueue);
             }
-        }
-
-        public override void InitSystem()
-        {
-            removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
         }
 
         public void CommandGlobalReact(WaitAndEntityCallbackCommand command)
@@ -109,6 +110,7 @@ namespace Systems
 
                 if (timer.Timer <= 0)
                 {
+                    timer.CallBack?.Invoke();
                     removerCallbackCommands.Add(timer);
                 }
             }

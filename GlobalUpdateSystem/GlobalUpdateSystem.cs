@@ -28,7 +28,7 @@ namespace HECSFramework.Core
             if (registerUpdate is IPriorityUpdatable priorityUpdatable)
                 priorityUpdateModule.Register(priorityUpdatable, add);
 
-            if (registerUpdate is INeedGlobalStart needGlobalStart)
+            if (registerUpdate is IGlobalStart needGlobalStart)
                 startModule.Register(needGlobalStart, add);
 
             if (registerUpdate is ILateStart needLateStart)
