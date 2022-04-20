@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public abstract class BaseUpdatableModule<T> : IRegisterUpdate<T> where T : IRegisterUpdatable 
+    public abstract class BaseUpdatableModule<T> : IDisposable, IRegisterUpdate<T> where T : IRegisterUpdatable
     {
         protected sealed class UpdateWithOwnerContainer
         {
@@ -16,8 +17,8 @@ namespace HECSFramework.Core
             }
         }
 
-        protected readonly List<T> updatables = new List<T>(128);
-        protected readonly List<UpdateWithOwnerContainer> updateOnEntities = new List<UpdateWithOwnerContainer>(128);
+        protected readonly ConcurrencyList<T> updatables = new ConcurrencyList<T>(128);
+        protected readonly ConcurrencyList<UpdateWithOwnerContainer> updateOnEntities = new ConcurrencyList<UpdateWithOwnerContainer>(128);
 
         private Queue<UpdateWithOwnerContainer> addWithOwnersQueue = new Queue<UpdateWithOwnerContainer>(16);
         private Queue<IHaveOwner> removeWithOwnersQueue = new Queue<IHaveOwner>(16);
@@ -60,7 +61,7 @@ namespace HECSFramework.Core
 
                     for (int i = 0; i < count; i++)
                     {
-                        var update = updateOnEntities[i];
+                        var update = updateOnEntities.Data[i];
 
                         if (update.Entity == remove)
                         {
@@ -89,10 +90,22 @@ namespace HECSFramework.Core
                 }
 
                 AfterAddOrRemove();
-                IsDirty=false;
+                IsDirty = false;
             }
         }
 
         protected abstract void AfterAddOrRemove();
+
+        public void Dispose()
+        {
+            updatables.Clear();
+            updateOnEntities.Clear();
+
+            addWithOwnersQueue.Clear();
+            removeWithOwnersQueue.Clear();
+
+            addUpdatablesQueue.Clear();
+            removeUpdatablesQueue.Clear();
+        }
     }
 }

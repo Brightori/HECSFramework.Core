@@ -46,7 +46,7 @@ namespace HECSFramework.Core
 
         public void Register(ILateStart updatable, bool add)
         {
-            if (isLateStarted)
+            if (isLateStarted && add)
                 updatable.LateStart();
             else
             {

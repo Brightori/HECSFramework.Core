@@ -10,15 +10,15 @@
 
             for (int i = 0; i < count2; i++)
             {
-                if (!updateOnEntities[i].Entity.IsAlive || updateOnEntities[i].Entity.IsPaused) continue;
-                updateOnEntities[i].Updatable.FixedUpdateLocal();
+                if (!updateOnEntities.Data[i].Entity.IsAlive || updateOnEntities.Data[i].Entity.IsPaused) continue;
+                updateOnEntities.Data[i].Updatable.FixedUpdateLocal();
             }
 
             var count = updatables.Count;
 
             for (int i = 0; i < count; i++)
             {
-                IFixedUpdatable fixedUpdatable = updatables[i];
+                IFixedUpdatable fixedUpdatable = updatables.Data[i];
                 fixedUpdatable.FixedUpdateLocal();
             }
         }

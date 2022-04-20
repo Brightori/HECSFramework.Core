@@ -7,7 +7,12 @@
     {
         void UpdateLocal();
     }
-    
+
+    public interface IUpdatableDelta : IRegisterUpdatable
+    {
+        void UpdateLocalDelta(float deltaTime);
+    }
+
     public interface ILateUpdatable : IRegisterUpdatable
     {
         void UpdateLateLocal();

@@ -3,12 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using global::Unity.IL2CPP.CompilerServices;
 
-    [Il2CppSetOption(Option.NullChecks, false)]
-    [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
-    [Il2CppSetOption(Option.DivideByZeroChecks, false)]
-    internal static class ArrayHelpers
+    internal static partial class ArrayHelpers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Grow<T>(ref T[] array, int newSize)

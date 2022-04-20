@@ -9,13 +9,25 @@ namespace HECSFramework.Core
     [Serializable]
     public sealed partial class ConcurrencyList<T> : IEnumerable<T>
     {
+        private class SortComparer : IComparer<T>
+        {
+            public Comparison<T> Comparer;
+
+            public int Compare(T x, T y)
+            {
+                return Comparer.Invoke(x, y);
+            }
+        }
+
+
         public T[] Data;
         private int length;
         private int capacity;
 
-        public int Count  => length;
+        public int Count => length;
 
         public EqualityComparer<T> Comparer;
+        private SortComparer sortComparer;
 
         private int locked = 0;
 
@@ -83,7 +95,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Add( T value)
+        public int Add(T value)
         {
             Lock();
 
@@ -94,7 +106,7 @@ namespace HECSFramework.Core
             }
 
             Data[index] = value;
-            
+
             UnLock();
             return index;
         }
@@ -148,6 +160,12 @@ namespace HECSFramework.Core
             }
         }
 
+        public void Sort(Comparison<T> comparison)
+        {
+            sortComparer.Comparer = comparison;
+            Array.Sort(Data, 0, length, sortComparer);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Swap(int source, int destination) => Data[destination] = Data[source];
 
@@ -155,7 +173,18 @@ namespace HECSFramework.Core
         public int IndexOf(T value) => ArrayHelpers.IndexOf(Data, value, Comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Remove(T value) => RemoveAt(IndexOf(value));
+        public bool Remove(T value)
+        {
+            var index = IndexOf(value);
+
+            if (index > -1)
+            {
+                RemoveAt(index);
+                return true;
+            }
+
+            return false;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveSwap(T value, out ResultSwap swap) => RemoveAtSwap(IndexOf(value), out swap);
@@ -217,7 +246,7 @@ namespace HECSFramework.Core
             Array.Clear(Data, 0, length);
             length = 0;
         }
-      
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] ToArray()
         {

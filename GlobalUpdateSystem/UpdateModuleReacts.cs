@@ -1,6 +1,6 @@
-﻿using HECSFramework.Core.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using HECSFramework.Core.Helpers;
 
 namespace HECSFramework.Core
 {

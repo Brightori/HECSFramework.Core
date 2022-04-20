@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public class PriorutyUpdateModule : BaseUpdatableModule<IPriorityUpdatable>, IUpdatable
+    public class PriorityUpdateModule : BaseUpdatableModule<IPriorityUpdatable>, IUpdatable
     {
         public void UpdateLocal()
         {
@@ -10,7 +10,7 @@
             var count = updatables.Count;
             for (int i = 0; i < count; i++)
             {
-                IPriorityUpdatable updatable = updatables[i];
+                IPriorityUpdatable updatable = updatables.Data[i];
                 updatable.PriorityUpdateLocal();
             }
         }
@@ -21,8 +21,8 @@
 
             for (int i = 0; i < count; i++)
             {
-                if (!updateOnEntities[i].Entity.IsAlive || updateOnEntities[i].Entity.IsPaused) continue;
-                updateOnEntities[i].Updatable.PriorityUpdateLocal();
+                if (!updateOnEntities.Data[i].Entity.IsAlive || updateOnEntities.Data[i].Entity.IsPaused) continue;
+                updateOnEntities.Data[i].Updatable.PriorityUpdateLocal();
             }
         }
 

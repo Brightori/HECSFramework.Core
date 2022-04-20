@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
-    public sealed class UpdateModuleDefault : BaseUpdatableModule<IUpdatable>, IUpdatable
+    public sealed class UpdateModuleDeltaTime : BaseUpdatableModule<IUpdatableDelta>,  IUpdatableDelta
     {
-        public void UpdateLocal()
+        public void UpdateLocalDelta(float delta)
         {
             ProcessAddRemove();
 
@@ -13,15 +11,15 @@ namespace HECSFramework.Core
             for (int i = 0; i < count2; i++)
             {
                 if (!updateOnEntities.Data[i].Entity.IsAlive || updateOnEntities.Data[i].Entity.IsPaused) continue;
-                updateOnEntities.Data[i].Updatable.UpdateLocal();
+                updateOnEntities.Data[i].Updatable.UpdateLocalDelta(delta);
             }
 
             var count = updatables.Count;
 
             for (int i = 0; i < count; i++)
             {
-                IUpdatable fixedUpdatable = updatables.Data[i];
-                fixedUpdatable.UpdateLocal();
+                IUpdatableDelta fixedUpdatable = updatables.Data[i];
+                fixedUpdatable.UpdateLocalDelta(delta);
             }
         }
 

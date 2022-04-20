@@ -2,15 +2,14 @@
 
 namespace HECSFramework.Core
 {
-    public partial class GlobalUpdateSystem
+    public partial class GlobalUpdateSystem : IDisposable
     {
         private UpdateModuleFixed fixedModule;
         private UpdateModuleLate lateModule;
         private UpdateModuleDefault defaultModule;
+        private UpdateModuleDeltaTime deltaUpdateModule;
         private UpdateModuleGlobalStart startModule;
-        private UpdateModuleAsync updateModuleAsync;
-        private DispatchModule dispatchModule;
-        private PriorutyUpdateModule priorityUpdateModule;
+        private PriorityUpdateModule priorityUpdateModule;
 
         public Action FinishUpdate { get; set; }
 
@@ -19,10 +18,9 @@ namespace HECSFramework.Core
             fixedModule = new UpdateModuleFixed();
             lateModule = new UpdateModuleLate();
             defaultModule = new UpdateModuleDefault();
+            deltaUpdateModule = new UpdateModuleDeltaTime();
             startModule = new UpdateModuleGlobalStart();
-            updateModuleAsync = new UpdateModuleAsync();
-            dispatchModule = new DispatchModule();
-            priorityUpdateModule = new PriorutyUpdateModule();
+            priorityUpdateModule = new PriorityUpdateModule();
         }
 
         public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable
@@ -39,27 +37,17 @@ namespace HECSFramework.Core
             if (registerUpdate is IUpdatable updatable)
                 defaultModule.Register(updatable, add);
 
+            if (registerUpdate is IUpdatableDelta updatableDelta)
+                deltaUpdateModule.Register(updatableDelta, add);
+
             if (registerUpdate is IFixedUpdatable fixedUpdatable)
                 fixedModule.Register(fixedUpdatable, add);
 
             if (registerUpdate is ILateUpdatable lateUpdatable)
                 lateModule.Register(lateUpdatable, add);
 
-            if (registerUpdate is IAsyncUpdatable updatableAsync)
-                updateModuleAsync.Register(updatableAsync, add);
-
             UnityFuncs(registerUpdate, add);
             AdditionalFuncs(registerUpdate, add);
-        }
-
-        public void AddToDispatch(Func<bool> func)
-        {
-            dispatchModule.AddToDispatch(func);
-        }
-        
-        public void AddToDispatch(Action action)
-        {
-            dispatchModule.AddToDispatch(action);
         }
 
         partial void UnityFuncs(IRegisterUpdatable registerUpdatable, bool add);
@@ -79,9 +67,23 @@ namespace HECSFramework.Core
 
         public void Update()
         {
-            dispatchModule.UpdateLocal();
             priorityUpdateModule.UpdateLocal();
             defaultModule.UpdateLocal();
+        }
+
+        public void UpdateDelta(float deltaTime)
+        {
+            deltaUpdateModule.UpdateLocalDelta(deltaTime);
+        }
+
+        public void Dispose()
+        {
+            fixedModule.Dispose();
+            lateModule.Dispose();
+            defaultModule.Dispose();
+            deltaUpdateModule.Dispose();
+            startModule.Dispose();
+            priorityUpdateModule.Dispose();
         }
     }
 }

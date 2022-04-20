@@ -1,16 +1,19 @@
-﻿using Commands;
-using HECSFramework.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Commands;
+using HECSFramework.Core;
 
 namespace Systems
 {
-
-    public sealed class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatable, IReactGlobalCommand<WaitAndCallbackCommand>
+    public sealed class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatableDelta, IReactGlobalCommand<WaitAndEntityCallbackCommand>, IReactGlobalCommand<WaitAndCallbackCommand>
     {
         private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
-        private WaitAndCallbackCommand[] waitAndCallbackCommands = new WaitAndCallbackCommand[128];
+
+        private ConcurrencyList<WaitAndEntityCallbackCommand> waitAndCallbackEntityCommands = new ConcurrencyList<WaitAndEntityCallbackCommand>(8);
+        private Remover<WaitAndEntityCallbackCommand> removerwaitAndCallbackEntityCommands;
+
+        private ConcurrencyList<WaitAndCallbackCommand> waitCallbackCommands = new ConcurrencyList<WaitAndCallbackCommand>(8);
+        private Remover<WaitAndCallbackCommand> removerCallbackCommands;
 
         public Guid ListenerGuid { get; } = Guid.NewGuid();
 
@@ -25,19 +28,23 @@ namespace Systems
 
         public void EntityReact(IEntity entity, bool isAdded)
         {
-            foreach (var kv in waitingCommands)
+            if (isAdded)
             {
-                var key = kv.Key;
-                if (entity.ContainsMask(ref key))
+                foreach (var kv in waitingCommands)
                 {
-                    while (kv.Value.Count > 0)
+                    var key = kv.Key;
+                    if (entity.ContainsMask(ref key))
                     {
-                        kv.Value.Dequeue().NowYourTime(Owner.WorldId);
+                        while (kv.Value.Count > 0)
+                        {
+                            kv.Value.Dequeue().NowYourTime(Owner.WorldId);
+                        }
                     }
                 }
             }
         }
-        public void AddWaitingCommand<T>(T command, HECSMask mask) where T :  struct, IGlobalCommand
+
+        public void AddWaitingCommand<T>(T command, HECSMask mask) where T : struct, IGlobalCommand
         {
             if (waitingCommands.TryGetValue(mask, out var globalCommands))
                 globalCommands.Enqueue(new WaitingCommand<T>(command));
@@ -51,51 +58,65 @@ namespace Systems
 
         public override void InitSystem()
         {
+            removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
         }
 
-        public void UpdateLocal()
+        public void CommandGlobalReact(WaitAndEntityCallbackCommand command)
         {
-            var count = waitAndCallbackCommands.Length;
+            waitAndCallbackEntityCommands.Add(command);
+        }
+
+        public void UpdateLocalDelta(float deltaTime)
+        {
+            removerwaitAndCallbackEntityCommands.ProcessRemoving();
+            removerCallbackCommands.ProcessRemoving();
+            
+            WaitAndCallBackEntityProcess(deltaTime);
+            WaitAndCallBackProcess(deltaTime);
+        }
+
+        public void WaitAndCallBackEntityProcess(float deltaTime)
+        {
+            var count = waitAndCallbackEntityCommands.Count;
 
             for (int i = 0; i < count; i++)
             {
-                ref var timer = ref waitAndCallbackCommands[i];
+                ref var timer = ref waitAndCallbackEntityCommands.Data[i];
 
                 if (timer.IsOnRun)
                 {
-                    timer.Timer -= Time.deltaTime;
+                    timer.Timer -= deltaTime;
 
                     if (timer.Timer <= 0)
                     {
                         timer.IsOnRun = false;
                         timer.CallBack?.Invoke(timer.CallBackWaiter);
+                        removerwaitAndCallbackEntityCommands.Add(timer);
                     }
+                }
+            }
+        }
+
+        public void WaitAndCallBackProcess(float deltaTime)
+        {
+            var count = waitCallbackCommands.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                ref var timer = ref waitCallbackCommands.Data[i];
+
+                timer.Timer -= deltaTime;
+
+                if (timer.Timer <= 0)
+                {
+                    removerCallbackCommands.Add(timer);
                 }
             }
         }
 
         public void CommandGlobalReact(WaitAndCallbackCommand command)
         {
-            Add(ref command);
-        }
-
-        private void Add(ref WaitAndCallbackCommand command)
-        {
-            var count = waitAndCallbackCommands.Length;
-
-            for (int i = 0; i < count; i++)
-            {
-                ref var timer = ref waitAndCallbackCommands[i];
-                if (timer.IsOnRun == false)
-                {
-                    command.IsOnRun = true;
-                    timer = command;
-                    return;
-                }
-            }
-
-            Array.Resize(ref waitAndCallbackCommands, count * 2);
-            waitAndCallbackCommands[count] = command;
+            waitCallbackCommands.Add(command);
         }
     }
 

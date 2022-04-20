@@ -2,7 +2,7 @@
 
 namespace Commands
 {
-    internal struct DiffCounterCommand<T> : ICommand where T: struct
+    public struct DiffCounterCommand<T> : ICommand where T: struct
     {
         public int Id;
         public T Diff;
