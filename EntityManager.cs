@@ -75,8 +75,8 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : struct, ICommand, IGlobalCommand 
-            => Worlds[worldIndex].Command(command, ref waitForComponent);
+        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0, bool sendToAll = true) where T : struct, ICommand, IGlobalCommand 
+            => Worlds[worldIndex].Command(command, ref waitForComponent, sendToAll);
 
         public static void RegisterEntity(IEntity entity, bool add)
         {

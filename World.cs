@@ -92,11 +92,17 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public void Command<T>(T command, ref HECSMask waitForComponent) where T : struct, ICommand, IGlobalCommand
+        public void Command<T>(T command, ref HECSMask waitForComponent, bool sendToAll = true) where T : struct, ICommand, IGlobalCommand
         {
+            if (sendToAll)
+                commandService.Invoke(command);
+
             if (TryGetEntityByComponents(out var entity, ref waitForComponent))
             {
-                commandService.Invoke(command);
+                if (!sendToAll)
+                    entity.Command(command);
+
+                return;
             }
 
             waitingCommandsSystems.AddWaitingCommand(command, waitForComponent);
