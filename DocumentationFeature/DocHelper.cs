@@ -44,4 +44,6 @@ public static partial class Doc
     public const string Editor = "Editor";
     public const string Actor = "Actor";
     public const string Stats = "Stats";
+    public const string Physics = "Physics";
+    public const string Provider = "Provider";
 }

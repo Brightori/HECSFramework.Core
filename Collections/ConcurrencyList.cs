@@ -40,6 +40,7 @@ namespace HECSFramework.Core
             this.length = 0;
 
             this.Comparer = EqualityComparer<T>.Default;
+            this.sortComparer = new SortComparer();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -50,6 +51,7 @@ namespace HECSFramework.Core
             this.length = 0;
 
             this.Comparer = EqualityComparer<T>.Default;
+            this.sortComparer = new SortComparer();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,6 +63,7 @@ namespace HECSFramework.Core
             Array.Copy(other.Data, 0, this.Data, 0, this.length);
 
             this.Comparer = other.Comparer;
+            this.sortComparer = new SortComparer();
         }
 
         #endregion
