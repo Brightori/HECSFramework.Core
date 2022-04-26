@@ -46,4 +46,5 @@ public static partial class Doc
     public const string Stats = "Stats";
     public const string Physics = "Physics";
     public const string Provider = "Provider";
+    public const string FX = "FX";
 }
