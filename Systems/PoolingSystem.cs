@@ -9,7 +9,7 @@ namespace Systems
         private int maxCapacity = 512;
 
         private Dictionary<int, Stack<IComponent>> poolOfComponents = new Dictionary<int, Stack<IComponent>>(8);
-        public System.Guid ListenerGuid { get; } = Guid.NewGuid();
+        public Guid ListenerGuid { get; } = Guid.NewGuid();
         
         public override void InitSystem()
         {

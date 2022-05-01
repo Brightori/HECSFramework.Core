@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public class EntityLocalCommandService  
+    public class EntityLocalCommandService
     {
         private Dictionary<Type, object> commandListeners = new Dictionary<Type, object>();
 
@@ -32,7 +32,7 @@ namespace HECSFramework.Core
             }
         }
 
-        public void AddListener<T>(ISystem listener,IReactCommand<T> action)  where T: struct, ICommand
+        public void AddListener<T>(ISystem listener, IReactCommand<T> action) where T : struct, ICommand
         {
             var key = typeof(T);
 
@@ -54,7 +54,7 @@ namespace HECSFramework.Core
 
 namespace HECSFramework.Core
 {
-    public sealed class LocalCommandListener<T> : IRemoveSystemListener where T: struct, ICommand
+    public sealed class LocalCommandListener<T> : IRemoveSystemListener where T : struct, ICommand
     {
         private struct ListenerContainer
         {
@@ -70,6 +70,7 @@ namespace HECSFramework.Core
 
         private Dictionary<Guid, ListenerContainer> listeners = new Dictionary<Guid, ListenerContainer>(16);
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
+        private bool isDirty;
 
         public LocalCommandListener(ISystem listener, IReactCommand<T> react)
         {
@@ -88,6 +89,8 @@ namespace HECSFramework.Core
 
         public void Invoke(T data)
         {
+            ProcessRemove();
+
             foreach (var listener in listeners)
             {
                 var actualListener = listener.Value;
@@ -95,6 +98,7 @@ namespace HECSFramework.Core
                 if (actualListener.Owner == null || !actualListener.Owner.IsAlive)
                 {
                     listenersToRemove.Enqueue(listener.Key);
+                    isDirty = true;
                     continue;
                 }
 
@@ -104,17 +108,30 @@ namespace HECSFramework.Core
                 actualListener.Listener.CommandReact(data);
             }
 
-            while (listenersToRemove.Count > 0)
+            ProcessRemove();
+        }
+
+        private void ProcessRemove()
+        {
+            if (isDirty)
             {
-                var remove = listenersToRemove.Dequeue();
-                listeners.Remove(remove);
+                while (listenersToRemove.Count > 0)
+                {
+                    var remove = listenersToRemove.Dequeue();
+                    listeners.Remove(remove);
+                }
+
+                isDirty = false;
             }
         }
 
         public void RemoveListener(ISystem listener)
         {
-           if (listeners.ContainsKey(listener.SystemGuid))
-                listeners.Remove(listener.SystemGuid);
+            if (listeners.ContainsKey(listener.SystemGuid))
+            {
+                listenersToRemove.Enqueue(listener.SystemGuid);
+                isDirty = true;
+            }
         }
     }
 

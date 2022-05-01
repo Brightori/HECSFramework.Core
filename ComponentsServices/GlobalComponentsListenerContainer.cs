@@ -31,6 +31,7 @@ namespace HECSFramework.Core
         private Dictionary<Guid, GlobalListener> listeners = new Dictionary<Guid, GlobalListener>(16);
 
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
+        private bool isDirty;
 
         public GlobalComponentsListenerContainer(ISystem listener, IReactComponentGlobal<T> action)
         {
@@ -47,6 +48,8 @@ namespace HECSFramework.Core
 
         public void Invoke(T component, bool isAdded)
         {
+            ProcessRemove();
+
             foreach (var listener in listeners)
             {
                 var actualListener = listener.Value;
@@ -54,6 +57,7 @@ namespace HECSFramework.Core
                 if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
                 {
                     listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
+                    isDirty = true;
                     continue;
                 }
 
@@ -63,17 +67,30 @@ namespace HECSFramework.Core
                 actualListener.Action.ComponentReactGlobal(component, isAdded);
             }
 
-            while (listenersToRemove.Count > 0)
+            ProcessRemove();
+        }
+
+        private void ProcessRemove()
+        {
+            if (isDirty)
             {
-                var remove = listenersToRemove.Dequeue();
-                listeners.Remove(remove);
+                while (listenersToRemove.Count > 0)
+                {
+                    var remove = listenersToRemove.Dequeue();
+                    listeners.Remove(remove);
+                }
+
+                isDirty = false;
             }
         }
 
         public void RemoveListener(ISystem listener)
         {
             if (listeners.ContainsKey(listener.SystemGuid))
-                listeners.Remove(listener.SystemGuid);
+            {
+                listenersToRemove.Enqueue(listener.SystemGuid);
+                isDirty = true;
+            }
         }
     }
 }
