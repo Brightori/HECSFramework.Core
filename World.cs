@@ -11,10 +11,10 @@ namespace HECSFramework.Core
         public int Index { get; private set; }
 
         public GlobalComponentListenersService GlobalComponentListenerService = new GlobalComponentListenersService();
-        
+
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private ComponentsService componentsService = new ComponentsService();
-        
+
         private EntityService entityService = new EntityService();
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
@@ -50,9 +50,9 @@ namespace HECSFramework.Core
 
         public ConcurrencyList<IEntity> Filter(FilterMask include, bool includeAny = false) => entityFilter.GetFilter(include, includeAny);
         public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
-        public  ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
+        public ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
 
-        public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T: IComponent
+        public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T : IComponent
         {
             componentsService.ProcessComponent(component, isAdded);
         }
@@ -92,16 +92,12 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public void Command<T>(T command, ref HECSMask waitForComponent, bool sendToAll = true) where T : struct, ICommand, IGlobalCommand
+        public void Command<T>(T command, ref HECSMask waitForComponent) where T : struct, ICommand, IGlobalCommand
         {
-            if (sendToAll)
-                commandService.Invoke(command);
 
             if (TryGetEntityByComponents(out var entity, ref waitForComponent))
             {
-                if (!sendToAll)
-                    entity.Command(command);
-
+                commandService.Invoke(command);
                 return;
             }
 
@@ -127,7 +123,7 @@ namespace HECSFramework.Core
         {
             componentsService.AddListener(reactComponent);
         }
-        public void AddGlobalReactComponent<T>(ISystem system, IReactComponentGlobal<T> action) where T: IComponent
+        public void AddGlobalReactComponent<T>(ISystem system, IReactComponentGlobal<T> action) where T : IComponent
         {
             GlobalComponentListenerService.AddListener(system, action);
         }
@@ -137,7 +133,7 @@ namespace HECSFramework.Core
             componentsService.RemoveListener(reactComponent);
         }
 
-        public void RemoveGlobalReactComponent<T>(ISystem system) where T: IComponent
+        public void RemoveGlobalReactComponent<T>(ISystem system) where T : IComponent
         {
             GlobalComponentListenerService.RemoveListener<T>(system);
         }
@@ -232,15 +228,15 @@ namespace HECSFramework.Core
                             return needed;
                         }
 
-                        singleSystems.Add(typeof(T), needed);   
-                        return needed;   
+                        singleSystems.Add(typeof(T), needed);
+                        return needed;
                     }
                 }
             }
 
             return default;
         }
-        
+
         public T GetSingleComponent<T>() where T : IComponent
         {
             var key = typeof(T);
@@ -267,8 +263,8 @@ namespace HECSFramework.Core
                             return needed;
                         }
 
-                        singleComponents.Add(key, needed);   
-                        return needed;   
+                        singleComponents.Add(key, needed);
+                        return needed;
                     }
                 }
             }
