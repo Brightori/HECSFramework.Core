@@ -492,6 +492,20 @@ namespace HECSFramework.Core
         {
             return obj is IEntity entity && entity.GUID == GUID;
         }
+
+        public bool RemoveHecsSystem<T>() where T : ISystem
+        {
+            foreach (var s in systems)
+            {
+                if (s is T)
+                {
+                    RemoveHecsSystem(s);
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public interface IChangeWorldIndex

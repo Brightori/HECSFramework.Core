@@ -285,5 +285,10 @@ namespace HECSFramework.Core
         {
             return ComponentsMask.Contains(mask);
         }
+
+        public bool RemoveHecsSystem<T>() where T : ISystem
+        {
+            return false;
+        }
     }
 }

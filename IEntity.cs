@@ -49,6 +49,8 @@ namespace HECSFramework.Core
         void RemoveHecsComponent<T>() where T: IComponent;
         
         void RemoveHecsSystem(ISystem system);
+        bool RemoveHecsSystem<T>() where T: ISystem;
+
         void Command<T>(T command) where T : struct, ICommand;
 
         bool TryGetSystem<T>(out T system) where T : ISystem;
