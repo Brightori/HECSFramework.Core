@@ -48,4 +48,5 @@ public static partial class Doc
     public const string Provider = "Provider";
     public const string FX = "FX";
     public const string Poolable = "Poolable";
+    public const string Helpers = "Helpers";
 }

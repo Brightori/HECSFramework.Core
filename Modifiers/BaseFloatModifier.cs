@@ -37,6 +37,17 @@ namespace HECSFramework.Core
         public abstract ModifierValueType GetModifierType { get; set; }
         public abstract Guid ModifierGuid { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is BaseModifier<T> modifier &&
+                   ModifierGuid.Equals(modifier.ModifierGuid);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ModifierGuid);
+        }
+
         public abstract void Modify(ref T currentMod);
     }
 }

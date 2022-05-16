@@ -6,6 +6,12 @@ namespace HECSFramework.Core
 {
     public sealed partial class ModifiersContainer<T, U> where U : struct where T : IModifier<U>
     {
+        public struct CleanModifier
+        {
+            public int TypeOfModifier;
+            public OwnerModifier OwnerModifier;
+        }
+
         public struct OwnerModifier
         {
             public Guid ModifiersOwner;
@@ -41,6 +47,7 @@ namespace HECSFramework.Core
         };
 
         private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>();
+        private Queue<CleanModifier> removedModifiers = new Queue<CleanModifier>(4);
 
         public ModifiersContainer(U baseValue)
         {
@@ -81,7 +88,7 @@ namespace HECSFramework.Core
 
         public void AddModifier(Guid owner, T modifier)
         {
-            modifiers[(int)modifier.GetCalculationType].Add(new OwnerModifier { Modifier = modifier , ModifiersOwner = owner});
+            modifiers[(int)modifier.GetCalculationType].Add(new OwnerModifier { Modifier = modifier, ModifiersOwner = owner });
             isDirty = true;
         }
 
@@ -91,9 +98,15 @@ namespace HECSFramework.Core
             {
                 if (currentmodifier.Modifier.ModifierGuid == modifier.ModifierGuid && currentmodifier.ModifiersOwner == owner)
                 {
-                    modifiers[(int)modifier.GetCalculationType].Remove(currentmodifier);
+                    removedModifiers.Enqueue(new CleanModifier
+                    {
+                        OwnerModifier = currentmodifier,
+                        TypeOfModifier = (int)modifier.GetCalculationType,
+                    });
                 }
             }
+
+            CleanUpRemovedModifiers();
             isDirty = true;
         }
 
@@ -148,6 +161,15 @@ namespace HECSFramework.Core
         public void Clear()
         {
             foreach (var kvp in modifiers) kvp.Value.Clear();
+        }
+
+        private void CleanUpRemovedModifiers()
+        {
+            while (removedModifiers.Count > 0)
+            {
+                var remModif = removedModifiers.Dequeue();
+                modifiers[remModif.TypeOfModifier].Remove(remModif.OwnerModifier);
+            }
         }
     }
 }
