@@ -7,6 +7,7 @@ public static partial class Doc
     public const string NPC = "NPC";
     public const string Tag = "Tag";
     public const string GameLogic = "GameLogic";
+    public const string Global = "Global";
     public const string Player = "Player";
     public const string Location = "Location";
     public const string Scenarios = "Scenarios";
