@@ -48,6 +48,12 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            foreach (var c in componentListeners.Values)
+            {
+                if (c is IDisposable disposable)
+                    disposable.Dispose();
+            }
+
             componentListeners.Clear();
         }
     }

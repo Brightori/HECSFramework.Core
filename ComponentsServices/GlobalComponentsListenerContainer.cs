@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public sealed class GlobalComponentsListenerContainer<T> : IRemoveSystemListener where T : IComponent
+    public sealed class GlobalComponentsListenerContainer<T> : IRemoveSystemListener, IDisposable where T : IComponent 
     {
         private struct GlobalListener
         {
@@ -29,13 +29,18 @@ namespace HECSFramework.Core
         }
 
         private Dictionary<Guid, GlobalListener> listeners = new Dictionary<Guid, GlobalListener>(16);
-
+        private Queue<(T component, bool Add)> invokeComponents = new Queue<(T component, bool Add)>(16);
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
+        
         private bool isDirty;
+        private bool isAdded;
+        private World world;
 
         public GlobalComponentsListenerContainer(ISystem listener, IReactComponentGlobal<T> action)
         {
             listeners.Add(listener.SystemGuid, new GlobalListener(listener, action));
+            world = listener.Owner.World;
+            world.GlobalUpdateSystem.FinishUpdate += ProcessInvoke;
         }
 
         public void ListenCommand(ISystem listener, IReactComponentGlobal<T> action)
@@ -48,26 +53,40 @@ namespace HECSFramework.Core
 
         public void Invoke(T component, bool isAdded)
         {
+            this.isAdded = true;
+            invokeComponents.Enqueue((component, isAdded));
+        }
+
+        public void ProcessInvoke()
+        {
+            if (!isAdded) return;
+            
             ProcessRemove();
 
-            foreach (var listener in listeners)
+            while (invokeComponents.Count > 0)
             {
-                var actualListener = listener.Value;
+                var data = invokeComponents.Dequeue();
 
-                if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
+                foreach (var listener in listeners)
                 {
-                    listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
-                    isDirty = true;
-                    continue;
-                }
+                    var actualListener = listener.Value;
 
-                if (actualListener.Listener.Owner.IsPaused)
-                    continue;
-                
-                actualListener.Action.ComponentReactGlobal(component, isAdded);
+                    if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
+                    {
+                        listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
+                        isDirty = true;
+                        continue;
+                    }
+
+                    if (actualListener.Listener.Owner.IsPaused)
+                        continue;
+
+                    actualListener.Action.ComponentReactGlobal(data.component, data.Add);
+                }
             }
 
             ProcessRemove();
+            isAdded = false;
         }
 
         private void ProcessRemove()
@@ -91,6 +110,15 @@ namespace HECSFramework.Core
                 listenersToRemove.Enqueue(listener.SystemGuid);
                 isDirty = true;
             }
+        }
+
+        public void Dispose()
+        {
+            listeners.Clear();
+            invokeComponents.Clear();
+            listenersToRemove.Clear();
+            world.GlobalUpdateSystem.FinishUpdate -= ProcessInvoke;
+            world = null;
         }
     }
 }

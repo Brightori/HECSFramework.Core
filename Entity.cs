@@ -78,7 +78,7 @@ namespace HECSFramework.Core
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
 
-            if (IsAlive)
+            if (component.ComponentsMask.TypeHashCode == 0)
                 component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
 
             if (components[component.ComponentsMask.Index] != null)
