@@ -2,11 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Commands;
 using Systems;
 
 namespace HECSFramework.Core
 {
-    public class World
+    public sealed class World
     {
         public int Index { get; private set; }
 
@@ -55,6 +56,7 @@ namespace HECSFramework.Core
         public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T : IComponent
         {
             componentsService.ProcessComponent(component, isAdded);
+            component.Owner.Command(new LocalComponentAddedEvent { IsAdded = isAdded, Component = component });
         }
 
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable
