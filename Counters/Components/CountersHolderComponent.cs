@@ -24,20 +24,39 @@ namespace Components
 
         public void AddCounter(ICounter counter)
         {
-            counters.Add(counter.Id, counter);
+            if (!counters.TryAdd(counter.Id, counter))
+            {
+                HECSDebug.LogWarning("we alrdy have this counter id" + counter.Id);
+                return;
+            }
+        }
+
+        public void RemoveCounter(ICounter counter)
+        {
+            counters.Remove(counter.Id);
+            floatCounters.Remove(counter.Id);
+}
+
+        public void RemoveCounter(int id)
+{
+            counters.Remove(id);
+            floatCounters.Remove(id);
         }
 
         public void AddFloatModifiableCounter(ICounterModifiable<float> counterModifiable)
         {
-            if (floatCounters.ContainsKey(counterModifiable.Id))
+            if (!floatCounters.TryAdd(counterModifiable.Id, counterModifiable))
             {
                 HECSDebug.LogError("we try to add existing ICounterModifiable " + counterModifiable.Id + $" {Owner.ID} {Owner.GUID}");
                 return;
             }
-
-            floatCounters.Add(counterModifiable.Id, counterModifiable);
         }
-        
+
+        public void RemoveFloatModifiableCounter(ICounterModifiable<float> counterModifiable)
+        {
+            floatCounters.Remove(counterModifiable.Id);
+        }
+
         public bool TryGetValue<T>(int id, out T value)
         {
             if (counters.TryGetValue(id, out ICounter counter))
