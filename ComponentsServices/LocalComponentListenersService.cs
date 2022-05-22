@@ -7,20 +7,27 @@ namespace HECSFramework.Core
     public sealed class LocalComponentListenersService : IDisposable
     {
         private Dictionary<Type, object> componentListeners = new Dictionary<Type, object>();
+        private LocalComponentsListenerContainer localComponentsListenerContainer = new LocalComponentsListenerContainer();
 
-        public void Invoke<T>(T componentType, bool isAdded) where T: IComponent
+        public void Invoke<T>(T component, bool isAdded) where T: IComponent
         {
+            localComponentsListenerContainer.Invoke(component, isAdded);
+
             var key = typeof(T);
+
             if (!componentListeners.TryGetValue(key, out var commandListenerContainer))
                 return;
+            
             var eventContainer = (LocalComponentsListenerContainer<T>)commandListenerContainer;
-            eventContainer.Invoke(componentType, isAdded);
+            eventContainer.Invoke(component, isAdded);
         }
 
         public void ReleaseListener(ISystem listener)
         {
             foreach (var l in componentListeners)
                 (l.Value as IRemoveSystemListener).RemoveListener(listener);
+
+            localComponentsListenerContainer.RemoveListener(listener);
         }
 
         public void RemoveListener<T>(ISystem listener) 
@@ -31,6 +38,14 @@ namespace HECSFramework.Core
                 var eventContainer = (LocalComponentsListenerContainer<T>)container;
                 eventContainer.RemoveListener(listener);
             }
+
+            if (listener is IReactComponentLocal reactComponentLocal)
+                localComponentsListenerContainer.RemoveListener(listener);
+        }
+
+        public void AddListener(ISystem listener, IReactComponentLocal action)
+        {
+            localComponentsListenerContainer.ListenCommand(listener, action);
         }
 
         public void AddListener<T>(ISystem listener, IReactComponentLocal<T> action) 

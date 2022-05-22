@@ -13,6 +13,9 @@
             if (system is IReactComponent componentsChanges)
                 system.Owner.World.AddGlobalReactComponent(componentsChanges);
 
+            if (system is IReactComponentLocal reactComponent)
+                system.Owner.RegisterComponentListenersService.AddListener(system, reactComponent);
+
             RegisterAdditionalSystems(system);
             TypesMap.BindSystem(system);
         }
@@ -27,6 +30,9 @@
 
             if (system is IReactComponent componentsChanges)
                 system.Owner.World.RemoveGlobalReactComponent(componentsChanges);
+
+            if (system is IReactComponentLocal)
+                system.Owner.RegisterComponentListenersService.ReleaseListener(system);
 
             UnRegisterAdditionalSystems(system);
             TypesMap.UnBindSystem(system);

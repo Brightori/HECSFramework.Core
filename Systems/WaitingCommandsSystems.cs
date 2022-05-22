@@ -104,14 +104,12 @@ namespace Systems
 
             for (int i = 0; i < count; i++)
             {
-                ref var timer = ref waitCallbackCommands.Data[i];
+                waitCallbackCommands.Data[i].Timer -= deltaTime;
 
-                timer.Timer -= deltaTime;
-
-                if (timer.Timer <= 0)
+                if (waitCallbackCommands.Data[i].Timer <= 0)
                 {
-                    timer.CallBack?.Invoke();
-                    removerCallbackCommands.Add(timer);
+                    waitCallbackCommands.Data[i].CallBack?.Invoke();
+                    removerCallbackCommands.Add(waitCallbackCommands.Data[i]);
                 }
             }
         }

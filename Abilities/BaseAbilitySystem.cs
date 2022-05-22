@@ -3,7 +3,7 @@ using Components;
 
 namespace HECSFramework.Core
 {
-    [Documentation(Doc.Ability, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
+    [Documentation(Doc.Abilities, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
     public abstract class BaseAbilitySystem : BaseSystem, IActiveAbilitySystem
     {
         private HECSMask predicateMask = HMasks.GetMask<AbilityPredicateComponent>();

@@ -121,4 +121,127 @@ namespace HECSFramework.Core
             world = null;
         }
     }
+
+    public sealed class LocalComponentsListenerContainer : IDisposable, IRemoveSystemListener
+    {
+        private struct LocalListener
+        {
+            public readonly IReactComponentLocal Action;
+            public readonly ISystem Listener;
+
+            public LocalListener(ISystem listener, IReactComponentLocal action)
+            {
+                Listener = listener;
+                Action = action;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is LocalListener container &&
+                       Listener.SystemGuid.Equals(container.Listener.SystemGuid);
+            }
+
+            public override int GetHashCode()
+            {
+                return Listener.SystemGuid.GetHashCode();
+            }
+        }
+
+        private Dictionary<Guid, LocalListener> listeners = new Dictionary<Guid, LocalListener>(16);
+
+        private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
+        private Queue<(IComponent component, bool Add)> invokeComponents = new Queue<(IComponent component, bool Add)>(16);
+        private bool isDirty;
+        private bool isAdded;
+        private World world;
+        private bool isInited;
+
+        public void ListenCommand(ISystem listener, IReactComponentLocal action)
+        {
+            if (!isInited)
+                Init(listener);
+
+            if (listeners.ContainsKey(listener.SystemGuid))
+                return;
+
+            listeners.Add(listener.SystemGuid, new LocalListener(listener, action));
+        }
+
+        private void Init(ISystem listener)
+        {
+            world = listener.Owner.World;
+            world.GlobalUpdateSystem.FinishUpdate += ProcessInvoke;
+            isInited = true;
+        }
+
+        public void Invoke(IComponent component, bool isAdded)
+        {
+            this.isAdded = true;
+            invokeComponents.Enqueue((component, isAdded));
+        }
+
+        public void ProcessInvoke()
+        {
+            if (!isAdded) return;
+
+            ProcessRemove();
+
+            while (invokeComponents.Count > 0)
+            {
+                var data = invokeComponents.Dequeue();
+
+                foreach (var listener in listeners)
+                {
+                    var actualListener = listener.Value;
+
+                    if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
+                    {
+                        listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
+                        isDirty = true;
+                        continue;
+                    }
+
+                    if (actualListener.Listener.Owner.IsPaused)
+                        continue;
+
+                    actualListener.Action.ComponentReactLocal(data.component, data.Add);
+                }
+            }
+
+            ProcessRemove();
+            isAdded = false;
+        }
+
+        private void ProcessRemove()
+        {
+            if (isDirty)
+            {
+                while (listenersToRemove.Count > 0)
+                {
+                    var remove = listenersToRemove.Dequeue();
+                    listeners.Remove(remove);
+                }
+
+                isDirty = false;
+            }
+        }
+
+        public void RemoveListener(ISystem listener)
+        {
+            if (listeners.ContainsKey(listener.SystemGuid))
+            {
+                listenersToRemove.Enqueue(listener.SystemGuid);
+                isDirty = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            listeners.Clear();
+            invokeComponents.Clear();
+            listenersToRemove.Clear();
+            world.GlobalUpdateSystem.FinishUpdate -= ProcessInvoke;
+            world = null;
+        }
+    }
 }

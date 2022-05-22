@@ -25,6 +25,10 @@ namespace Commands
         }
     }
 
+
+    /// <summary>
+    /// u should use constructor of this command
+    /// </summary>
     [Documentation(Doc.GameLogic, "The command in which we set the timer, and call when the timer expires")]
     public struct WaitAndCallbackCommand : IGlobalCommand
     {

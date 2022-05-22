@@ -56,7 +56,6 @@ namespace HECSFramework.Core
         public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T : IComponent
         {
             componentsService.ProcessComponent(component, isAdded);
-            component.Owner.Command(new LocalComponentAddedEvent { IsAdded = isAdded, Component = component });
         }
 
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable

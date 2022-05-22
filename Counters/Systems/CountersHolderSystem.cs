@@ -7,7 +7,7 @@ namespace Systems
 {
     [Serializable]
     [Documentation(Doc.Counters, "System for operating counters on this entity, process changes of values and add|remove modifiers to modifiable counters")]
-    public sealed class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactCommand<LocalComponentAddedEvent>
+    public sealed class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactComponentLocal
     {
         [Required]
         public CountersHolderComponent countersHolder;
@@ -44,15 +44,13 @@ namespace Systems
         {
             countersHolder.ResetCounters();
         }
-
-        public void CommandReact(LocalComponentAddedEvent command)
+      
+        public void ComponentReactLocal(IComponent component, bool isAdded)
         {
-            if (command.Component is ICounter counter)
+            if (component is ICounter counter)
             {
-                if (command.IsAdded)
-                {
+                if (isAdded)
                     countersHolder.AddCounter(counter);
-                }
                 else
                     countersHolder.RemoveCounter(counter);
             }

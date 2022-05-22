@@ -3,7 +3,7 @@ using Components;
 
 namespace HECSFramework.Core
 {
-    [Documentation(Doc.Ability, "Basic system for passive abilities, they are launched through the command only at the stage of adding, 1 time")]
+    [Documentation(Doc.Abilities, "Basic system for passive abilities, they are launched through the command only at the stage of adding, 1 time")]
     public abstract class BasePassiveAbilitySystem : BaseSystem, IPassiveAbilitySystem
     {
         private HECSMask predicateMask = HMasks.GetMask<AbilityPredicateComponent>();
