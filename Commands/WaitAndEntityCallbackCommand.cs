@@ -34,24 +34,24 @@ namespace Commands
     {
         public float Timer;
         public Action CallBack;
-        private Guid commandguid;
+        public Guid Commandguid;
 
         public WaitAndCallbackCommand(float timer, Action callBack)
         {
             Timer = timer;
             CallBack = callBack;
-            commandguid = Guid.NewGuid();
+            Commandguid = Guid.NewGuid();
         }
 
         public override bool Equals(object obj)
         {
             return obj is WaitAndCallbackCommand command &&
-                   commandguid.Equals(command.commandguid);
+                   Commandguid.Equals(command.Commandguid);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(commandguid);
+            return HashCode.Combine(Commandguid);
         }
     }
 }

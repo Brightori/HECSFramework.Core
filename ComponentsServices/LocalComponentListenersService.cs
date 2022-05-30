@@ -43,7 +43,7 @@ namespace HECSFramework.Core
                 localComponentsListenerContainer.RemoveListener(listener);
         }
 
-        public void AddListener(ISystem listener, IReactComponentLocal action)
+        public void AddLocalListener(ISystem listener, IReactComponentLocal action)
         {
             localComponentsListenerContainer.ListenCommand(listener, action);
         }

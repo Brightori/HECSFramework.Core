@@ -116,6 +116,9 @@ namespace Systems
 
         public void CommandGlobalReact(WaitAndCallbackCommand command)
         {
+            if (command.Commandguid == Guid.Empty)
+                command.Commandguid = Guid.NewGuid();
+
             waitCallbackCommands.Add(command);
         }
     }

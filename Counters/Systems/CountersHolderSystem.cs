@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Commands;
 using Components;
 using HECSFramework.Core;
@@ -14,6 +15,8 @@ namespace Systems
 
         public override void InitSystem()
         {
+            var check = Owner.GetComponentsByType<ICounter>().ToList();
+
             foreach (var c in Owner.GetComponentsByType<ICounter>())
             {
                 countersHolder.AddCounter(c);

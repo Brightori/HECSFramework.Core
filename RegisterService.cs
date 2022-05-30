@@ -14,7 +14,7 @@
                 system.Owner.World.AddGlobalReactComponent(componentsChanges);
 
             if (system is IReactComponentLocal reactComponent)
-                system.Owner.RegisterComponentListenersService.AddListener(system, reactComponent);
+                system.Owner.RegisterComponentListenersService.AddLocalListener(system, reactComponent);
 
             RegisterAdditionalSystems(system);
             TypesMap.BindSystem(system);

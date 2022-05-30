@@ -120,9 +120,9 @@ namespace HECSFramework.Core
         /// <param name="worldIndex"></param>
         /// <returns></returns>
         public static T GetSingleSystem<T>(int worldIndex = 0) where T : ISystem => Instance.worlds[worldIndex].GetSingleSystem<T>();
-        
+
         /// <summary>
-        /// на самом деле возвращаем первый попавшийся/закешированный, то что он единственный и неповторимый - на вашей совести
+        /// in fact, we return the first one that came across / cached, the fact that it is the one and only - on your conscience
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="worldIndex"></param>
