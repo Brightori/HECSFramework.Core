@@ -4,7 +4,7 @@ using System;
 namespace Components
 {
     [Serializable]
-    [Documentation("Ability", "Tag", "Это абилити тег, мы его добавляем в абилити контейнере")]
+    [Documentation(Doc.Abilities, Doc.Tag, Doc.HECS, "This is an ability tag, we add it to the ability container")]
     public  class AbilityTagComponent : BaseComponent
     {
     }

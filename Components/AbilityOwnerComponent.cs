@@ -4,7 +4,7 @@ using System;
 namespace Components
 {
     [Serializable]
-    [Documentation("Ability", "Этот компонент обязателен для абилки, в оунера прокидывается персонаж что им владеет")]
+    [Documentation(Doc.Abilities, Doc.HECS, "This component is required for the ability, the character that owns it is thrown into the owner")]
     public class AbilityOwnerComponent : BaseComponent
     {
         public IEntity AbilityOwner;
