@@ -44,7 +44,7 @@ namespace Systems
                 {
                     if (!a.ContainsMask(ref passiveAbilMask)) continue;
 
-                    a.GetOrAddComponent<AbilityOwnerComponent>(HMasks.AbilityOwnerComponent).AbilityOwner = Owner.GetAbilityOwnerComponent().AbilityOwner;
+                    a.GetOrAddComponent<AbilityOwnerComponent>(abilityOwner).AbilityOwner = Owner.GetHECSComponent<AbilityOwnerComponent>(ref abilityOwner).AbilityOwner;
 
                     a.Command(new ExecuteAbilityCommand
                     {
