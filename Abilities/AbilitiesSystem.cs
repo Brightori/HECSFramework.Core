@@ -17,6 +17,9 @@ namespace Systems
 
         public override void InitSystem()
         {
+            ClientInit();
         }
+
+        partial void ClientInit();
     }
 }
