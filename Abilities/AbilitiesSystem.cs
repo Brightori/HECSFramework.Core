@@ -14,5 +14,9 @@ namespace Systems
             foreach (var a in abilitiesHolderComponent.Abilities)
                 a.Init();
         }
+
+        public override void InitSystem()
+        {
+        }
     }
 }
