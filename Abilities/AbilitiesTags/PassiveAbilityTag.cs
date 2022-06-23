@@ -2,7 +2,7 @@
 
 namespace Components
 {
-    [Documentation("Ability", "Tag", "Так мы помечаем пассивные абилки, которые работают в зависимости от условий, а не по активации игрока")]
+    [Documentation(Doc.Abilities, Doc.Tag, "Mark for passive abilities")]
     public class PassiveAbilityTag : BaseComponent
     {
     }

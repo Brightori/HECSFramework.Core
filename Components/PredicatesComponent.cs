@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Components
 {
-    [Documentation("Ability", "тут мы храним предикаты для абилок")]
+    [Documentation(Doc.Abilities, Doc.Predicates, "predicates for abilities")]
     public partial class PredicatesComponent : BaseComponent
     {
         public List<IPredicate> Predicates = new List<IPredicate>(4);

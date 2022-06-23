@@ -1,6 +1,6 @@
-﻿using System;
+﻿using HECSFramework.Core;
+using System;
 using System.Collections.Generic;
-using HECSFramework.Core;
 using Systems;
 
 namespace Components
@@ -25,9 +25,26 @@ namespace Components
         public void AddCounter(ICounter counter)
         {
             if (!counters.TryAdd(counter.Id, counter))
-            {
                 HECSDebug.LogWarning("we alrdy have this counter id" + counter.Id);
-                return;
+        }
+
+        public void SetCounter(ICounter<float> counter)
+        {
+            if (floatCounters.TryGetValue(counter.Id, out var currentCounter))
+            {
+                currentCounter.SetValue(counter.Value);
+            }
+        }
+
+        public void SetCounter<T>(T counterComponent) where T: IComponent, ICounter<float>
+        {
+            if (floatCounters.TryGetValue(counterComponent.Id, out var currentCounter))
+            {
+                currentCounter.SetValue(counterComponent.Value);
+            }
+            else
+            {
+                Owner.AddHecsComponent(counterComponent);
             }
         }
 
