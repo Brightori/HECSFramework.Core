@@ -303,7 +303,7 @@ namespace HECSFramework.Core
                     cacheTryGetbyGuid.TryRemove(entityGuid, out var entityOut);
             }
 
-            entity = Entities.Data.FirstOrDefault(a => a.GUID == entityGuid);
+            entity = Entities.Data.FirstOrDefault(a => a != null && a.GUID == entityGuid);
 
             if (entity != null)
                 cacheTryGetbyGuid.TryAdd(entityGuid, entity);
