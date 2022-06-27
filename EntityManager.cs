@@ -19,6 +19,11 @@ namespace HECSFramework.Core
             worlds = new ConcurrencyList<World> (worldsCount);
             Instance = this;
 
+            for (int i = 0; i < worldsCount; i++)
+            {
+                AddWorld();
+            }
+
             foreach (var world in worlds)
             {
                 world.Init();
