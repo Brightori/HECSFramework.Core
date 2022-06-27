@@ -41,7 +41,7 @@ namespace HECSFramework.Core
         public EntityModel(int index, string ID)
         {
             WorldId = index;
-            World = EntityManager.Worlds[index];
+            World = EntityManager.Worlds.Data[index];
         }
 
         public void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false)
@@ -160,7 +160,7 @@ namespace HECSFramework.Core
         public void Init(int worldIndex, bool needRegister = true)
         {
             WorldId = worldIndex;
-            World = EntityManager.Worlds[worldIndex];
+            World = EntityManager.Worlds.Data[worldIndex];
 
             foreach (var index in ComponentsMask.CurrentIndexes)
             {

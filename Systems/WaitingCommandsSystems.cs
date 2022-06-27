@@ -134,7 +134,7 @@ namespace Systems
 
         public void NowYourTime(int worldIndex = 0)
         {
-            EntityManager.Worlds[worldIndex].Command(command);
+            EntityManager.Worlds.Data[worldIndex].Command(command);
         }
     }
 

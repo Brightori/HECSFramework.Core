@@ -209,5 +209,11 @@ namespace HECSFramework.Core
 
             worlds.Clear();
         }
+
+        public static void RecreateInstance()
+        {
+            Instance?.Dispose();
+            new EntityManager();
+        }
     }
 }
