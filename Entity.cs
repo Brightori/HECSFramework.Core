@@ -5,9 +5,10 @@ using System.Collections.Generic;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed partial class Entity : IEntity, IChangeWorldIndex
+    public sealed partial class Entity : IEntity, IChangeWorld
     {
-        public int WorldId { get; private set; } = 0;
+        public int WorldId => World.Index;
+
         public World World { get; private set; }
 
         public Guid GUID { get; private set; }
@@ -58,7 +59,7 @@ namespace HECSFramework.Core
         public Entity(string id, int worldIndex)
         {
             ID = id;
-            WorldId = worldIndex;
+            World = EntityManager.Worlds.Data[worldIndex];
         }
 
         public void SetID(string id)
@@ -108,7 +109,7 @@ namespace HECSFramework.Core
 
             if (!silently && IsInited)
             {
-                EntityManager.AddOrRemoveComponent(component, true);
+                World.AddOrRemoveComponent(component, true);
                 TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, true);
             }
         }
@@ -139,7 +140,7 @@ namespace HECSFramework.Core
 
         public void Init(int worldIndex, bool needRegister = true)
         {
-            WorldId = worldIndex;
+            World = EntityManager.Worlds.Data[worldIndex];
             Init(needRegister);
         }
 
@@ -148,7 +149,9 @@ namespace HECSFramework.Core
             if (IsInited)
                 throw new InvalidOperationException($"Entity already inited: {GUID}");
 
-            SetWorld();
+            if (World == null)
+                World = EntityManager.Default;
+
             InitComponentsAndSystems();
 
             if (needRegister)
@@ -216,7 +219,7 @@ namespace HECSFramework.Core
             component.IsAlive = false;
 
             if (IsInited)
-                World?.AddOrRemoveComponentEvent(component, false);
+                World?.AddOrRemoveComponent(component, false);
         }
 
         private void Reset()
@@ -419,16 +422,6 @@ namespace HECSFramework.Core
             GUID = guid;
         }
 
-        public void SetWorld()
-        {
-            World = EntityManager.Worlds[WorldId];
-        }
-
-        void IChangeWorldIndex.SetWorldIndex(int index)
-        {
-            WorldId = index;
-        }
-
         public void AddOrReplaceComponent(IComponent component, IEntity owner = null, bool silently = false)
         {
             var index = TypesMap.GetComponentInfo(component);
@@ -505,10 +498,37 @@ namespace HECSFramework.Core
 
             return false;
         }
+
+        public void SetWorld(World world)
+        {
+            RemoveComponentsFromWorld();
+            World = world;
+            AddComponentsToWorld();
+        }
+
+        public void SetWorld(int world)
+        {
+            RemoveComponentsFromWorld();
+            World = EntityManager.Worlds.Data[world];
+            AddComponentsToWorld();
+        }
+
+        private void RemoveComponentsFromWorld()
+        {
+            foreach (var c in components)
+                World.AddOrRemoveComponent(c, false);
+        }
+
+        private void AddComponentsToWorld()
+        {
+            foreach (var c in components)
+                World.AddOrRemoveComponent(c, true);
+        }
     }
 
-    public interface IChangeWorldIndex
+    public interface IChangeWorld
     {
-        void SetWorldIndex(int index);
+        void SetWorld(World world);
+        void SetWorld(int world);
     }
 }

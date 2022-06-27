@@ -29,6 +29,8 @@ namespace HECSFramework.Core
 
         private WaitingCommandsSystems waitingCommandsSystems;
 
+        private Queue<IEntity> waintingForInit = new Queue<IEntity>();
+
         public World(int index)
         {
             Index = index;
@@ -44,6 +46,9 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());
             worldService.Init();
+
+            while (waintingForInit.Count > 0)
+                waintingForInit.Dequeue().Init();
         }
 
         public ConcurrencyList<IEntity> Entities => entityService.Entities;
@@ -53,7 +58,13 @@ namespace HECSFramework.Core
         public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
         public ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
 
-        public void AddOrRemoveComponentEvent<T>(T component, bool isAdded) where T : IComponent
+
+        public void AddToInit(IEntity entity)
+        {
+            waintingForInit.Enqueue(entity);
+        }
+
+        public void AddOrRemoveComponent<T>(T component, bool isAdded) where T : IComponent
         {
             componentsService.ProcessComponent(component, isAdded);
         }
@@ -316,6 +327,11 @@ namespace HECSFramework.Core
             }
 
             return entity != null;
+        }
+
+        public void UpdateIndex(int index)
+        {
+            Index = index;
         }
 
         public void Dispose()
