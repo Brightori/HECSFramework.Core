@@ -513,6 +513,11 @@ namespace HECSFramework.Core
             AddComponentsToWorld();
         }
 
+        public void InitWorld(World world)
+        {
+            World = world;
+        }
+
         private void RemoveComponentsFromWorld()
         {
             foreach (var c in components)
