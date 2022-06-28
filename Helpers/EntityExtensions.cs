@@ -61,5 +61,24 @@ namespace HECSFramework.Core
             entityCoreContainer.Init(entity);
             return entity;
         }
+
+        public static Entity GetEntityFromCoreContainer(this IEntityContainer entityCoreContainer, int worldIndex = 0, string entityName = default)
+        {
+            Entity entity = null;
+
+            if (entityCoreContainer == null)
+            {
+                HECSDebug.LogError("container is null");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(entityName))
+                entity = new Entity(entityName, worldIndex);
+            else
+                entity = new Entity(entityCoreContainer.ContainerID, worldIndex);
+
+            entityCoreContainer.Init(entity);
+            return entity;
+        }
     }
 }

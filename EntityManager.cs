@@ -53,6 +53,19 @@ namespace HECSFramework.Core
             return world;
         }
 
+        public static World AddWorld(params IEntityContainer[] entityCoreContainers)
+        {
+            var world = AddWorld();
+
+            foreach (var ec in entityCoreContainers)
+            {
+                var entity = ec.GetEntityFromCoreContainer(world.Index);
+                world.AddToInit(entity);
+            }
+
+            return world;
+        }
+
         public static void RemoveWorld(int index, bool dispose = true)
         {
             lock (Instance.worlds)
