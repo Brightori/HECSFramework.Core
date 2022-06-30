@@ -30,7 +30,7 @@ namespace Systems
             return (T)TypesMap.GetComponentFromFactory(mask.TypeHashCode);
         }
 
-        public void ComponentReact(IComponent component, bool isAdded)
+        public void ComponentReact<T>(T component, bool isAdded) where T : IComponent
         {
             if (!isAdded)
             {

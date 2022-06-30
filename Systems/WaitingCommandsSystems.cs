@@ -23,7 +23,7 @@ namespace Systems
             removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
         }
 
-        public void ComponentReact(IComponent component, bool isAdded)
+        public void ComponentReact<T>(T component, bool isAdded) where T: IComponent
         {
             if (waitingCommands.TryGetValue(component.ComponentsMask, out var globalCommands))
             {
