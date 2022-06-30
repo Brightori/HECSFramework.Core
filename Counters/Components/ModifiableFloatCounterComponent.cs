@@ -86,7 +86,7 @@ namespace Components
         {
             if (oldValue != Value)
             {
-                result = new DiffCounterCommand<float> { Id = this.Id, Diff = Value - oldValue, PreviousValue = oldValue };
+                result = new DiffCounterCommand<float> { Id = this.Id, Value = modifiersContainer.CurrentValue, PreviousValue = oldValue, MaxValue = modifiersContainer.GetCalculatedValue() };
                 return true;
             }
 

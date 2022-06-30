@@ -82,11 +82,11 @@ namespace Components
                 Owner.Command(command);
         }
 
-        private bool CheckModifiedDiff(float oldValue, out DiffCounterCommand<float> result)
+        private bool CheckModifiedDiff(int oldValue, out DiffCounterCommand<int> result)
         {
             if (oldValue != Value)
             {
-                result = new DiffCounterCommand<float> { Id = this.Id, Diff = Value - oldValue, PreviousValue = oldValue };
+                result = new DiffCounterCommand<int> { Id = this.Id, Value = modifiersContainer.CurrentValue, PreviousValue = oldValue, MaxValue = modifiersContainer.GetCalculatedValue() };
                 return true;
             }
 
