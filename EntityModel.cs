@@ -44,7 +44,7 @@ namespace HECSFramework.Core
             World = EntityManager.Worlds.Data[index];
         }
 
-        public void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false)
+        public T AddHecsComponent<T>(T component, IEntity owner = null, bool silently = false) where T: IComponent
         {
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
@@ -55,7 +55,7 @@ namespace HECSFramework.Core
                 throw new Exception("we dont have needed type in TypesMap, u need to run codogen or check this type manualy" + component.GetType().Name);
 
             if (GetAllComponents[component.ComponentsMask.Index] != null)
-                return;
+                return (T)GetAllComponents[component.ComponentsMask.Index];
 
             component.Owner = this;
 
@@ -66,9 +66,8 @@ namespace HECSFramework.Core
             if (component is IInitable initable)
                 initable.Init();
 
-         
-
             ComponentsMask.AddMask(component.ComponentsMask.Index);
+            return component;
         }
 
         public void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem

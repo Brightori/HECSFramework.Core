@@ -112,7 +112,7 @@ namespace HECSFramework.Core
             }
 
 
-            public void ComponentReact(IComponent component, bool isAdded)
+            public void ComponentReact<T>(T component, bool isAdded) where T: IComponent
             {
                 if (summaryInclude.Contains(component.ComponentsMask) || summaryExclude.Contains(component.ComponentsMask))
                 {

@@ -7,7 +7,7 @@ namespace HECSFramework.Core
     public interface IReactComponent 
     {
         Guid ListenerGuid { get; }
-        void ComponentReact(IComponent component, bool isAdded);
+        void ComponentReact<T>(T component, bool isAdded) where T: IComponent;
     }
 
     [Documentation(Doc.HECS, "this interface provide subscribe to event  - add or remove any component on local entity")]

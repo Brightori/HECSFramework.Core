@@ -75,7 +75,7 @@ namespace HECSFramework.Core
         /// <param name="component"></param>
         /// <param name="owner">this for actor, actor can assign self as owner</param>
         /// <param name="silently"></param>
-        public void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false)
+        public T AddHecsComponent<T>(T component, IEntity owner = null, bool silently = false) where T: IComponent
         {
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
@@ -84,7 +84,7 @@ namespace HECSFramework.Core
                 component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
 
             if (components[component.ComponentsMask.Index] != null)
-                return;
+                return default;
 
             if (owner == null)
                 component.Owner = this;
@@ -114,6 +114,8 @@ namespace HECSFramework.Core
                 World.AddOrRemoveComponent(component, true);
                 TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, true);
             }
+
+            return component;
         }
 
         public bool TryGetHecsComponent<T>(HECSMask mask, out T component) where T : IComponent

@@ -34,6 +34,9 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            foreach (var e in Entities.ToArray())
+                e.Dispose();
+
             Entities.Clear();
         }
     }

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using Commands;
+﻿using System.Collections.Concurrent;
 using Systems;
 
 namespace HECSFramework.Core
 {
-    public sealed class World
+    public sealed class World : IAddSingleComponent
     {
         public int Index { get; private set; }
 
@@ -258,30 +254,25 @@ namespace HECSFramework.Core
                 if (component != null && component.Owner.IsAlive && component.IsAlive)
                     return (T)component;
             }
+           
+            return default;
+        }
 
-            var mask = HMasks.GetMask<T>();
+        public bool TryGetSingleComponent<T>(out T component) where T: IComponent
+        {
+            var key = typeof(T);
+            component = default;
 
-            for (int i = 0; i < entityService.Entities.Count; i++)
+            if (singleComponents.TryGetValue(key, out var lookForComponent))
             {
-                if (!entityService.Entities.Data[i].ContainsMask(ref mask)) continue;
-
-                if (entityService.Entities.Data[i].TryGetHecsComponent(mask, out T needed))
+                if (lookForComponent != null && lookForComponent.Owner.IsAlive && lookForComponent.IsAlive)
                 {
-                    if (needed.Owner.IsAlive && needed.IsAlive)
-                    {
-                        if (singleComponents.ContainsKey(key))
-                        {
-                            singleComponents[key] = needed;
-                            return needed;
-                        }
-
-                        singleComponents.Add(key, needed);
-                        return needed;
-                    }
+                    component = (T)lookForComponent;
+                    return true;
                 }
             }
 
-            return default;
+            return false;
         }
 
         public T GetHECSComponent<T>(ref HECSMask owner)
@@ -340,6 +331,33 @@ namespace HECSFramework.Core
             componentsService.Dispose();
             commandService.Dispose();
             entityFilter.Dispose();
+            GlobalUpdateSystem.Dispose();
         }
+
+        void IAddSingleComponent.AddSingleWorldComponent<T>(T component, bool add)
+        {
+            var key = typeof(T);
+
+            if (singleComponents.ContainsKey(key))
+            {
+                if (add)
+                {
+                    HECSDebug.LogError("We alrdy have this key|component at singles " + key.Name);
+                    return;
+                }
+                else
+                    singleComponents.Remove(key);
+            }
+            else
+            {
+                if (add)
+                    singleComponents.Add(key, component);
+            }
+        }
+    }
+
+    internal interface IAddSingleComponent
+    {
+        void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent;
     }
 }

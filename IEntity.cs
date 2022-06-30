@@ -40,7 +40,7 @@ namespace HECSFramework.Core
 
         T GetOrAddComponent<T>(IEntity owner = null) where T : class, IComponent;
         void AddOrReplaceComponent(IComponent component, IEntity owner = null, bool silently = false);
-        void AddHecsComponent(IComponent component, IEntity owner = null, bool silently = false);
+        T AddHecsComponent<T>(T component, IEntity owner = null, bool silently = false) where T: IComponent;
         
         void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem;
 
