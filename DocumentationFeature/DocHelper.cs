@@ -51,4 +51,5 @@ public static partial class Doc
     public const string Poolable = "Poolable";
     public const string Helpers = "Helpers";
     public const string Projectiles = "Projectiles";
+    public const string Baking = "Baking";
 }
