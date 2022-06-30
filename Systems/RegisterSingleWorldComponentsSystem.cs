@@ -1,4 +1,5 @@
-﻿using HECSFramework.Core;
+﻿using System;
+using HECSFramework.Core;
 
 namespace Systems
 {
