@@ -21,6 +21,8 @@ namespace HECSFramework.Core
             ID = id;
         }
 
+        private IAddSingleComponent addSingleComponent => World;
+
         private List<ISystem> systems = new List<ISystem>();
         public List<ISystem> GetAllSystems => systems;
 
@@ -105,6 +107,9 @@ namespace HECSFramework.Core
 
                 if (component is IAfterEntityInit afterEntityInit)
                     afterEntityInit.AfterEntityInit();
+
+                if (component is IWorldSingleComponent worldSingleComponent)
+                    addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
             }
 
             ComponentsMask.AddMask(component.ComponentsMask.Index);
@@ -178,12 +183,13 @@ namespace HECSFramework.Core
 
         public void InitComponentsAndSystems(bool needRegister = true)
         {
-            //ComponentsMask = HECSMask.Empty;
-
             foreach (var component in components)
             {
                 if (component is IInitable init)
                     init.Init();
+
+                if (component is IWorldSingleComponent worldSingleComponent)
+                    addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
             }
 
             foreach (var sys in systems)
@@ -209,6 +215,9 @@ namespace HECSFramework.Core
         {
             if (component == null)
                 return;
+
+            if (component is IWorldSingleComponent worldSingleComponent)
+                addSingleComponent.AddSingleWorldComponent(worldSingleComponent, false);
 
             if (component is IDisposable disposable)
                 disposable.Dispose();

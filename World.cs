@@ -23,7 +23,7 @@ namespace HECSFramework.Core
         private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
 
         private Dictionary<Type, ISystem> singleSystems = new Dictionary<Type, ISystem>();
-        private Dictionary<Type, IComponent> singleComponents = new Dictionary<Type, IComponent>();
+        private Dictionary<int, IComponent> singleComponents = new Dictionary<int, IComponent>(16);
 
         private WaitingCommandsSystems waitingCommandsSystems;
 
@@ -249,7 +249,7 @@ namespace HECSFramework.Core
 
         public T GetSingleComponent<T>() where T : IComponent
         {
-            var key = typeof(T);
+            var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
 
             if (singleComponents.TryGetValue(key, out var component))
             {
@@ -262,7 +262,7 @@ namespace HECSFramework.Core
 
         public bool TryGetSingleComponent<T>(out T component) where T: IComponent
         {
-            var key = typeof(T);
+            var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
             component = default;
 
             if (singleComponents.TryGetValue(key, out var lookForComponent))
@@ -338,13 +338,13 @@ namespace HECSFramework.Core
 
         void IAddSingleComponent.AddSingleWorldComponent<T>(T component, bool add)
         {
-            var key = typeof(T);
+            var key = component.GetTypeHashCode;
 
             if (singleComponents.ContainsKey(key))
             {
                 if (add)
                 {
-                    HECSDebug.LogError("We alrdy have this key|component at singles " + key.Name);
+                    HECSDebug.LogError("We alrdy have this key|component at singles " + key);
                     return;
                 }
                 else
