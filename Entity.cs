@@ -66,6 +66,15 @@ namespace HECSFramework.Core
                 World = EntityManager.Worlds.Data[worldIndex];
         }
 
+        public Entity(string id, World world)
+        {
+            ID = id;
+
+            if (EntityManager.IsAlive)
+                World =world;
+        }
+
+
         public void SetID(string id)
         {
             ID = id;
