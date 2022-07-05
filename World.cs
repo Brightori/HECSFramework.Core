@@ -301,7 +301,7 @@ namespace HECSFramework.Core
         {
             if (cacheTryGetbyGuid.TryGetValue(entityGuid, out entity))
             {
-                if (entity.IsAlive)
+                if (entity.IsAlive())
                     return true;
                 else
                     cacheTryGetbyGuid.TryRemove(entityGuid, out var entityOut);
