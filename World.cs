@@ -314,7 +314,8 @@ namespace HECSFramework.Core
             {
                 if (entities.Data[i].GUID == entityGuid)
                 {
-                    cacheTryGetbyGuid.TryAdd(entityGuid, entity);
+                    cacheTryGetbyGuid.TryAdd(entityGuid, entities.Data[i]);
+                    entity = entities.Data[i];
                     break;
                 }
             }
