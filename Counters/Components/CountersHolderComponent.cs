@@ -5,8 +5,8 @@ using Systems;
 
 namespace Components
 {
-    [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Serializable]
+    [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Documentation(Doc.Counters, "This component holds counters from this entity, counters should have processing from CountersHolderSystem")]
     public sealed class CountersHolderComponent : BaseComponent, IInitable
     {
@@ -28,6 +28,17 @@ namespace Components
                 HECSDebug.LogWarning("we alrdy have this counter id" + counter.Id);
         }
 
+        public T GetCounter<T>(int id) where T : ICounter
+        {
+            if (counters.TryGetValue(id, out var counter))
+            {
+                if (counter is T needed)
+                    return needed;
+            }
+
+            return default;
+        }
+
         public void SetCounter(ICounter<float> counter)
         {
             if (floatCounters.TryGetValue(counter.Id, out var currentCounter))
@@ -36,7 +47,7 @@ namespace Components
             }
         }
 
-        public void SetCounter<T>(T counterComponent) where T: IComponent, ICounter<float>
+        public void SetCounter<T>(T counterComponent) where T : IComponent, ICounter<float>
         {
             if (floatCounters.TryGetValue(counterComponent.Id, out var currentCounter))
             {
@@ -52,10 +63,10 @@ namespace Components
         {
             counters.Remove(counter.Id);
             floatCounters.Remove(counter.Id);
-}
+        }
 
         public void RemoveCounter(int id)
-{
+        {
             counters.Remove(id);
             floatCounters.Remove(id);
         }
