@@ -8,7 +8,7 @@ namespace Components
     [Serializable]
     [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Documentation(Doc.Counters, "This component holds counters from this entity, counters should have processing from CountersHolderSystem")]
-    public sealed class CountersHolderComponent : BaseComponent, IInitable
+    public sealed partial class CountersHolderComponent : BaseComponent, IInitable
     {
         private readonly Dictionary<int, ICounterModifiable<float>> floatCounters = new Dictionary<int, ICounterModifiable<float>>();
         private readonly Dictionary<int, ICounter> counters = new Dictionary<int, ICounter>();
@@ -36,6 +36,18 @@ namespace Components
                     return needed;
             }
 
+            return default;
+        }
+
+        public bool TryGetCounter<T>(int id, out T getCounter) where T : ICounter
+        {
+            if (counters.TryGetValue(id, out var counter))
+            {
+                getCounter = (T)counter;
+                return getCounter != null;
+            }
+
+            getCounter = default;
             return default;
         }
 
