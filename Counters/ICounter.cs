@@ -1,11 +1,11 @@
 ﻿namespace HECSFramework.Core
 {
-    public interface ICounter
+    public partial interface ICounter
     {
         int Id { get; }
     }
 
-    public interface ICounter<T> : ICounter
+    public partial interface ICounter<T> : ICounter
     {
         T Value { get; }
         void SetValue(T value);
