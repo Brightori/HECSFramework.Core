@@ -8,10 +8,11 @@ namespace Components
     [Serializable]
     [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Documentation(Doc.Counters, "This component holds counters from this entity, counters should have processing from CountersHolderSystem")]
-    public sealed partial class CountersHolderComponent : BaseComponent
+    public sealed partial class CountersHolderComponent : BaseComponent, IInitable
     {
         //this collection holds all counters
         private readonly Dictionary<int, ICounter> counters = new Dictionary<int, ICounter>();
+        public  ReadOnlyDictionary<int, ICounter> Counters;
 
         public void AddCounter(ICounter counter)
         {
@@ -102,6 +103,11 @@ namespace Components
                 if (c.Value is IResetModifiers reset)
                     reset.Reset();
             }
+        }
+
+        public void Init()
+        {
+            Counters = new ReadOnlyDictionary<int, ICounter>(counters);
         }
     }
 }
