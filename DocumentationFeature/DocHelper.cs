@@ -52,4 +52,5 @@ public static partial class Doc
     public const string Helpers = "Helpers";
     public const string Projectiles = "Projectiles";
     public const string Baking = "Baking";
+    public const string Holder = "Holder";
 }
