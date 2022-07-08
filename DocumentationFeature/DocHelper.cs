@@ -31,6 +31,7 @@ public static partial class Doc
     public const string Building = "Building";
     public const string Counters = "Counters";
     public const string Network = "Network";
+    public const string Client = "Client";
     public const string Server = "Server";
     public const string Inventory = "Inventory";
     public const string Spawn = "Spawn";

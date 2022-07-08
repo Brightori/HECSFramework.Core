@@ -1,26 +1,17 @@
-﻿using HECSFramework.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using HECSFramework.Core;
 using Systems;
 
 namespace Components
 {
-    [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Serializable]
+    [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Documentation(Doc.Counters, "This component holds counters from this entity, counters should have processing from CountersHolderSystem")]
-    public sealed class CountersHolderComponent : BaseComponent, IInitable
+    public sealed partial class CountersHolderComponent : BaseComponent
     {
-        private readonly Dictionary<int, ICounterModifiable<float>> floatCounters = new Dictionary<int, ICounterModifiable<float>>();
+        //this collection holds all counters
         private readonly Dictionary<int, ICounter> counters = new Dictionary<int, ICounter>();
-
-        public ReadOnlyDictionary<int, ICounterModifiable<float>> FloatCounters;
-        public ReadOnlyDictionary<int, ICounter> Counters;
-
-        public void Init()
-        {
-            FloatCounters = new ReadOnlyDictionary<int, ICounterModifiable<float>>(floatCounters);
-            Counters = new ReadOnlyDictionary<int, ICounter>(counters);
-        }
 
         public void AddCounter(ICounter counter)
         {
@@ -28,50 +19,65 @@ namespace Components
                 HECSDebug.LogWarning("we alrdy have this counter id" + counter.Id);
         }
 
-        public void SetCounter(ICounter<float> counter)
+        public T GetCounter<T>(int id) where T : ICounter
         {
-            if (floatCounters.TryGetValue(counter.Id, out var currentCounter))
+            if (counters.TryGetValue(id, out var counter))
             {
-                currentCounter.SetValue(counter.Value);
+                if (counter is T needed)
+                    return needed;
             }
+
+            return default;
         }
 
-        public void SetCounter<T>(T counterComponent) where T: IComponent, ICounter<float>
+        public bool TryGetCounter<T>(int id, out T getCounter) where T : ICounter
         {
-            if (floatCounters.TryGetValue(counterComponent.Id, out var currentCounter))
+            if (counters.TryGetValue(id, out var counter))
             {
-                currentCounter.SetValue(counterComponent.Value);
+                getCounter = (T)counter;
+                return getCounter != null;
+            }
+
+            getCounter = default;
+            return default;
+        }
+
+        public void SetOrAddCounter<T>(ICounter<T> counter) where T: struct
+        {
+            if (TryGetCounter<ICounter<T>>(counter.Id, out var currentCounter))
+                currentCounter.SetValue(counter.Value);
+            else
+                AddCounter(counter);
+        }
+
+        public void SetOrAddCounter(ICounter counter)
+        {
+            if (counters.ContainsKey(counter.Id))
+            {
+                switch (counter)
+                {
+                    case ICounter<float> floatCounter:
+                        (counters[counter.Id] as ICounter<float>).SetValue(floatCounter.Value);
+                        break;
+                    case ICounter<int> intCounter:
+                        (counters[counter.Id] as ICounter<int>).SetValue(intCounter.Value);
+                        break;
+                }
             }
             else
             {
-                Owner.AddHecsComponent(counterComponent);
+                AddCounter(counter);
             }
         }
 
         public void RemoveCounter(ICounter counter)
         {
-            counters.Remove(counter.Id);
-            floatCounters.Remove(counter.Id);
-}
+            RemoveCounter(counter.Id);
+        }
 
         public void RemoveCounter(int id)
 {
             counters.Remove(id);
-            floatCounters.Remove(id);
-        }
-
-        public void AddFloatModifiableCounter(ICounterModifiable<float> counterModifiable)
-        {
-            if (!floatCounters.TryAdd(counterModifiable.Id, counterModifiable))
-            {
-                HECSDebug.LogError("we try to add existing ICounterModifiable " + counterModifiable.Id + $" {Owner.ID} {Owner.GUID}");
-                return;
-            }
-        }
-
-        public void RemoveFloatModifiableCounter(ICounterModifiable<float> counterModifiable)
-        {
-            floatCounters.Remove(counterModifiable.Id);
         }
 
         public bool TryGetValue<T>(int id, out T value)
@@ -91,9 +97,10 @@ namespace Components
 
         public void ResetCounters()
         {
-            foreach (var c in floatCounters)
+            foreach (var c in counters)
             {
-                c.Value.Reset();
+                if (c.Value is IResetModifiers reset)
+                    reset.Reset();
             }
         }
     }
