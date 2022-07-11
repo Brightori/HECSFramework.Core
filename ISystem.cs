@@ -22,7 +22,6 @@ namespace HECSFramework.Core
 
         public virtual void Dispose()
         {
-            Owner = null;
         }
 
         public abstract void InitSystem();

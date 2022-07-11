@@ -21,7 +21,7 @@ namespace HECSFramework.Core
         protected readonly ConcurrencyList<UpdateWithOwnerContainer> updateOnEntities = new ConcurrencyList<UpdateWithOwnerContainer>(128);
 
         private Queue<UpdateWithOwnerContainer> addWithOwnersQueue = new Queue<UpdateWithOwnerContainer>(16);
-        private Queue<IHaveOwner> removeWithOwnersQueue = new Queue<IHaveOwner>(16);
+        private Queue<T> removeWithOwnersQueue = new Queue<T>(16);
 
         private Queue<T> addUpdatablesQueue = new Queue<T>(16);
         private Queue<T> removeUpdatablesQueue = new Queue<T>(16);
@@ -39,9 +39,8 @@ namespace HECSFramework.Core
             }
             else
             {
-
-                if (updatable is IHaveOwner property)
-                    removeWithOwnersQueue.Enqueue(property);
+                if (updatable is IHaveOwner)
+                    removeWithOwnersQueue.Enqueue(updatable);
                 else
                     removeUpdatablesQueue.Enqueue(updatable);
             }
@@ -53,6 +52,18 @@ namespace HECSFramework.Core
         {
             if (IsDirty)
             {
+                while (addWithOwnersQueue.Count > 0)
+                {
+                    var add = addWithOwnersQueue.Dequeue();
+                    updateOnEntities.Add(add);
+                }
+
+                while (addUpdatablesQueue.Count > 0)
+                {
+                    var add = addUpdatablesQueue.Dequeue();
+                    updatables.Add(add);
+                }
+
                 while (removeWithOwnersQueue.Count > 0)
                 {
                     var remove = removeWithOwnersQueue.Dequeue();
@@ -63,7 +74,7 @@ namespace HECSFramework.Core
                     {
                         var update = updateOnEntities.Data[i];
 
-                        if (update.Entity == remove)
+                        if (update.Updatable.Equals(remove))
                         {
                             updateOnEntities.RemoveAt(i);
                             break;
@@ -75,18 +86,6 @@ namespace HECSFramework.Core
                 {
                     var remove = removeUpdatablesQueue.Dequeue();
                     updatables.Remove(remove);
-                }
-
-                while (addWithOwnersQueue.Count > 0)
-                {
-                    var add = addWithOwnersQueue.Dequeue();
-                    updateOnEntities.Add(add);
-                }
-
-                while (addUpdatablesQueue.Count > 0)
-                {
-                    var add = addUpdatablesQueue.Dequeue();
-                    updatables.Add(add);
                 }
 
                 AfterAddOrRemove();

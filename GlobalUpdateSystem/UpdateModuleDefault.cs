@@ -23,6 +23,8 @@ namespace HECSFramework.Core
                 IUpdatable fixedUpdatable = updatables.Data[i];
                 fixedUpdatable.UpdateLocal();
             }
+
+            ProcessAddRemove();
         }
 
         protected override void AfterAddOrRemove()
