@@ -15,12 +15,6 @@ namespace Systems
 
         public override void InitSystem()
         {
-            var check = Owner.GetComponentsByType<ICounter>().ToList();
-
-            foreach (var c in Owner.GetComponentsByType<ICounter>())
-            {
-                countersHolder.AddCounter(c);
-            }
         }
 
         public void CommandReact(AddCounterModifierCommand<float> command)

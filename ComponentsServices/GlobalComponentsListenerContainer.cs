@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEditor;
 
 namespace HECSFramework.Core
 {
@@ -34,6 +36,7 @@ namespace HECSFramework.Core
         
         private bool isDirty;
         private bool isAdded;
+        private bool inProgress;
         private World world;
 
         public GlobalComponentsListenerContainer(ISystem listener, IReactComponentGlobal<T> action)
@@ -52,43 +55,56 @@ namespace HECSFramework.Core
         }
 
         public void Invoke(T component, bool isAdded)
-        {
-            this.isAdded = true;
-            invokeComponents.Enqueue((component, isAdded));
+{
+            if (inProgress)
+            {
+                invokeComponents.Enqueue((component, isAdded));
+                this.isAdded = true;
+            }
+            else
+                InvokeToListeners((component, isAdded));
         }
 
         public void ProcessInvoke()
         {
             if (!isAdded) return;
-            
             ProcessRemove();
 
             while (invokeComponents.Count > 0)
             {
                 var data = invokeComponents.Dequeue();
-
-                foreach (var listener in listeners)
-                {
-                    var actualListener = listener.Value;
-
-                    if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
-                    {
-                        listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
-                        isDirty = true;
-                        continue;
-                    }
-
-                    if (actualListener.Listener.Owner.IsPaused)
-                        continue;
-
-                    actualListener.Action.ComponentReactGlobal(data.component, data.Add);
-                }
+                InvokeToListeners(data);
             }
 
             ProcessRemove();
             isAdded = false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InvokeToListeners((T component, bool Add) data)
+        {
+            inProgress = true;
+
+            foreach (var listener in listeners)
+            {
+                var actualListener = listener.Value;
+
+                if (actualListener.Listener == null || !actualListener.Listener.Owner.IsAlive)
+                {
+                    listenersToRemove.Enqueue(listener.Value.Listener.SystemGuid);
+                    isDirty = true;
+                    continue;
+                }
+
+                if (actualListener.Listener.Owner.IsPaused)
+                    continue;
+
+                actualListener.Action.ComponentReactGlobal(data.component, data.Add);
+            }
+            inProgress = false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemove()
         {
             if (isDirty)

@@ -176,6 +176,13 @@ namespace HECSFramework.Core
                 EntityManager.RegisterEntity(this, true);
 
             AfterInit();
+
+            for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
+            {
+                var c = components[ComponentsMask.CurrentIndexes[i]];
+                World?.AddOrRemoveComponent(c, false);
+                TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
+            }
         }
 
         public void AfterInit()
