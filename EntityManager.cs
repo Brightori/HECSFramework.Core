@@ -40,8 +40,6 @@ namespace HECSFramework.Core
             }
         }
 
-        
-
         public static void RemoveWorld(int index, bool dispose = true)
         {
             lock (Instance.worlds)
