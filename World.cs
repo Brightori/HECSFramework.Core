@@ -5,7 +5,7 @@ using Systems;
 
 namespace HECSFramework.Core
 {
-    public sealed class World : IAddSingleComponent
+    public sealed partial class World : IAddSingleComponent
     {
         public int Index { get; private set; }
 

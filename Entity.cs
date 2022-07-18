@@ -537,7 +537,9 @@ namespace HECSFramework.Core
 
         public void SetWorld(int world)
         {
-            RemoveComponentsFromWorld();
+            if (World != null)
+                RemoveComponentsFromWorld();
+            
             World = EntityManager.Worlds.Data[world];
             AddComponentsToWorld();
         }

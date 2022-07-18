@@ -8,7 +8,7 @@ namespace Systems
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Counters, "System for operating counters on this entity, process changes of values and add|remove modifiers to modifiable counters")]
-    public sealed class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactComponentLocal
+    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactComponentLocal
     {
         [Required]
         public CountersHolderComponent countersHolder;
