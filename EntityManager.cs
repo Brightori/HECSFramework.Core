@@ -13,6 +13,9 @@ namespace HECSFramework.Core
         public static World Default => Instance.worlds.Data[0];
         public static bool IsAlive => Instance != null;
 
+        public static event Action<World> OnNewWorldAdded;
+
+
         public EntityManager(int worldsCount = 1)
         {
             worlds = new ConcurrencyList<World> (worldsCount);
@@ -35,6 +38,7 @@ namespace HECSFramework.Core
             {
                 var newWorld = new World(Worlds.Count);
                 Instance.worlds.Add(newWorld);
+                OnNewWorldAdded?.Invoke(newWorld);
                 return newWorld;
             }
         }
@@ -191,14 +195,13 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-            Instance = null;
-
             for (int i = 0; i < worlds.Count; i++)
             {
                 worlds.Data[i].Dispose();
             }
 
             worlds.Clear();
+            Instance = null;
         }
 
         public static void RecreateInstance()

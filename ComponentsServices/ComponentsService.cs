@@ -27,6 +27,9 @@ namespace HECSFramework.Core
 
         public void ProcessComponent(IComponent component, bool isAdded)
         {
+            if (component == null)
+                return;
+
             foreach (var listener in listeners.Values)
                 listener.ComponentReact(component, isAdded);
         }

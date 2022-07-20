@@ -73,6 +73,8 @@ namespace HECSFramework.Core
 
         void HecsDestroy();
 
+        void MigrateEntityToWorld(World world, bool needInit = true);
+
         string ID { get; }
         string ContainerID { get; }
 

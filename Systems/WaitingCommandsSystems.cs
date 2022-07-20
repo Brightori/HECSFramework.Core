@@ -25,6 +25,10 @@ namespace Systems
 
         public void ComponentReact<T>(T component, bool isAdded) where T: IComponent
         {
+        //todo проверить почему сюда прилетает нал
+            if (component == null)
+                return;
+
             if (waitingCommands.TryGetValue(component.ComponentsMask, out var globalCommands))
             {
                 while (globalCommands.Count > 0)

@@ -71,7 +71,7 @@ namespace HECSFramework.Core
             ID = id;
 
             if (EntityManager.IsAlive)
-                World =world;
+                World = world;
         }
 
 
@@ -86,7 +86,7 @@ namespace HECSFramework.Core
         /// <param name="component"></param>
         /// <param name="owner">this for actor, actor can assign self as owner</param>
         /// <param name="silently"></param>
-        public T AddHecsComponent<T>(T component, IEntity owner = null, bool silently = false) where T: IComponent
+        public T AddHecsComponent<T>(T component, IEntity owner = null, bool silently = false) where T : IComponent
         {
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
@@ -180,7 +180,7 @@ namespace HECSFramework.Core
             for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
             {
                 var c = components[ComponentsMask.CurrentIndexes[i]];
-                World?.AddOrRemoveComponent(c, false);
+                World?.AddOrRemoveComponent(c, true);
                 TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
             }
         }
@@ -315,10 +315,13 @@ namespace HECSFramework.Core
             IsAlive = false;
             IsPaused = true;
 
+            foreach (var s in systems)
+                s.Dispose();
+
             foreach (var s in systems.ToArray())
-            {
                 RemoveHecsSystem(s);
-            }
+
+
 
             for (int i = 0; i < components.Length; i++)
             {
@@ -359,7 +362,7 @@ namespace HECSFramework.Core
         {
             if (IsInited)
                 RegisterService.UnRegisterSystem(system);
-            system.Dispose();
+
             systems.Remove(system);
         }
 
@@ -539,7 +542,7 @@ namespace HECSFramework.Core
         {
             if (World != null)
                 RemoveComponentsFromWorld();
-            
+
             World = EntityManager.Worlds.Data[world];
             AddComponentsToWorld();
         }
@@ -559,6 +562,56 @@ namespace HECSFramework.Core
         {
             foreach (var c in components)
                 World.AddOrRemoveComponent(c, true);
+        }
+
+        public void MigrateEntityToWorld(World world, bool needInit = true)
+        {
+            if (IsInited)
+            {
+                foreach (var s in systems)
+                    RegisterService.UnRegisterSystem(s);
+
+
+                foreach (var cIndex in ComponentsMask.CurrentIndexes)
+                {
+                    var component = components[cIndex];
+
+                    if (component is IWorldSingleComponent worldSingleComponent)
+                        addSingleComponent.AddSingleWorldComponent(worldSingleComponent, false);
+
+                    TypesMap.RemoveComponent(this, component);
+                    World?.AddOrRemoveComponent(component, false);
+                }
+            }
+            World = world;
+
+            IsInited = false;
+
+            if (needInit)
+            {
+                InitComponentsAndSystems();
+                AfterInit();
+            }
+            else
+            {
+                foreach (var s in systems)
+                    RegisterService.RegisterSystem(s);
+
+                foreach (var component in components)
+                {
+                    if (component is IWorldSingleComponent worldSingleComponent)
+                        addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
+                }
+            }
+
+            IsInited = true;
+
+            for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
+            {
+                var c = components[ComponentsMask.CurrentIndexes[i]];
+                World?.AddOrRemoveComponent(c, false);
+                TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
+            }
         }
     }
 

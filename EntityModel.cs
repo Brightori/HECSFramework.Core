@@ -289,5 +289,10 @@ namespace HECSFramework.Core
         {
             return false;
         }
+
+        public void MigrateEntityToWorld(World world, bool needInit = true)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
