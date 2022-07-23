@@ -316,7 +316,12 @@ namespace HECSFramework.Core
             IsPaused = true;
 
             foreach (var s in systems)
+            {
+                if (s.IsDisposed)
+                    continue;
+
                 s.Dispose();
+            }
 
             foreach (var s in systems.ToArray())
                 RemoveHecsSystem(s);
@@ -363,6 +368,9 @@ namespace HECSFramework.Core
             if (IsInited)
                 RegisterService.UnRegisterSystem(system);
 
+            if (!system.IsDisposed)
+                system.Dispose();
+            
             systems.Remove(system);
         }
 

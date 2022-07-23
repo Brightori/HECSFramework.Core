@@ -8,6 +8,8 @@ namespace HECSFramework.Core
         public IEntity Owner { get; set; }
         public Guid SystemGuid { get; } = Guid.NewGuid();
 
+        public bool IsDisposed { get; protected set; }
+
         public int GetTypeHashCode
         {
             get
@@ -22,6 +24,10 @@ namespace HECSFramework.Core
 
         public virtual void Dispose()
         {
+            if (IsDisposed)
+                return;
+
+            IsDisposed = true;
         }
 
         public abstract void InitSystem();
@@ -32,6 +38,7 @@ namespace HECSFramework.Core
         Guid SystemGuid { get; }
         void InitSystem();
         int GetTypeHashCode { get; }
+        bool IsDisposed { get; }
     }
    
     public interface IHavePause

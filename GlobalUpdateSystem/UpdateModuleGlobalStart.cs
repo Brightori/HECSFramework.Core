@@ -35,6 +35,9 @@ namespace HECSFramework.Core
         //we dont needed bool add here, but we keep it for same signature in all register methods 
         public void Register(IGlobalStart updatable, bool add)
         {
+            if (!add)
+                return;
+
             if (isStarted)
                 updatable.GlobalStart();
             else
