@@ -260,6 +260,19 @@ namespace HECSFramework.Core
             return default;
         }
 
+        public T GetSingleComponent<T>(HECSMask mask) where T : IComponent
+        {
+            var key = mask.TypeHashCode;
+
+            if (singleComponents.TryGetValue(key, out var component))
+            {
+                if (component != null && component.Owner.IsAlive && component.IsAlive)
+                    return (T)component;
+            }
+
+            return default;
+        }
+
         public bool TryGetSingleComponent<T>(out T component) where T: IComponent
         {
             var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
