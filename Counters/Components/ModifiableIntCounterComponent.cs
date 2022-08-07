@@ -5,12 +5,13 @@ using HECSFramework.Core;
 namespace Components
 {
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
-    public abstract partial class ModifiableIntCounterComponent : BaseComponent, ICounterModifiable<int>, IInitable, IDisposable
+    public abstract partial class ModifiableIntCounterComponent : BaseComponent, IBaseValue<int>, ICounterModifiable<int>, IInitable, IDisposable
     {
         public int Value => modifiersContainer.CurrentValue;
         public int CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public abstract int Id { get; }
         public abstract int SetupValue { get; }
+        public int GetBaseValue => SetupValue;
 
         protected ModifiersContainer<IModifier<int>, int> modifiersContainer;
 

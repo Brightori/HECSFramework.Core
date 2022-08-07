@@ -39,7 +39,7 @@
         public int Id => Current.Id;
     }
 
-    public interface IBaseValue<T>
+    public interface IBaseValue<T> : ICounter<T>
     {
         T GetBaseValue { get; }
     }
