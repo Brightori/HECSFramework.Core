@@ -29,6 +29,9 @@ namespace HECSFramework.Core
 
         private Queue<IEntity> waintingForInit = new Queue<IEntity>();
 
+        public bool IsAlive { get; private set; } = true;
+        public Guid WorldGuid { get; private set; } = Guid.NewGuid();
+
         public World(int index)
         {
             Index = index;
@@ -348,6 +351,7 @@ namespace HECSFramework.Core
             commandService.Dispose();
             entityFilter.Dispose();
             GlobalUpdateSystem.Dispose();
+            IsAlive = false;
         }
 
         void IAddSingleComponent.AddSingleWorldComponent<T>(T component, bool add)
@@ -369,6 +373,17 @@ namespace HECSFramework.Core
                 if (add)
                     singleComponents.Add(key, component);
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is World world &&
+                   WorldGuid.Equals(world.WorldGuid);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(WorldGuid);
         }
     }
 

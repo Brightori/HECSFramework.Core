@@ -20,4 +20,24 @@ namespace HECSFramework.Core
             this.list = list;
         }
     }
+
+    public class ReadonlyConcurrencyList<T> : IReadOnlyList<T>
+    {
+        private ConcurrencyList<T> list;
+
+        public T this[int index] => list.Data[index];
+
+        public int Count => list.Count;
+
+        public T[] Array => list.Data;
+
+        public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
+
+        public ReadonlyConcurrencyList(ConcurrencyList<T> list)
+        {
+            this.list = list;
+        }
+    }
 }
