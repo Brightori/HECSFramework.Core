@@ -55,4 +55,5 @@ public static partial class Doc
     public const string Baking = "Baking";
     public const string Holder = "Holder";
     public const string ShortIDs = "ShortIDs";
+    public const string Currency = "Currency";
 }
