@@ -6,7 +6,7 @@ namespace HECSFramework.Core
     {
         public const int AllWorld = -1;
 
-        private ConcurrencyList <World> worlds;
+        private ConcurrencyList<World> worlds;
         private static EntityManager Instance;
 
         public static ConcurrencyList<World> Worlds => Instance.worlds;
@@ -18,7 +18,7 @@ namespace HECSFramework.Core
 
         public EntityManager(int worldsCount = 1)
         {
-            worlds = new ConcurrencyList<World> (worldsCount);
+            worlds = new ConcurrencyList<World>(worldsCount);
             Instance = this;
 
             for (int i = 0; i < worldsCount; i++)
@@ -72,11 +72,11 @@ namespace HECSFramework.Core
         public static void OnApplicationExitInvoke()
         {
             foreach (var world in Worlds)
-            foreach (var entity in world.Entities)
-            foreach (ISystem system in entity.GetAllSystems)
-            {
-                if (system is IOnApplicationQuit sys) sys.OnApplicationExit();
-            }
+                foreach (var entity in world.Entities)
+                    foreach (ISystem system in entity.GetAllSystems)
+                    {
+                        if (system is IOnApplicationQuit sys) sys.OnApplicationExit();
+                    }
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace HECSFramework.Core
 
         public static void GlobalCommand<T>(T command) where T : struct, IGlobalCommand
         {
-            foreach (var w in Worlds) 
+            foreach (var w in Worlds)
                 w.Command(command);
         }
 
@@ -111,19 +111,19 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
         /// <param name="waitForComponent"></param>
-        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : struct, ICommand, IGlobalCommand 
+        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : struct, ICommand, IGlobalCommand
             => Worlds.Data[worldIndex].Command(command, ref waitForComponent);
 
         public static void RegisterEntity(IEntity entity, bool add)
         {
-            Instance.worlds.Data[entity.WorldId].RegisterEntity(entity, add);
+            entity.World.RegisterEntity(entity, add);
         }
 
         public static ConcurrencyList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
         public static ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
         public static ConcurrencyList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
 
-        
+
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты
         /// </summary>
@@ -177,7 +177,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system, int worldIndex =0) where T : ISystem
+        public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system, int worldIndex = 0) where T : ISystem
         {
             var world = Instance.worlds.Data[worldIndex];
             return world.TryGetSystemFromEntity(ref mask, out system);

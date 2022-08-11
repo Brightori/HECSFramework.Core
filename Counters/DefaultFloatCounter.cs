@@ -1,11 +1,17 @@
 ﻿using System;
+using MessagePack;
 
 namespace HECSFramework.Core
 {
     [Serializable]
+    [HECSCounter]
+    [MessagePackObject]
     public class DefaultFloatCounter : ICounter<float>
     {
+        [Key(0)]
         public float Value { get; private set; }
+
+        [Key(1)]
         public int Id { get; set; }
 
         public void ChangeValue(float value)
