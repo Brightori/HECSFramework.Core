@@ -4,7 +4,6 @@ using MessagePack;
 namespace HECSFramework.Core
 {
     [Serializable]
-    [HECSCounter]
     [MessagePackObject]
     public class DefaultFloatCounter : ICounter<float>
     {
