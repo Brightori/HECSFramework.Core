@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public interface IEntity : IDisposable, IHavePause, IEquatable<IEntity>
+    public partial interface IEntity : IDisposable, IHavePause, IEquatable<IEntity>
     {
         EntityLocalCommandService EntityCommandService { get; }
 

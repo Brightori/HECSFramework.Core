@@ -45,7 +45,12 @@ namespace Systems
             if (poolOfComponents.ContainsKey(index))
             {
                 if (poolOfComponents[index].Count > 0)
-                    return (T)poolOfComponents[index].Pop();
+                {
+                    var needed = (T)poolOfComponents[index].Pop();
+                    needed.IsAlive = true;
+                    needed.UnRegister();
+                    return needed;
+                }
             }
             else
                 poolOfComponents.Add(index, new Stack<IComponent>());

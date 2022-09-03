@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-    public sealed class EntityModel : IEntity
+    public sealed partial class EntityModel : IEntity
     {
         private const string DefaultContainerName = "Default";
 

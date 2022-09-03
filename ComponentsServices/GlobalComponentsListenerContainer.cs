@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    public sealed class GlobalComponentsListenerContainer<T> : IRemoveSystemListener, IDisposable where T : IComponent 
+    public sealed class GlobalComponentsListenerContainer<T> : IRemoveSystemListener, IDisposable where T : IComponent
     {
         private struct GlobalListener
         {
@@ -32,7 +32,7 @@ namespace HECSFramework.Core
         private Dictionary<Guid, GlobalListener> listeners = new Dictionary<Guid, GlobalListener>(16);
         private Queue<(T component, bool Add)> invokeComponents = new Queue<(T component, bool Add)>(16);
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
-        
+
         private bool isDirty;
         private bool isAdded;
         private bool inProgress;
@@ -54,7 +54,9 @@ namespace HECSFramework.Core
         }
 
         public void Invoke(T component, bool isAdded)
-{
+        {
+            ProcessRemove();
+
             if (inProgress)
             {
                 invokeComponents.Enqueue((component, isAdded));

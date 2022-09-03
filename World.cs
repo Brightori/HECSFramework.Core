@@ -31,6 +31,7 @@ namespace HECSFramework.Core
 
         public bool IsAlive { get; private set; } = true;
         public Guid WorldGuid { get; private set; } = Guid.NewGuid();
+        private bool isInited;
 
         public World(int index)
         {
@@ -40,6 +41,9 @@ namespace HECSFramework.Core
 
         public void Init()
         {
+            if (isInited)
+                return;
+
             var worldService = new Entity("WorldService", Index);
             waitingCommandsSystems = new WaitingCommandsSystems();
             worldService.AddHecsSystem(waitingCommandsSystems);
@@ -50,6 +54,8 @@ namespace HECSFramework.Core
 
             while (waintingForInit.Count > 0)
                 waintingForInit.Dequeue().Init();
+
+            isInited = true;
         }
 
         public ConcurrencyList<IEntity> Entities => entityService.Entities;

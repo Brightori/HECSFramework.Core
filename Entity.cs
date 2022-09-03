@@ -109,7 +109,7 @@ namespace HECSFramework.Core
             TypesMap.SetComponent(this, component);
             component.IsAlive = true;
 
-            if (IsInited)
+            if (IsInited && !component.IsRegistered)
             {
                 if (component is IInitable initable)
                     initable.Init();
@@ -123,10 +123,11 @@ namespace HECSFramework.Core
 
             ComponentsMask.AddMask(component.ComponentsMask.Index);
 
-            if (!silently && IsInited)
+            if (!silently && IsInited && !component.IsRegistered)
             {
                 World.AddOrRemoveComponent(component, true);
                 TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, true);
+                component.SetIsRegistered();
             }
 
             return component;
@@ -180,8 +181,13 @@ namespace HECSFramework.Core
             for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
             {
                 var c = components[ComponentsMask.CurrentIndexes[i]];
+
+                if (c.IsRegistered)
+                    continue;
+
                 World?.AddOrRemoveComponent(c, true);
                 TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
+                c.SetIsRegistered();
             }
         }
 
@@ -215,7 +221,6 @@ namespace HECSFramework.Core
 
                 sys.InitSystem();
             }
-
             IsInited = true;
         }
 
@@ -282,6 +287,12 @@ namespace HECSFramework.Core
                 if (system is IAfterEntityInit afterSysEntityInit)
                     afterSysEntityInit.AfterEntityInit();
             }
+        }
+
+        //this method for actor
+        public void SetIsInited()
+        {
+            IsInited = true;
         }
 
         public void Pause()
@@ -370,7 +381,7 @@ namespace HECSFramework.Core
 
             if (!system.IsDisposed)
                 system.Dispose();
-            
+
             systems.Remove(system);
         }
 
@@ -574,52 +585,38 @@ namespace HECSFramework.Core
 
         public void MigrateEntityToWorld(World world, bool needInit = true)
         {
-            if (IsInited)
+            //if we have critical allocation here, we can change pipeline to pooling or stackalloc
+            var componentsSave = new List<IComponent>(32);
+            var systemsSave = new List<ISystem>(32);
+
+            foreach (var s in systems.ToArray())
             {
-                foreach (var s in systems)
-                    RegisterService.UnRegisterSystem(s);
-
-
-                foreach (var cIndex in ComponentsMask.CurrentIndexes)
-                {
-                    var component = components[cIndex];
-
-                    if (component is IWorldSingleComponent worldSingleComponent)
-                        addSingleComponent.AddSingleWorldComponent(worldSingleComponent, false);
-
-                    TypesMap.RemoveComponent(this, component);
-                    World?.AddOrRemoveComponent(component, false);
-                }
+                RemoveHecsSystem(s);
+                systemsSave.Add(s);
             }
-            World = world;
 
+            foreach (var c in components)
+            {
+                if (c == null)
+                    continue;
+
+                RemoveHecsComponent(c);
+                componentsSave.Add(c);
+            }
+
+            EntityManager.RegisterEntity(this, false);
+
+            World = world;
             IsInited = false;
 
+            foreach (var c in componentsSave)
+                AddHecsComponent(c);
+
+            foreach (var s in systemsSave)
+                AddHecsSystem(s);
+
             if (needInit)
-            {
-                InitComponentsAndSystems();
-                AfterInit();
-            }
-            else
-            {
-                foreach (var s in systems)
-                    RegisterService.RegisterSystem(s);
-
-                foreach (var component in components)
-                {
-                    if (component is IWorldSingleComponent worldSingleComponent)
-                        addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
-                }
-            }
-
-            IsInited = true;
-
-            for (int i = 0; i < ComponentsMask.CurrentIndexes.Count; i++)
-            {
-                var c = components[ComponentsMask.CurrentIndexes[i]];
-                World?.AddOrRemoveComponent(c, false);
-                TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
-            }
+                Init();
         }
     }
 

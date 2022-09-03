@@ -56,4 +56,6 @@ public static partial class Doc
     public const string Holder = "Holder";
     public const string ShortIDs = "ShortIDs";
     public const string Currency = "Currency";
+    public const string Serialization = "Serialization";
+    public const string Database = "Database";
 }
