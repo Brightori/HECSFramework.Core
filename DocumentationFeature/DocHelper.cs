@@ -58,4 +58,6 @@ public static partial class Doc
     public const string Currency = "Currency";
     public const string Serialization = "Serialization";
     public const string Database = "Database";
+    public const string Level = "Level";
+    public const string Config = "Config";
 }
