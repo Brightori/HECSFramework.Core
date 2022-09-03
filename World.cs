@@ -299,6 +299,23 @@ namespace HECSFramework.Core
             return false;
         }
 
+        public bool TryGetSingleComponent<T>(HECSMask mask, out T component) where T : IComponent
+        {
+            var key = mask.TypeHashCode;
+            component = default;
+
+            if (singleComponents.TryGetValue(key, out var lookForComponent))
+            {
+                if (lookForComponent != null && lookForComponent.Owner.IsAlive && lookForComponent.IsAlive)
+                {
+                    component = (T)lookForComponent;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public T GetHECSComponent<T>(ref HECSMask owner)
         {
             if (TryGetEntityByComponents(out var entity, ref owner))
