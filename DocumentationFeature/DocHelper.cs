@@ -60,4 +60,6 @@ public static partial class Doc
     public const string Database = "Database";
     public const string Level = "Level";
     public const string Config = "Config";
+    public const string Save = "Save";
+    public const string Load = "Load";
 }
