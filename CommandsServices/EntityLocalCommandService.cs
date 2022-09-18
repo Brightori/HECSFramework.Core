@@ -68,6 +68,8 @@ namespace HECSFramework.Core
             }
         }
 
+        private bool inProgress = false;
+
         private Dictionary<Guid, ListenerContainer> listeners = new Dictionary<Guid, ListenerContainer>(16);
         private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
         private bool isDirty;
@@ -91,6 +93,7 @@ namespace HECSFramework.Core
         {
             ProcessRemove();
 
+            inProgress = true;
             foreach (var listener in listeners)
             {
                 var actualListener = listener.Value;
@@ -107,7 +110,7 @@ namespace HECSFramework.Core
 
                 actualListener.Listener.CommandReact(data);
             }
-
+            inProgress = false;
             ProcessRemove();
         }
 
@@ -128,10 +131,12 @@ namespace HECSFramework.Core
         public void RemoveListener(ISystem listener)
         {
             if (listeners.ContainsKey(listener.SystemGuid))
-            {
                 listenersToRemove.Enqueue(listener.SystemGuid);
-                isDirty = true;
-            }
+            
+            isDirty = true;
+
+            if (!inProgress)
+                ProcessRemove();
         }
     }
 

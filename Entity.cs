@@ -1,6 +1,7 @@
 using Components;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -185,43 +186,100 @@ namespace HECSFramework.Core
                 if (c.IsRegistered)
                     continue;
 
-                World?.AddOrRemoveComponent(c, true);
-                TypesMap.RegisterComponent(c.ComponentsMask.Index, c.Owner, true);
-                c.SetIsRegistered();
+                RegiserComponent(c);
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RegiserComponent(IComponent component)
+        {
+            World?.AddOrRemoveComponent(component, true);
+            TypesMap.RegisterComponent(component.ComponentsMask.Index, component.Owner, true);
+            component.SetIsRegistered();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AfterInit()
         {
             foreach (var c in components)
-                if (c != null)
-                    if (c is IAfterEntityInit afterEntityInit)
-                        afterEntityInit.AfterEntityInit();
+                AfterInitComponent(c);
 
             foreach (var s in systems)
-                if (s is IAfterEntityInit afterSysEntityInit)
-                    afterSysEntityInit.AfterEntityInit();
+                AfterInitSystem(s);
         }
 
-        public void InitComponentsAndSystems(bool needRegister = true)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AfterInitComponent(IComponent component)
+        {
+            if (component != null)
+                if (component is IAfterEntityInit afterEntityInit)
+                    afterEntityInit.AfterEntityInit();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AfterInitSystem(ISystem system)
+        {
+            if (system is IAfterEntityInit afterSysEntityInit)
+                afterSysEntityInit.AfterEntityInit();
+        }
+
+        public void InitComponentsAndSystems()
+        {
+            InitComponents(components);
+            InitSystems(systems);
+            IsInited = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InitSystems(List<ISystem> systems)
+        {
+            foreach (var sys in systems)
+            {
+                if (sys == null)
+                {
+                    HECSDebug.LogError("we have null system " + ID);
+                    continue;
+                }
+
+                RegisterService.RegisterSystem(sys);
+                sys.InitSystem();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InitComponents(IComponent[] components)
         {
             foreach (var component in components)
             {
-                if (component is IInitable init)
-                    init.Init();
+                if (component == null)
+                    continue;
 
-                if (component is IWorldSingleComponent worldSingleComponent)
-                    addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
+
+                InitComponent(component);
             }
+        }
 
-            foreach (var sys in systems)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InitComponents(List<IComponent> components)
+        {
+            foreach (var component in components)
             {
-                if (needRegister)
-                    RegisterService.RegisterSystem(sys);
+                if (component == null)
+                    continue;
 
-                sys.InitSystem();
+
+                InitComponent(component);
             }
-            IsInited = true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void InitComponent(IComponent component)
+        {
+            if (component is IInitable init)
+                init.Init();
+
+            if (component is IWorldSingleComponent worldSingleComponent)
+                addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
         }
 
         public void Command<T>(T command) where T : struct, ICommand
@@ -431,13 +489,8 @@ namespace HECSFramework.Core
             for (int i = 0; i < components.Length; i++)
                 RemoveHecsComponent(components[i]);
 
-            foreach (var s in systems)
-            {
-                RegisterService.UnRegisterSystem(s);
-                s.Dispose();
-            }
-
-            systems.Clear();
+            foreach (var s in systems.ToArray())
+                RemoveHecsSystem(s);
         }
 
         public void GenerateGuid()
@@ -617,6 +670,40 @@ namespace HECSFramework.Core
 
             if (needInit)
                 Init();
+        }
+
+        /// <summary>
+        /// we can replace or add data|logic on this entity, if for cases when we need totaly replace behaviour on entity
+        /// </summary>
+        /// <param name="components"></param>
+        /// <param name="systems"></param>
+        /// <param name="isAdditive"></param>
+        public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, IEntity owner = null)
+        {
+            if (!isAdditive)
+                RemoveComponentsAndSystems();
+
+            IsInited = false;
+
+            foreach (var c in components)
+                AddHecsComponent(c, owner);
+
+            foreach (var s in systems)
+                AddHecsSystem(s, owner);
+
+            InitComponents(components);
+            InitSystems(systems);
+
+            foreach (var c in components)
+                AfterInitComponent(c);
+
+            foreach (var s in systems)
+                AfterInitSystem(s);
+
+            IsInited = true;
+
+            foreach (var c in components)
+                RegiserComponent(c);
         }
     }
 

@@ -290,7 +290,14 @@ namespace HECSFramework.Core
             return false;
         }
 
+        //we not support behaviour for entity model
         public void MigrateEntityToWorld(World world, bool needInit = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        //we not support behaviour for entity model
+        public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, IEntity owner = null)
         {
             throw new NotImplementedException();
         }

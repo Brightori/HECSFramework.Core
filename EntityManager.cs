@@ -164,6 +164,7 @@ namespace HECSFramework.Core
         /// <param name="worldIndex"></param>
         /// <returns></returns>
         public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
+        public static T GetSingleComponent<T>(HECSMask mask, int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>(mask);
 
         public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0)
         {

@@ -59,6 +59,7 @@ namespace HECSFramework.Core
         void Init(int worldIndex, bool needRegister = true);
 
         void InjectEntity(IEntity entity, IEntity owner = null, bool additive = false);
+        void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, IEntity owner = null);
         
         void GenerateGuid();
         void SetGuid(Guid guid);
