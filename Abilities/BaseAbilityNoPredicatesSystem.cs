@@ -8,7 +8,7 @@ namespace HECSFramework.Core
         public void CommandReact(ExecuteAbilityCommand command)
         {
             Execute(command.Owner, command.Target, command.Enabled);
-            Owner.Command(new AbilityWasExecutedCommand { Enabled = command.Enabled });
+            Owner.Command(new AbilityWasExecutedCommand { Ability = this, Enabled = command.Enabled });
         }
 
         public abstract void Execute(IEntity owner = null, IEntity target = null, bool enable = true);

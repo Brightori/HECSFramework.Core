@@ -63,4 +63,5 @@ public static partial class Doc
     public const string Save = "Save";
     public const string Load = "Load";
     public const string Audio = "Audio";
+    public const string Analytics = "Analytics";
 }
