@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace HECSFramework.Core
 {
+    [Documentation(Doc.HECS, Doc.Global, "Main update system, have many modules, every program tick passes through this object, every world have own instance of this system")]
     public partial class GlobalUpdateSystem : IDisposable
     {
         private UpdateModuleFixed fixedModule;
@@ -10,10 +12,10 @@ namespace HECSFramework.Core
         private UpdateModuleDeltaTime deltaUpdateModule;
         private UpdateModuleGlobalStart startModule;
         private PriorityUpdateModule priorityUpdateModule;
+        private ExecuteInUpdate executeInUpdate;
 
         public bool IsGlobalStarted => startModule.IsStarted;
         public bool IsLateStarted => startModule.IsLateStarted;
-
         public Action FinishUpdate { get; set; }
 
         public GlobalUpdateSystem()
@@ -24,6 +26,7 @@ namespace HECSFramework.Core
             deltaUpdateModule = new UpdateModuleDeltaTime();
             startModule = new UpdateModuleGlobalStart();
             priorityUpdateModule = new PriorityUpdateModule();
+            executeInUpdate = new ExecuteInUpdate();
         }
 
         public void Register<T>(T registerUpdate, bool add) where T : IRegisterUpdatable
@@ -62,6 +65,8 @@ namespace HECSFramework.Core
         public void LateStart()
             => startModule.LateStart();
 
+        public ValueTask ExecuteInUpdate(Action action) => executeInUpdate.ExecuteAction(action);
+
         public void FixedUpdate()
             => fixedModule.FixedUpdateLocal();
 
@@ -72,6 +77,7 @@ namespace HECSFramework.Core
         {
             priorityUpdateModule.UpdateLocal();
             defaultModule.UpdateLocal();
+            executeInUpdate.UpdateLocal();
         }
 
         public void UpdateDelta(float deltaTime)

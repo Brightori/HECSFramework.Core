@@ -166,6 +166,37 @@ namespace HECSFramework.Core
         public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
         public static T GetSingleComponent<T>(HECSMask mask, int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>(mask);
 
+        public static bool TryGetWorld<T>(out World world) where T: IComponent, IWorldSingleComponent
+        {
+            foreach (var w in Worlds)
+            {
+                if (w.TryGetSingleComponent<T>(out _))
+                {
+                    world = w;
+                    return true;
+                }
+            }
+
+            world = null;
+            return false;
+        }
+
+        public static bool TryGetWorldAndComponent<T>(out World world, out T component) where T : IComponent, IWorldSingleComponent
+        {
+            foreach (var w in Worlds)
+            {
+                if (w.TryGetSingleComponent<T>(out component))
+                {
+                    world = w;
+                    return true;
+                }
+            }
+
+            component = default;
+            world = null;
+            return false;
+        }
+
         public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0)
         {
             foreach (var w in Worlds)
