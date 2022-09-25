@@ -64,4 +64,6 @@ public static partial class Doc
     public const string Load = "Load";
     public const string Audio = "Audio";
     public const string Analytics = "Analytics";
+    public const string Tutorial = "Tutorial";
+    public const string Settings = "Settings";
 }
