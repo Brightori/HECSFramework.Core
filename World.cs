@@ -316,6 +316,11 @@ namespace HECSFramework.Core
             return false;
         }
 
+        public bool IsHaveSingleComponent(int index)
+        {
+            return singleComponents.ContainsKey(index);
+        }
+
         public T GetHECSComponent<T>(ref HECSMask owner)
         {
             if (TryGetEntityByComponents(out var entity, ref owner))
