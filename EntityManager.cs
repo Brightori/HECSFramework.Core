@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace HECSFramework.Core
 {
@@ -98,12 +99,6 @@ namespace HECSFramework.Core
             Instance.worlds.Data[world].Command(command);
         }
 
-        public static void GlobalCommand<T>(T command) where T : struct, IGlobalCommand
-        {
-            foreach (var w in Worlds)
-                w.Command(command);
-        }
-
         /// <summary>
         /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
         /// то мы отправляем команду ожидать появления нужной сущности
@@ -122,7 +117,6 @@ namespace HECSFramework.Core
         public static ConcurrencyList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
         public static ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
         public static ConcurrencyList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
-
 
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты
@@ -163,8 +157,11 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="worldIndex"></param>
         /// <returns></returns>
-        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
-        public static T GetSingleComponent<T>(HECSMask mask, int worldIndex = 0) where T : IComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>(mask);
+        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent, IWorldSingleComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
+        public static T GetSingleComponent<T>(HECSMask mask, int worldIndex = 0) where T : IComponent, IWorldSingleComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>(mask);
+
+        public static bool TryGetSingleComponent<T>(int world, out T component) where T : IComponent, IWorldSingleComponent => Worlds.Data[world].TryGetSingleComponent<T>(out component);
+        public static bool TryGetSingleComponent<T>(int world, HECSMask mask, out T component) where T : IComponent, IWorldSingleComponent => Worlds.Data[world].TryGetSingleComponent<T>(mask, out component);
 
         public static bool TryGetWorld<T>(out World world) where T: IComponent, IWorldSingleComponent
         {
@@ -219,8 +216,6 @@ namespace HECSFramework.Core
         {
             Instance.worlds.Data[component.Owner.WorldId].AddOrRemoveComponent(component, isAdded);
         }
-
-        public T GetHECSComponent<T>(ref HECSMask owner, int worldIndex = 0) => worlds.Data[worldIndex].GetHECSComponent<T>(ref owner);
 
         public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent, int worldIndex) where T : IComponent
             => worlds.Data[worldIndex].TryGetComponentFromEntity(out component, ref owner, ref neededComponent);

@@ -256,7 +256,7 @@ namespace HECSFramework.Core
             return default;
         }
 
-        public T GetSingleComponent<T>() where T : IComponent
+        public T GetSingleComponent<T>() where T : IComponent, IWorldSingleComponent
         {
             var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
 
@@ -269,7 +269,7 @@ namespace HECSFramework.Core
             return default;
         }
 
-        public T GetSingleComponent<T>(HECSMask mask) where T : IComponent
+        public T GetSingleComponent<T>(HECSMask mask) where T : IComponent, IWorldSingleComponent
         {
             var key = mask.TypeHashCode;
 
@@ -282,7 +282,7 @@ namespace HECSFramework.Core
             return default;
         }
 
-        public bool TryGetSingleComponent<T>(out T component) where T: IComponent
+        public bool TryGetSingleComponent<T>(out T component) where T: IComponent, IWorldSingleComponent
         {
             var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
             component = default;
@@ -299,7 +299,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public bool TryGetSingleComponent<T>(HECSMask mask, out T component) where T : IComponent
+        public bool TryGetSingleComponent<T>(HECSMask mask, out T component) where T : IComponent, IWorldSingleComponent
         {
             var key = mask.TypeHashCode;
             component = default;
@@ -319,14 +319,6 @@ namespace HECSFramework.Core
         public bool IsHaveSingleComponent(int index)
         {
             return singleComponents.ContainsKey(index);
-        }
-
-        public T GetHECSComponent<T>(ref HECSMask owner)
-        {
-            if (TryGetEntityByComponents(out var entity, ref owner))
-                return entity.GetHECSComponent<T>();
-            else
-                return default;
         }
 
         public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent) where T : IComponent
