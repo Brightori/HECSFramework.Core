@@ -116,6 +116,8 @@ namespace Systems
                     removerCallbackCommands.Add(waitCallbackCommands.Data[i]);
                 }
             }
+
+            removerCallbackCommands.ProcessRemoving();
         }
 
         public void CommandGlobalReact(WaitAndCallbackCommand command)

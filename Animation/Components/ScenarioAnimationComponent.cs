@@ -1,7 +1,6 @@
-using HECSFramework.Core;
-using HECSFramework.Unity;
 using System;
-using UnityEngine;
+using System.Runtime.InteropServices;
+using HECSFramework.Core;
 
 namespace Components
 {
@@ -10,13 +9,32 @@ namespace Components
     public sealed partial class ScenarioAnimationComponent : BaseComponent
     {
         public ScenarioAnimation[] ScenarioAnimations;
+
+        public bool TryGetScenarioLenght(int scenarioIndex, out float result)
+        {
+            foreach(var s in ScenarioAnimations)
+            {
+                if (s.ScenarioIndex == scenarioIndex)
+                {
+                    result = s.GetScenarioLenght();
+                    return true;
+                }
+            }
+
+            result = 0;
+            return false;
+        }
     }
 
     [Serializable]
-    public struct ScenarioAnimation
+    public partial struct ScenarioAnimation
     {
+#if UNITY_EDITOR
+        [UnityEngine.HideInInspector]
+#endif
         public int ScenarioIndex;
-        public AnimationInfo[] AnimationSteps;
+      
+        public AnimationHECSInfo[] AnimationSteps;
 
         public float GetScenarioLenght()
         {
@@ -35,10 +53,17 @@ namespace Components
     }
 
     [Serializable]
-    public partial struct AnimationInfo
+    [StructLayout(LayoutKind.Auto)]
+    public partial struct AnimationHECSInfo
     {
-        public int AnimationState;
+#if UNITY_EDITOR
+        [UnityEngine.HideInInspector]
+#endif
         public int AnimationEvent;
+
+#if UNITY_EDITOR
+        [Sirenix.OdinInspector.ReadOnly]
+#endif
         public float AnimationLenght;
     }
 }
