@@ -17,7 +17,6 @@
                 system.Owner.RegisterComponentListenersService.AddLocalListener(system, reactComponent);
 
             RegisterAdditionalSystems(system);
-            TypesMap.BindSystem(system);
         }
 
         public void UnRegisterSystem<T>(T system) where T: ISystem

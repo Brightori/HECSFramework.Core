@@ -167,7 +167,7 @@ namespace HECSFramework.Core
         public void Init(bool needRegister = true)
         {
             if (IsInited)
-                throw new InvalidOperationException($"Entity already inited: {GUID}");
+                throw new InvalidOperationException($"Character already inited: {GUID}");
 
             if (World == null)
                 World = EntityManager.Default;
@@ -241,8 +241,9 @@ namespace HECSFramework.Core
                     continue;
                 }
 
-                RegisterService.RegisterSystem(sys);
+                TypesMap.BindSystem(sys);
                 sys.InitSystem();
+                RegisterService.RegisterSystem(sys);
             }
         }
 

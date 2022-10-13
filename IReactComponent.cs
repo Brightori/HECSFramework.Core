@@ -17,7 +17,7 @@ namespace HECSFramework.Core
     }
 
     [Documentation(Doc.HECS, "the implementation of this interface in the system allows you to find out the add or removal of a component of a particular type on the current entity")]
-    public interface IReactComponentLocal<T>  
+    public interface IReactComponentLocal<T> where T : IComponent  
     {
         void ComponentReact(T component, bool isAdded);
     }

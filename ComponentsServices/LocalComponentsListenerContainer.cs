@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    public sealed class LocalComponentsListenerContainer<T> : IDisposable, IRemoveSystemListener
+    public sealed class LocalComponentsListenerContainer<T> : IDisposable, IRemoveSystemListener where T : IComponent
     {
         private struct LocalListener
         {

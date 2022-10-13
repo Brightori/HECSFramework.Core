@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Commands
 {
-    [Documentation(Doc.GameLogic, "The command in which we set the timer, and callback with Entity when the timer expires")]
+    [Documentation(Doc.GameLogic, "The command in which we set the timer, and callback with Character when the timer expires")]
     public struct WaitAndEntityCallbackCommand : IGlobalCommand
     {
         public float Timer;

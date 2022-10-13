@@ -679,7 +679,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new ParagraphSyntax());
 
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                new SimpleSyntax($"public static void Add{component.Name}(this Entity entity, {component.Name} {component.Name.ToLower()}Component)")));
+                new SimpleSyntax($"public static void Add{component.Name}(this Character entity, {component.Name} {component.Name.ToLower()}Component)")));
 
             tree.Add(new ParagraphSyntax());
             tree.Add(new LeftScopeSyntax(2));
@@ -697,7 +697,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new ParagraphSyntax());
 
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                new SimpleSyntax($"public static ref {component.Name} Get{component.Name}(this ref Entity entity)")));
+                new SimpleSyntax($"public static ref {component.Name} Get{component.Name}(this ref Character entity)")));
 
             tree.Add(new ParagraphSyntax());
             tree.Add(new LeftScopeSyntax(2));
@@ -715,7 +715,7 @@ namespace HECSFramework.Core.Generator
             tree.Add(new ParagraphSyntax());
 
             tree.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                new SimpleSyntax($"public static void Remove{component.Name}(this ref Entity entity)")));
+                new SimpleSyntax($"public static void Remove{component.Name}(this ref Character entity)")));
 
             tree.Add(new ParagraphSyntax());
             tree.Add(new LeftScopeSyntax(2));
