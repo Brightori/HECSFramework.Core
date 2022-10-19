@@ -340,8 +340,9 @@ namespace HECSFramework.Core
 
             if (IsInited)
             {
-                RegisterService.RegisterSystem(system);
+                TypesMap.BindSystem(system);
                 system.InitSystem();
+                RegisterService.RegisterSystem(system);
 
                 if (system is IAfterEntityInit afterSysEntityInit)
                     afterSysEntityInit.AfterEntityInit();

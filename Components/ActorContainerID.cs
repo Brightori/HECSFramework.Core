@@ -30,4 +30,10 @@ namespace Components
             }
         }
     }
+
+    [PartialSerializeField(0, "id")]
+    public partial class ActorContainerID
+    {
+
+    }
 }
