@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace HECSFramework.Core
@@ -66,6 +67,12 @@ namespace HECSFramework.Core
             => startModule.LateStart();
 
         public ValueTask ExecuteInUpdate(Action action) => executeInUpdate.ExecuteAction(action);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<T> RunJob<T>(T job) where T: struct, IHecsJob
+        {
+            return await executeInUpdate.RunJob(job);
+        }
 
         public void FixedUpdate()
             => fixedModule.FixedUpdateLocal();
