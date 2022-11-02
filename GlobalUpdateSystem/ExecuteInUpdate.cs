@@ -142,7 +142,7 @@ namespace HECSFramework.Core
         {
             Job.Run();
 
-            if (Job.IsComplete())
+            if (Job.IsComplete() || abortOperation)
             {
                 onComplete?.Invoke();
                 Release();
