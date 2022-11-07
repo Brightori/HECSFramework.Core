@@ -7,7 +7,7 @@ namespace Components
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
     public abstract partial class ModifiableFloatCounterComponent : BaseComponent, ICounterModifiable<float>, IInitable, IDisposable
     {
-        public float Value => modifiersContainer.CurrentValue;
+        public virtual float Value => modifiersContainer.CurrentValue;
         public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public abstract int Id { get; }
         public abstract float SetupValue { get; }
