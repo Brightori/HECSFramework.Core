@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
+    [Serializable]
     public partial struct HECSMask : IEquatable<HECSMask>
     {
         public int Index;
