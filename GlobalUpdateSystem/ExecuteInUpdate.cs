@@ -55,6 +55,7 @@ namespace HECSFramework.Core
             }
 
             var newJobRun = new HECSJobRun<T>(this);
+            newJobRun.Job = job;
             addAndRemoveHelper.Add(newJobRun);
             return newJobRun;
         }
