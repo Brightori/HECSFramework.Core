@@ -11,6 +11,7 @@ namespace Components
         [HideInInspectorCrossPlatform]
         private List<IEntity> abilities = new List<IEntity>(8);
         public ReadonlyList<IEntity> Abilities;
+        public Dictionary<int, IEntity> IndexToAbility = new Dictionary<int, IEntity>();
 
         public void Init()
         {
@@ -20,6 +21,7 @@ namespace Components
         public void AddAbility (IEntity ability, bool needInit = false)
         {
             abilities.Add(ability);
+            IndexToAbility.Add(ability.GetHECSComponent<ActorContainerID>().ContainerIndex, ability);
 
             if (needInit)
                 ability.Init();
@@ -28,6 +30,7 @@ namespace Components
         public void RemoveAbility(IEntity ability)
         {
             abilities.Remove(ability);
+            IndexToAbility.Remove(ability.GetHECSComponent<ActorContainerID>().ContainerIndex);
         }
     }
 }

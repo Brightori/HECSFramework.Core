@@ -10,7 +10,7 @@ namespace HECSFramework.Core
 
         public void CommandReact(ExecuteAbilityCommand command)
         {
-            if (command.Enabled && Owner.TryGetHecsComponent(predicateMask, out AbilityPredicateComponent predicatesComponent))
+            if (command.Enabled && !command.IgnorePredicates && Owner.TryGetHecsComponent(predicateMask, out AbilityPredicateComponent predicatesComponent))
             {
                 if (!predicatesComponent.TargetPredicates.IsReady(command.Target, Owner))
                     return;

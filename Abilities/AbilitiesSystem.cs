@@ -26,7 +26,7 @@ namespace Systems
                 {
                     if (actorContainerID.ContainerIndex == command.AbilityIndex)
                     {
-                        a.Command(new ExecuteAbilityCommand { Enabled = command.Enable, Owner = command.Owner, Target = command.Target });
+                        a.Command(new ExecuteAbilityCommand { Enabled = command.Enable, IgnorePredicates = command.IgnorePredicates, Owner = command.Owner, Target = command.Target });
                     }
                 }
             }

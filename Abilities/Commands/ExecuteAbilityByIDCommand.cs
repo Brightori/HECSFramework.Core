@@ -13,5 +13,6 @@ namespace Commands
         public IEntity Target;
         public IEntity Owner;
         public bool Enable;
+        public bool IgnorePredicates;
     }
 }
