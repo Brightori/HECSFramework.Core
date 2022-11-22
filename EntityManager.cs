@@ -89,9 +89,10 @@ namespace HECSFramework.Core
         {
             if (world == -1)
             {
-                foreach (var w in Worlds)
-                    w.Command(command);
+                var count = Worlds.Count;
 
+                for (int i = 0; i < count; i++)
+                    Worlds.Data[i].Command(command);
                 return;
             }
 

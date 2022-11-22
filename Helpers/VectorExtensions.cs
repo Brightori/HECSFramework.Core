@@ -80,7 +80,7 @@ namespace Helpers
             if (num > 9.99999974737875E-06)
                 return source / num;
             else
-                throw new ArgumentException();
+                return Vector3.Zero;
         }
 
         public static Vector3 MoveTowards(
