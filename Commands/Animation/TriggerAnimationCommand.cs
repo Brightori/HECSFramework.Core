@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace Commands
 {
-    [Documentation(Doc.Animation, "this command set bool parameter at" + nameof(AnimatorStateComponent))]
     public struct TriggerAnimationCommand : ICommand
     {
         public int Index;

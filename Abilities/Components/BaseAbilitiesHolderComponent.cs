@@ -8,7 +8,6 @@ namespace Components
     [Documentation(Doc.HECS, Doc.Abilities, "This component holds current|default abilities, we operate this throw abilitis system")]
     public sealed partial class AbilitiesHolderComponent : BaseComponent, IInitable
     {
-        [HideInInspectorCrossPlatform]
         private List<IEntity> abilities = new List<IEntity>(8);
         public ReadonlyList<IEntity> Abilities;
         public Dictionary<int, IEntity> IndexToAbility = new Dictionary<int, IEntity>();
