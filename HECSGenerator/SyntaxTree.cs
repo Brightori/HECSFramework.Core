@@ -385,15 +385,4 @@ namespace HECSFramework.Core.Generator
             return StringValue + CParse.Space;
         }
     }
-
-    public static class SyntaxHelper
-    {
-        public static void AddUnique(this ISyntax syntax, ISyntax add)
-        {
-            if (syntax.Tree.Any(x => x.ToString() == add.ToString()))
-                return;
-
-            syntax.Tree.Add(add);
-        }
-    }
 }
