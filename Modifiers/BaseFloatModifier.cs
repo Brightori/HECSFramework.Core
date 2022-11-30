@@ -3,7 +3,7 @@
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed class DefaultFloatModifier : BaseModifier<float>
+    public sealed partial class DefaultFloatModifier : BaseModifier<float>
     {
         public override float GetValue { get; set; }
         public override ModifierCalculationType GetCalculationType { get; set; }

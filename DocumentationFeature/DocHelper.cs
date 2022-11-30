@@ -68,4 +68,5 @@ public static partial class Doc
     public const string Settings = "Settings";
     public const string Attributes = "Attributes";
     public const string Interfaces = "Interfaces";
+    public const string StrategiesUniversalNodes = "StrategiesUniversalNodes";
 }

@@ -20,15 +20,13 @@ namespace Systems
 
         public void CommandReact(ExecuteAbilityByIDCommand command)
         {
-            foreach (var a in abilitiesHolderComponent.Abilities)
+            if (abilitiesHolderComponent.IndexToAbility.TryGetValue(command.AbilityIndex, out var ability))
             {
-                if (a.TryGetHecsComponent(actorContainerIDMask, out ActorContainerID actorContainerID))
-                {
-                    if (actorContainerID.ContainerIndex == command.AbilityIndex)
-                    {
-                        a.Command(new ExecuteAbilityCommand { Enabled = command.Enable, IgnorePredicates = command.IgnorePredicates, Owner = command.Owner, Target = command.Target });
-                    }
-                }
+                ability.Command(new ExecuteAbilityCommand { Enabled = command.Enable, IgnorePredicates = command.IgnorePredicates, Owner = command.Owner, Target = command.Target });
+            }
+            else
+            {
+                HECSDebug.LogWarning($"{Owner.ID} doesnt have ability with index {command.AbilityIndex}");
             }
         }
 
