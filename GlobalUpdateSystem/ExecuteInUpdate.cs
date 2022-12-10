@@ -70,6 +70,8 @@ namespace HECSFramework.Core
                 newStack.Push(jobProcessor);
                 pooling.Add(jobProcessor.Key, newStack);
             }
+
+            addAndRemoveHelper.Remove(jobProcessor);
         }
 
         public void UpdateLocal()
