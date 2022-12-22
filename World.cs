@@ -37,7 +37,10 @@ namespace HECSFramework.Core
         {
             Index = index;
             entityFilter = new EntityFilter(this);
+            InitFastWorld();
         }
+
+        partial void InitFastWorld();
 
         public void Init()
         {
@@ -371,8 +374,11 @@ namespace HECSFramework.Core
             commandService.Dispose();
             entityFilter.Dispose();
             GlobalUpdateSystem.Dispose();
+            FastWorldDispose();
             IsAlive = false;
         }
+
+        partial void FastWorldDispose();
 
         void IAddSingleComponent.AddSingleWorldComponent<T>(T component, bool add)
         {

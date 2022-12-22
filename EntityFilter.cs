@@ -53,16 +53,16 @@ namespace HECSFramework.Core
             private readonly World world;
             private readonly bool includeAny;
             private readonly bool exludeAny;
-            private HashSet<Guid> entitiesAtFilter = new HashSet<Guid>();
+            private HashSet<Guid> entitiesAtFilter = new HashSet<Guid>(512);
 
             private HECSMultiMask summaryInclude;
             private HECSMultiMask summaryExclude;
 
-            public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
+            public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>(512);
 
             public System.Guid ListenerGuid { get; } = Guid.NewGuid();
 
-            private Queue<IEntity> removeQueue = new Queue<IEntity>();
+            private Queue<IEntity> removeQueue = new Queue<IEntity>(16);
 
             public Filter(World world, FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
             {
@@ -164,15 +164,18 @@ namespace HECSFramework.Core
             {
                 if (isAdded && ContainsMask(entity))
                 {
-                    Entities.AddOrRemoveElement(entity, true);
+                    if (entitiesAtFilter.Contains(entity.GUID))
+                        return;
+
+                    Entities.Add(entity);
                     entitiesAtFilter.Add(entity.GUID);
                     return;
                 }
 
                 if (!isAdded && entitiesAtFilter.Contains(entity.GUID))
                 {
-                    Entities.AddOrRemoveElement(entity, false);
-                    entitiesAtFilter.AddOrRemoveElement(entity.GUID, false);
+                    Entities.Remove(entity);
+                    entitiesAtFilter.Remove(entity.GUID);
                 }
             }
         }

@@ -48,5 +48,26 @@
 
             return -1;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int IndexOfUnsafeUShort(ushort[] array, ushort value)
+        {
+            fixed (ushort* arr = &array[0])
+            {
+                var i = 0;
+                for (ushort* current = arr, length = arr + array.Length; current < length; ++current)
+                {
+                    if (*current == value)
+                    {
+                        return i;
+                    }
+
+                    ++i;
+                }
+            }
+
+
+            return -1;
+        }
     }
 }

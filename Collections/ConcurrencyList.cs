@@ -29,8 +29,6 @@ namespace HECSFramework.Core
         public EqualityComparer<T> Comparer;
         private SortComparer sortComparer;
 
-        private int locked = 0;
-
         #region Constructor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ConcurrencyList()
@@ -77,31 +75,8 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Lock()
-        {
-            var spinWait = new SpinWait();
-
-            while (locked == 1)
-                spinWait.SpinOnce();
-
-            while (!CAS(ref locked, 1, 0))
-                spinWait.SpinOnce();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UnLock()
-        {
-            var spinWait = new SpinWait();
-
-            while (!CAS(ref locked, 0, 1))
-                spinWait.SpinOnce();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Add(T value)
         {
-            Lock();
-
             var index = length;
             if (++length == capacity)
             {
@@ -109,29 +84,32 @@ namespace HECSFramework.Core
             }
 
             Data[index] = value;
-
-            UnLock();
             return index;
+        }
+
+        public int AddToIndex(T value, int neededIndex)
+        {
+            if (neededIndex >= capacity)
+            {
+                ArrayHelpers.Grow(ref Data, neededIndex <<= 1);
+            }
+
+            Data[neededIndex] = value;
+
+            if (neededIndex >= Count)
+                length = neededIndex + 1;
+            
+            return neededIndex;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(T item)
         {
-            if ((Object)item == null)
+            for (int i = 0; i < Count; i++)
             {
-                for (int i = 0; i < Count; i++)
-                    if ((Object)Data[i] == null)
-                        return true;
-                return false;
+                if (Comparer.Equals(Data[i], item)) return true;
             }
-            else
-            {
-                for (int i = 0; i < Count; i++)
-                {
-                    if (Comparer.Equals(Data[i], item)) return true;
-                }
-                return false;
-            }
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -195,8 +173,6 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
         {
-            Lock();
-
             --length;
             if (index < length)
             {
@@ -204,8 +180,6 @@ namespace HECSFramework.Core
             }
 
             Data[length] = default;
-
-            UnLock();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -247,6 +221,12 @@ namespace HECSFramework.Core
             }
 
             Array.Clear(Data, 0, length);
+            length = 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ClearFast()
+        {
             length = 0;
         }
 
