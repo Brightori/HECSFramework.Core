@@ -70,14 +70,14 @@ namespace HECSFramework.Core
 
         private ref FastEntity ResizeAndReturn()
         {
-            Array.Resize(ref FastEntities, FastEntities.Length*2);
+            var currentLenght = FastEntities.Length;
+            Array.Resize(ref FastEntities, currentLenght*2);
 
-            for (int i = 1022; i < FastEntities.Length; i++)
+            for (int i = currentLenght; i < FastEntities.Length; i++)
             {
                 if (!FastEntities[i].IsReady)
                 {
                     CreateNewEntity(i);
-                    freeEntities.Enqueue((ushort)i);
                 }
             }
 
