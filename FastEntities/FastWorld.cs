@@ -25,17 +25,22 @@ namespace HECSFramework.Core
 
             for (int i = 1; i < FastEntities.Length; i++)
             {
-                ref var fast = ref FastEntities[i];
-                fast.World = this;
-                fast.ComponentIndeces = new HashSet<int>(8);
-                fast.Index = (ushort)i;
-                freeEntities.Enqueue((ushort)i);
+                CreateNewEntity(i);
             }
 
             foreach (var t in typeRegistrators)
                 t.RegisterWorld(this);
 
             GlobalUpdateSystem.FinishUpdate += UpdateFilters;
+        }
+
+        private void CreateNewEntity(int i)
+        {
+            ref var fast = ref FastEntities[i];
+            fast.World = this;
+            fast.ComponentIndeces = new HashSet<int>(8);
+            fast.Index = (ushort)i;
+            freeEntities.Enqueue((ushort)i);
         }
 
         partial void FillTypeRegistrators();
@@ -65,7 +70,23 @@ namespace HECSFramework.Core
 
         private ref FastEntity ResizeAndReturn()
         {
-            throw new NotImplementedException();
+            Array.Resize(ref FastEntities, FastEntities.Length*2);
+
+            for (int i = 1022; i < FastEntities.Length; i++)
+            {
+                if (!FastEntities[i].IsReady)
+                {
+                    CreateNewEntity(i);
+                    freeEntities.Enqueue((ushort)i);
+                }
+            }
+
+            foreach (var p in componentProvidersByTypeIndex)
+            {
+                p.Value.Resize();
+            }
+
+            return ref GetFastEntity();
         }
 
         public ComponentProvider GetComponentProvider(int typeIndex)

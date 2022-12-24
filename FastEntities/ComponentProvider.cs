@@ -109,6 +109,11 @@ namespace HECSFramework.Core
             Array.Clear(Components, 0, Components.Length);
             World = null;
         }
+
+        public override void Resize()
+        {
+            Array.Resize(ref Components, Components.Length*2);
+        }
     }
 
     public abstract partial class ComponentProvider
@@ -120,5 +125,6 @@ namespace HECSFramework.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool Has(ushort index);
+        public abstract void Resize();
     }
 }
