@@ -92,11 +92,10 @@ namespace HECSFramework.Core
             if (component == null)
                 throw new Exception($"compontent is null " + ID);
 
-            if (component.ComponentsMask.TypeHashCode == 0)
-                component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
+            component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
 
             if (components[component.ComponentsMask.Index] != null)
-                return default;
+                return (T)components[component.ComponentsMask.Index];
 
             if (owner == null)
                 component.Owner = this;
