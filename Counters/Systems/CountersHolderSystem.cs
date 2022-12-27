@@ -49,10 +49,28 @@ namespace Systems
                     countersHolder.RemoveCounter(counter);
             }
         }
+
+        public void CommandReact(AddCounterModifierBySubIDCommand<float> command)
+        {
+            foreach (var c in countersHolder.Counters)
+            {
+                if (c.Value is ISubCounter subCounter && c.Value is ICounterModifiable<float> modifiable)
+                {
+                    if (subCounter.Id == command.Id)
+                    {
+                        if (command.IsUnique)
+                            modifiable.AddUniqueModifier(command.Owner, command.Modifier);
+                        else
+                            modifiable.AddModifier(command.Owner, command.Modifier);
+                    }
+                }
+            }
+        }
     }
 
     public interface ICountersHolderSystem : ISystem,
         IReactCommand<AddCounterModifierCommand<float>>,
+        IReactCommand<AddCounterModifierBySubIDCommand<float>>,
         IReactCommand<RemoveCounterModifierCommand<float>>,
         IReactCommand<ResetCountersCommand>
     {
