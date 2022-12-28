@@ -56,7 +56,7 @@ namespace Systems
             {
                 if (c.Value is ISubCounter subCounter && c.Value is ICounterModifiable<float> modifiable)
                 {
-                    if (subCounter.Id == command.Id)
+                    if (subCounter.SubId == command.Id)
                     {
                         if (command.IsUnique)
                             modifiable.AddUniqueModifier(command.Owner, command.Modifier);
