@@ -378,7 +378,7 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-            if (!EntityManager.IsAlive)
+            if (!EntityManager.IsAlive || World == null || !World.IsAlive)
                 return;
 
             EntityManager.RegisterEntity(this, false);
@@ -604,25 +604,39 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public void SetWorld(World world)
+        ///we use it when setup entity from actor for example
+        public void SetupWorld(int index)
         {
-            RemoveComponentsFromWorld();
-            World = world;
-            AddComponentsToWorld();
+            World = EntityManager.Worlds.Data[index];
         }
 
+        ///we use it when setup entity from actor for example
+        public void SetupWorld(World world)
+        {
+            World = world;
+
+            if (world == null)
+                throw new Exception("we dont have world here");
+        }
+
+        //we use it when migrate from one world to another
+        public void SetWorld(World world)
+        {
+            if (world != null)
+                SetWorld(world.Index);
+        }
+
+        //we use it when migrate from one world to another
         public void SetWorld(int world)
         {
+            if (World != null && World.Index == world)
+                return;
+
             if (World != null)
                 RemoveComponentsFromWorld();
 
             World = EntityManager.Worlds.Data[world];
             AddComponentsToWorld();
-        }
-
-        public void InitWorld(World world)
-        {
-            World = world;
         }
 
         private void RemoveComponentsFromWorld()

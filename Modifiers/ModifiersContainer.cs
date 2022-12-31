@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class ModifiersContainer<T, U> where U : struct where T : IModifier<U>
+
+    public abstract partial class ModifiersContainer<Data> where Data : struct 
     {
         public struct CleanModifier
         {
@@ -12,33 +13,36 @@ namespace HECSFramework.Core
             public OwnerModifier OwnerModifier;
         }
 
-        public struct OwnerModifier
+        public struct OwnerModifier : IEquatable<OwnerModifier>
         {
             public Guid ModifiersOwner;
-            public T Modifier;
+            public IModifier<Data> Modifier;
 
             public override bool Equals(object obj)
             {
                 return obj is OwnerModifier modifier &&
-                       ModifiersOwner.Equals(modifier.ModifiersOwner) &&
-                       EqualityComparer<T>.Default.Equals(Modifier, modifier.Modifier);
+                       modifier.ModifiersOwner == ModifiersOwner && Equals(modifier);
+            }
+
+            public bool Equals(OwnerModifier other)
+            {
+                return other.ModifiersOwner == ModifiersOwner && Modifier.ModifierGuid == other.Modifier.ModifierGuid;
             }
 
             public override int GetHashCode()
             {
                 int hashCode = 2083788928;
                 hashCode = hashCode * -1521134295 + ModifiersOwner.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<T>.Default.GetHashCode(Modifier);
+                hashCode = hashCode * -1521134295 + Modifier.ModifierGuid.GetHashCode();
                 return hashCode;
             }
         }
 
-        public U CurrentValue { get; private set; }
-        private U baseValue;
-        private U calculatedValue;
-        private bool isDirty;
+        protected Data baseValue;
+        protected Data calculatedValue;
+        protected bool isDirty;
 
-        private readonly Dictionary<int, List<OwnerModifier>> modifiers = new Dictionary<int, List<OwnerModifier>>()
+        protected readonly Dictionary<int, List<OwnerModifier>> modifiers = new Dictionary<int, List<OwnerModifier>>()
         {
             {(int)ModifierCalculationType.Add, new List<OwnerModifier>()},
             {(int)ModifierCalculationType.Subtract, new List<OwnerModifier>()},
@@ -49,16 +53,15 @@ namespace HECSFramework.Core
         private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>();
         private Queue<CleanModifier> removedModifiers = new Queue<CleanModifier>(4);
 
-        public ModifiersContainer(U baseValue)
+        public void SetBaseValue(Data data)
         {
-            this.baseValue = baseValue;
-            CurrentValue = baseValue;
-            calculatedValue = baseValue;
+            baseValue = data;
+            isDirty = true;
         }
 
         public IReadOnlyDictionary<int, List<OwnerModifier>> Modifiers => modifiers;
 
-        public bool Contains(Func<T, bool> predicate)
+        public bool Contains(Func<IModifier<Data>, bool> predicate)
         {
             foreach (var modifier in modifiers)
             {
@@ -72,12 +75,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public void SetCurrentValue(U value)
-        {
-            CurrentValue = value;
-        }
-
-        public void AddUniqueModifier(Guid owner, T modifier)
+        public void AddUniqueModifier(Guid owner, IModifier<Data> modifier)
         {
             if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == owner || x.Modifier.ModifierGuid == modifier.ModifierGuid))
                 return;
@@ -86,13 +84,13 @@ namespace HECSFramework.Core
             isDirty = true;
         }
 
-        public void AddModifier(Guid owner, T modifier)
+        public void AddModifier(Guid owner, IModifier<Data> modifier)
         {
             modifiers[(int)modifier.GetCalculationType].Add(new OwnerModifier { Modifier = modifier, ModifiersOwner = owner });
             isDirty = true;
         }
 
-        public void RemoveModifier(Guid owner, T modifier)
+        public void RemoveModifier(Guid owner, IModifier<Data> modifier)
         {
             foreach (var currentmodifier in modifiers[(int)modifier.GetCalculationType])
             {
@@ -113,7 +111,6 @@ namespace HECSFramework.Core
         public void Reset()
         {
             Clear();
-            CurrentValue = baseValue;
             isDirty = true;
         }
 
@@ -134,29 +131,9 @@ namespace HECSFramework.Core
             isDirty = true;
         }
 
-        public U GetCalculatedValue()
-        {
-            if (!isDirty)
-                return calculatedValue;
-
-            var currentMod = baseValue;
-
-            foreach (var valueMod in modifiers[(int)ModifierCalculationType.Add])
-                valueMod.Modifier.Modify(ref currentMod);
-
-            foreach (var valueMod in modifiers[(int)ModifierCalculationType.Subtract])
-                valueMod.Modifier.Modify(ref currentMod);
-
-            foreach (var valueMod in modifiers[(int)ModifierCalculationType.Multiply])
-                valueMod.Modifier.Modify(ref currentMod);
-
-            foreach (var valueMod in modifiers[(int)ModifierCalculationType.Divide])
-                valueMod.Modifier.Modify(ref currentMod);
-
-            isDirty = false;
-            calculatedValue = currentMod;
-            return calculatedValue;
-        }
+        public abstract Data GetCalculatedValue();
+        public abstract Data GetCalculatedValue(Data value);
+       
 
         public void Clear()
         {

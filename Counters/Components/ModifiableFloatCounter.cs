@@ -6,21 +6,23 @@ namespace Components
 {
     public partial class ModifiableFloatCounter :  ICounterModifiable<float>, IDisposable
     {
-        public float Value => modifiersContainer.CurrentValue;
+        private float currentValue;
+        public float Value { get => currentValue; private set => currentValue = value; }
         public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
-        public int Id { get; }
+        public int Id { get; private set; }
 
-        protected ModifiersContainer<IModifier<float>, float> modifiersContainer;
+        protected ModifiersFloatContainer modifiersContainer = new ModifiersFloatContainer();
 
-        public ModifiableFloatCounter (int key, float baseValue)
+        public void Setup (int key, float baseValue)
         {
             Id = key;
-            modifiersContainer = new ModifiersContainer<IModifier<float>, float>(baseValue);
+            modifiersContainer.SetBaseValue(baseValue);
+            currentValue = baseValue;
         }
 
         public void AddModifier(Guid owner, IModifier<float> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.AddModifier(owner, modifier);
@@ -31,7 +33,7 @@ namespace Components
 
         public void RemoveModifier(Guid owner, IModifier<float> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.RemoveModifier(owner, modifier);
@@ -41,7 +43,7 @@ namespace Components
 
         public void AddUniqueModifier(Guid owner, IModifier<float> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue =currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.AddModifier(owner, modifier);
@@ -51,24 +53,24 @@ namespace Components
 
         public void SetValue(float value)
         {
-            var oldValue = Value;
-            modifiersContainer.SetCurrentValue(value);
+            currentValue = value;
         }
 
         public void ChangeValue(float value)
         {
-            var upd = modifiersContainer.CurrentValue + value;
+            var upd = currentValue + value;
+            var calc = modifiersContainer.GetCalculatedValue();
 
-            if (upd > modifiersContainer.GetCalculatedValue())
-                modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue());
+            if (upd > calc)
+                currentValue = modifiersContainer.GetCalculatedValue();
             else
-                modifiersContainer.SetCurrentValue(upd);
+                currentValue = upd;
         }
 
         private void UpdatValueWithModifiers(float oldValue, float oldCalculated)
         {
             var percent = oldCalculated > 0 ? oldValue / oldCalculated : 1;
-            modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue() * percent);
+            currentValue = (modifiersContainer.GetCalculatedValue() * percent);
         }
 
         public void Dispose()

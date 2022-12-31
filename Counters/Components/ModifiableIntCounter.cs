@@ -5,21 +5,23 @@ namespace Components
 {
     public partial class ModifiableIntCounter : ICounterModifiable<int>, IDisposable
     {
-        public int Value => modifiersContainer.CurrentValue;
+        private int currentValue;
+        public int Value => currentValue;
         public int CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
-        public int Id { get; }
+        public int Id { get; private set; }
 
-        protected ModifiersContainer<IModifier<int>, int> modifiersContainer;
+        protected ModifiersIntContainer modifiersContainer = new ModifiersIntContainer();
 
-        public ModifiableIntCounter(int key, int baseValue)
+        public void Setup(int key, int baseValue)
         {
             Id = key;
-            modifiersContainer = new ModifiersContainer<IModifier<int>, int>(baseValue);
+            modifiersContainer.SetBaseValue(baseValue);
+            currentValue = baseValue;
         }
 
         public void AddModifier(Guid owner, IModifier<int> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.AddModifier(owner, modifier);
@@ -30,7 +32,7 @@ namespace Components
 
         public void RemoveModifier(Guid owner, IModifier<int> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.RemoveModifier(owner, modifier);
@@ -40,7 +42,7 @@ namespace Components
 
         public void AddUniqueModifier(Guid owner, IModifier<int> modifier)
         {
-            var oldValue = modifiersContainer.CurrentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.AddModifier(owner, modifier);
@@ -50,24 +52,24 @@ namespace Components
 
         public void SetValue(int value)
         {
-            var oldValue = Value;
-            modifiersContainer.SetCurrentValue(value);
+           currentValue = value;
         }
 
         public void ChangeValue(int value)
         {
-            var upd = modifiersContainer.CurrentValue + value;
+            var upd = currentValue + value;
+            var calc = modifiersContainer.GetCalculatedValue();
 
-            if (upd > modifiersContainer.GetCalculatedValue())
-                modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue());
+            if (upd > calc)
+                currentValue = calc;
             else
-                modifiersContainer.SetCurrentValue(upd);
+                currentValue = upd;
         }
 
         private void UpdatValueWithModifiers(int oldValue, int oldCalculated)
         {
             var percent = oldCalculated > 0 ? oldValue / oldCalculated : 1;
-            modifiersContainer.SetCurrentValue(modifiersContainer.GetCalculatedValue() * percent);
+            currentValue = (modifiersContainer.GetCalculatedValue() * percent);
         }
 
         public void Dispose()

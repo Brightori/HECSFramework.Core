@@ -16,6 +16,8 @@ namespace Systems
         {
             foreach (var a in abilitiesHolderComponent.Abilities)
                 a.Init();
+
+            Owner.Command(new AbilitiesReadyCommand());
         }
 
         public void CommandReact(ExecuteAbilityByIDCommand command)
