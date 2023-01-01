@@ -6,7 +6,7 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Abilities, "This component holds current|default abilities, we operate this throw abilitis system")]
-    public sealed partial class AbilitiesHolderComponent : BaseComponent, IInitable
+    public sealed partial class AbilitiesHolderComponent : BaseComponent, IInitable, IDisposable
     {
         [HideInInspectorCrossPlatform]
         private List<IEntity> abilities = new List<IEntity>(8);
@@ -18,7 +18,7 @@ namespace Components
             Abilities = new ReadonlyList<IEntity>(abilities);
         }
 
-        public void AddAbility (IEntity ability, bool needInit = false)
+        public void AddAbility(IEntity ability, bool needInit = false)
         {
             abilities.Add(ability);
             IndexToAbility.Add(ability.GetHECSComponent<ActorContainerID>().ContainerIndex, ability);
@@ -31,6 +31,24 @@ namespace Components
         {
             abilities.Remove(ability);
             IndexToAbility.Remove(ability.GetHECSComponent<ActorContainerID>().ContainerIndex);
+        }
+
+        public void CleanAbilities()
+        {
+            foreach (var a in abilities.ToArray())
+            {
+                a.HecsDestroy();
+            }
+
+            abilities.Clear();
+            IndexToAbility.Clear();
+        }
+
+        public void Dispose()
+        {
+            CleanAbilities();
+            abilities = null;
+            IndexToAbility = null;
         }
     }
 }
