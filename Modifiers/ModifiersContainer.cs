@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace HECSFramework.Core
 {
-
     public abstract partial class ModifiersContainer<Data> where Data : struct 
     {
         public struct CleanModifier
@@ -60,6 +59,15 @@ namespace HECSFramework.Core
         }
 
         public IReadOnlyDictionary<int, List<OwnerModifier>> Modifiers => modifiers;
+
+        public IEnumerable<IModifier<Data>> GetModifiers()
+        {
+            foreach (var modifier in modifiers)
+            {
+                foreach (var m in modifier.Value)
+                    yield return m.Modifier;
+            }
+        }
 
         public bool Contains(Func<IModifier<Data>, bool> predicate)
         {

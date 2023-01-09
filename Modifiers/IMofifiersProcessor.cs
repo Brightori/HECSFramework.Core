@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
@@ -7,6 +8,7 @@ namespace HECSFramework.Core
         void AddModifier(Guid owner, IModifier<T> modifier);
         void AddUniqueModifier(Guid owner, IModifier<T> modifier);
         void RemoveModifier(Guid owner, IModifier<T> modifier);
+        IEnumerable<IModifier<T>> GetModifiers();
     }
 
     public interface IMofifiersCompositeProcessor<T> : IResetModifiers where T : struct

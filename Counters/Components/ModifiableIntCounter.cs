@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HECSFramework.Core;
 
 namespace Components
@@ -81,5 +82,7 @@ namespace Components
         {
             modifiersContainer.Reset();
         }
+
+        public IEnumerable<IModifier<int>> GetModifiers() => modifiersContainer.GetModifiers();
     }
 }

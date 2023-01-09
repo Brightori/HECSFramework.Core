@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Commands;
 using HECSFramework.Core;
 
@@ -72,5 +73,7 @@ namespace Components
         {
             modifiableIntCounter.Reset();
         }
+
+        public IEnumerable<IModifier<int>> GetModifiers() => modifiableIntCounter.GetModifiers();
     }
 }
