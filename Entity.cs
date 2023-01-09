@@ -95,7 +95,10 @@ namespace HECSFramework.Core
             component.ComponentsMask = TypesMap.GetComponentInfo(component).ComponentsMask;
 
             if (components[component.ComponentsMask.Index] != null)
+            {
+                HECSDebug.LogWarning("we add copy of component " + component.GetTypeHashCode);
                 return (T)components[component.ComponentsMask.Index];
+            }
 
             if (owner == null)
                 component.Owner = this;
