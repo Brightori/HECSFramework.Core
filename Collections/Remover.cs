@@ -5,11 +5,11 @@ namespace HECSFramework.Core
     [Documentation(Doc.HECS, Doc.Helpers, "This is helper object for safely removing elements from concurrency list, u add on iteration elements to remove, and after iteration call method - process removing")]
     public class Remover<T>
     {
-        private ConcurrencyList<T> concurrencyList;
+        private HECSList<T> concurrencyList;
         private Queue<T> queue = new Queue<T>(8);
         private bool isDirty;
 
-        public Remover(ConcurrencyList<T> concurrencyList)
+        public Remover(HECSList<T> concurrencyList)
         {
             this.concurrencyList = concurrencyList;
         }
@@ -35,12 +35,12 @@ namespace HECSFramework.Core
     [Documentation(Doc.HECS, Doc.Helpers, "This is helper object for safely removing or adding elements from concurrency list, u add on iteration elements to remove, and after iteration call method - " + nameof(Process))]
     public class AddAndRemoveHelper<T>
     {
-        private ConcurrencyList<T> concurrencyList;
+        private HECSList<T> concurrencyList;
         private Queue<T> add = new Queue<T>(8);
         private Queue<T> remove = new Queue<T>(8);
         private bool isDirty;
 
-        public AddAndRemoveHelper(ConcurrencyList<T> concurrencyList)
+        public AddAndRemoveHelper(HECSList<T> concurrencyList)
         {
             this.concurrencyList = concurrencyList;
         }

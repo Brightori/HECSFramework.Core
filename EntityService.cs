@@ -1,13 +1,17 @@
 ﻿using HECSFramework.Core.Helpers;
 using System;
+using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
     public class EntityService : IDisposable
     {
-        public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
+        public HECSList<IEntity> Entities { get; private set; } = new HECSList<IEntity>();
 
-        private ConcurrencyList<IReactEntity> reactEntities = new ConcurrencyList<IReactEntity>();
+        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
+
+        private Stack<int> freeIndeces = new Stack<int>();
+
 
         public void RegisterEntity(IEntity entity, bool isAdded)
         {
@@ -30,6 +34,40 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < count; i++)
                 reactEntities.Data[i].EntityReact(entity, isAdded);
+        }
+
+        public IEntity GetFastEntity()
+        {
+            if (freeEntities.TryDequeue(out var index))
+            {
+                ref var fastEntity = ref FastEntities[index];
+                fastEntity.IsReady = true;
+                RegisterUpdatedFastEntity(ref fastEntity);
+                return ref FastEntities[index];
+            }
+
+            return ref ResizeAndReturn();
+        }
+
+        private ref FastEntity ResizeAndReturn()
+        {
+            var currentLenght = FastEntities.Length;
+            Array.Resize(ref FastEntities, currentLenght * 2);
+
+            for (int i = currentLenght; i < FastEntities.Length; i++)
+            {
+                if (!FastEntities[i].IsReady)
+                {
+                    CreateNewEntity(i);
+                }
+            }
+
+            foreach (var p in componentProvidersByTypeIndex)
+            {
+                p.Value.Resize();
+            }
+
+            return ref GetFastEntity();
         }
 
         public void Dispose()

@@ -14,7 +14,6 @@ namespace HECSFramework.Core
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private ComponentsService componentsService = new ComponentsService();
 
-        private EntityService entityService = new EntityService();
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
         private EntityFilter entityFilter;
@@ -61,12 +60,9 @@ namespace HECSFramework.Core
             IsInited = true;
         }
 
-        public ConcurrencyList<IEntity> Entities => entityService.Entities;
+        public HECSList<IEntity> Entities => entityService.Entities;
         public int EntitiesCount => Entities.Count;
 
-        public ConcurrencyList<IEntity> Filter(FilterMask include, bool includeAny = false) => entityFilter.GetFilter(include, includeAny);
-        public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
-        public ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
 
 
         public void AddToInit(IEntity entity)
@@ -159,45 +155,7 @@ namespace HECSFramework.Core
         {
             GlobalComponentListenerService.RemoveListener<T>(system);
         }
-
-        /// <summary>
-        /// возвращаем первую ентити у которой есть необходимые нам компоненты
-        /// </summary>
-        /// <param name="outEntity"></param>
-        /// <param name="componentIDs"></param>
-        public bool TryGetEntityByComponents(out IEntity outEntity, ref HECSMask mask)
-        {
-            if (cacheTryGet.TryGetValue(mask, out outEntity))
-            {
-                if (outEntity.IsAlive)
-                    return true;
-                else
-                    cacheTryGet.TryRemove(mask, out var entity);
-            }
-
-            var count = EntitiesCount;
-
-            for (int i = 0; i < count; i++)
-            {
-                var currentEntity = Entities.Data[i];
-
-                if (currentEntity.ContainsMask(ref mask))
-                {
-                    outEntity = currentEntity;
-                    cacheTryGet.TryRemove(mask, out var entity);
-                    return true;
-                }
-            }
-
-            outEntity = null;
-            return false;
-        }
-
-        /// <summary>
-        /// поиск ентити по условиям
-        /// </summary>
-        /// <param name="func"></param>
-        /// <returns></returns>
+       
         public IEntity GetEntity(Func<IEntity, bool> func)
         {
             foreach (var entity in entityService.Entities)
@@ -216,7 +174,7 @@ namespace HECSFramework.Core
         /// <param name="tagOfEntity">уникальный тэг для энтити</param>
         /// <param name="system">тип системы</param>
         /// <returns></returns>
-        public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system) where T : ISystem
+        public bool TryGetSystemFromEntity<T, U>(U component, out T system) where T : ISystem where U : IComponent
         {
             if (TryGetEntityByComponents(out var entity, ref mask))
             {

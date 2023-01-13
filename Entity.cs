@@ -6,36 +6,33 @@ using System.Runtime.CompilerServices;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed partial class Entity : IEntity, IChangeWorld
+    public sealed partial class Entity : IEntity
     {
+        private int entityIndex;
+        private IRegisterService RegisterService = new RegisterService();
+        private readonly List<ISystem> systems = new List<ISystem>();
+        private readonly HashSet<int> components = new HashSet<int>(8);
+
+        private Entity Check;
+
         public int WorldId => World.Index;
 
         public World World { get; private set; }
 
         public Guid GUID { get; private set; }
-        public ComponentContext ComponentContext { get; } = new ComponentContext();
         public string ID { get; private set; }
-
-        public Entity(string id)
-        {
-            GenerateId();
-            ID = id;
-        }
 
         private IAddSingleComponent addSingleComponent => World;
 
-        private List<ISystem> systems = new List<ISystem>();
+        public HashSet<int> Components => components; 
         public List<ISystem> GetAllSystems => systems;
 
-        private IComponent[] components = new IComponent[TypesMap.SizeOfComponents];
-        public IComponent[] GetAllComponents => components;
-        private IRegisterService RegisterService = new RegisterService();
         public EntityLocalCommandService EntityCommandService { get; } = new EntityLocalCommandService();
+        public LocalComponentListenersService RegisterComponentListenersService { get; } = new LocalComponentListenersService();
 
         public bool IsInited { get; private set; }
         public bool IsAlive { get; private set; } = true;
         public bool IsPaused { get; private set; }
-        public bool IsLoaded { get; set; }
 
         /// <summary>
         /// this is slow method, purpose - using at Editor or for debugging
@@ -53,28 +50,35 @@ namespace HECSFramework.Core
                 return "Container Empty";
             }
         }
+        public int EntityIndex => entityIndex;
 
-        public HECSMultiMask ComponentsMask { get; } = new HECSMultiMask();
-        public LocalComponentListenersService RegisterComponentListenersService { get; } = new LocalComponentListenersService();
+        public bool IsDirty { get; }
 
-        public Entity() { }
-
-        public Entity(string id, int worldIndex)
+        public Entity(string id = "Empty")
         {
-            ID = id;
-
-            if (EntityManager.IsAlive)
-                World = EntityManager.Worlds.Data[worldIndex];
+            World = EntityManager.Default;
+            entityIndex = EntityManager.Default.GetEntityFreeIndex();
+            GenerateGuid();
         }
 
-        public Entity(string id, World world)
+        public Entity(World world, string id = "Empty")
         {
-            ID = id;
-
-            if (EntityManager.IsAlive)
-                World = world;
+            GenerateGuid();
+            entityIndex = world.GetEntityFreeIndex();
         }
 
+        /// <summary>
+        /// this constructor by default used by world for making entities, 
+        /// here u should provide free index from world
+        /// </summary>
+        /// <param name="world">u should provide world here</param>
+        /// <param name="id">this is id or name of entity</param>
+        /// <param name="index"></param>
+        public Entity(World world, int index, string id = "Empty")
+        {
+            GenerateGuid();
+            entityIndex = index;
+        }
 
         public void SetID(string id)
         {
@@ -123,8 +127,6 @@ namespace HECSFramework.Core
                 if (component is IWorldSingleComponent worldSingleComponent)
                     addSingleComponent.AddSingleWorldComponent(worldSingleComponent, true);
             }
-
-            ComponentsMask.AddMask(component.ComponentsMask.Index);
 
             if (!silently && IsInited && !component.IsRegistered)
             {
@@ -607,88 +609,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        ///we use it when setup entity from actor for example
-        public void SetupWorld(int index)
-        {
-            World = EntityManager.Worlds.Data[index];
-        }
 
-        ///we use it when setup entity from actor for example
-        public void SetupWorld(World world)
-        {
-            World = world;
-
-            if (world == null)
-                throw new Exception("we dont have world here");
-        }
-
-        //we use it when migrate from one world to another
-        public void SetWorld(World world)
-        {
-            if (world != null)
-                SetWorld(world.Index);
-        }
-
-        //we use it when migrate from one world to another
-        public void SetWorld(int world)
-        {
-            if (World != null && World.Index == world)
-                return;
-
-            if (World != null)
-                RemoveComponentsFromWorld();
-
-            World = EntityManager.Worlds.Data[world];
-            AddComponentsToWorld();
-        }
-
-        private void RemoveComponentsFromWorld()
-        {
-            foreach (var c in components)
-                World.AddOrRemoveComponent(c, false);
-        }
-
-        private void AddComponentsToWorld()
-        {
-            foreach (var c in components)
-                World.AddOrRemoveComponent(c, true);
-        }
-
-        public void MigrateEntityToWorld(World world, bool needInit = true)
-        {
-            //if we have critical allocation here, we can change pipeline to pooling or stackalloc
-            var componentsSave = new List<IComponent>(32);
-            var systemsSave = new List<ISystem>(32);
-
-            foreach (var s in systems.ToArray())
-            {
-                RemoveHecsSystem(s);
-                systemsSave.Add(s);
-            }
-
-            foreach (var c in components)
-            {
-                if (c == null)
-                    continue;
-
-                RemoveHecsComponent(c);
-                componentsSave.Add(c);
-            }
-
-            EntityManager.RegisterEntity(this, false);
-
-            World = world;
-            IsInited = false;
-
-            foreach (var c in componentsSave)
-                AddHecsComponent(c);
-
-            foreach (var s in systemsSave)
-                AddHecsSystem(s);
-
-            if (needInit)
-                Init();
-        }
 
         /// <summary>
         /// we can replace or add data|logic on this entity, if for cases when we need totaly replace behaviour on entity
@@ -722,6 +643,33 @@ namespace HECSFramework.Core
 
             foreach (var c in components)
                 RegiserComponent(c);
+        }
+
+
+
+        public bool ContainsMask(HashSet<int> mask)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ContainsAnyFromMask(HashSet<int> mask)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Init(World world)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetID(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ContainsMask(int mask)
+        {
+            throw new NotImplementedException();
         }
     }
 

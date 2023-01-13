@@ -38,44 +38,44 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetComponent<T>(this FastEntity fastEntity) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetComponent(fastEntity.Index);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetComponent(fastEntity.Index);
         }
             
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetOrAddComponent<T>(this FastEntity fastEntity) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetOrAddComponent(fastEntity.Index);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetOrAddComponent(fastEntity.Index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetOrAddComponent<T>(this FastEntity fastEntity, in T component) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetOrAddComponent(fastEntity.Index, component);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].GetOrAddComponent(fastEntity.Index, component);
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AddComponent<T>(this FastEntity fastEntity) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].AddComponent(fastEntity.Index);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].AddComponent(fastEntity.Index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T AddComponent<T>(this FastEntity fastEntity, in T component) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].AddComponent(fastEntity.Index, in component);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].AddComponent(fastEntity.Index, in component);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T TryGetComponent<T>(this FastEntity fastEntity, out bool exists) where T : struct, IData
         {
-            return ref ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].TryGetComponent(fastEntity.Index, out exists);
+            return ref FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].TryGetComponent(fastEntity.Index, out exists);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveComponent<T>(this FastEntity fastEntity) where T : struct, IData
         {
-            ComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].RemoveComponent(fastEntity.Index);
+            FastComponentProvider<T>.ComponentsToWorld.Data[fastEntity.World.Index].RemoveComponent(fastEntity.Index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

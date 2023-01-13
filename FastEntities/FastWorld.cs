@@ -8,9 +8,9 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
-        private ConcurrencyList<ushort> updatedEntities = new ConcurrencyList<ushort>(1024);
-        private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
-        private ConcurrencyList<FastEntitiesFilter> filters = new ConcurrencyList<FastEntitiesFilter>(16);
+        private HECSList<ushort> updatedEntities = new HECSList<ushort>(1024);
+        private Dictionary<int, FastComponentProvider> fastComponentProvidersByTypeIndex = new Dictionary<int, FastComponentProvider>(256);
+        private HECSList<FastEntitiesFilter> filters = new HECSList<FastEntitiesFilter>(16);
 
         public bool FastEntitiesIsDirty;
 
@@ -81,7 +81,7 @@ namespace HECSFramework.Core
                 }
             }
 
-            foreach (var p in componentProvidersByTypeIndex)
+            foreach (var p in fastComponentProvidersByTypeIndex)
             {
                 p.Value.Resize();
             }
@@ -89,14 +89,14 @@ namespace HECSFramework.Core
             return ref GetFastEntity();
         }
 
-        public ComponentProvider GetComponentProvider(int typeIndex)
+        public FastComponentProvider GetComponentProvider(int typeIndex)
         {
-            return componentProvidersByTypeIndex[typeIndex];
+            return fastComponentProvidersByTypeIndex[typeIndex];
         }
 
-        public void RegisterProvider(ComponentProvider componentProvider)
+        public void RegisterProvider(FastComponentProvider componentProvider)
         {
-            componentProvidersByTypeIndex.Add(componentProvider.TypeIndexProvider, componentProvider);
+            fastComponentProvidersByTypeIndex.Add(componentProvider.TypeIndexProvider, componentProvider);
         }
 
         public FastEntitiesFilter GetFastFilter()
@@ -154,7 +154,7 @@ namespace HECSFramework.Core
             foreach (var t in typeRegistrators)
                 t.UnRegisterWorld(this);
 
-            componentProvidersByTypeIndex.Clear();
+            fastComponentProvidersByTypeIndex.Clear();
         }
     }
 }

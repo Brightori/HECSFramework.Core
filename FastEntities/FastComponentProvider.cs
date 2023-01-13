@@ -3,19 +3,19 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    internal sealed partial class ComponentProvider<T> : ComponentProvider, IDisposable where T : struct, IData
+    internal sealed partial class FastComponentProvider<T> : FastComponentProvider, IDisposable where T : struct, IData
     {
-        public static ConcurrencyList<ComponentProvider<T>> ComponentsToWorld = new ConcurrencyList<ComponentProvider<T>>(16);
+        public static HECSList<FastComponentProvider<T>> ComponentsToWorld = new HECSList<FastComponentProvider<T>>(16);
         public T[] Components = new T[1024];
         public World World;
         public int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
 
-        static ComponentProvider()
+        static FastComponentProvider()
         {
-            ComponentsToWorld = new ConcurrencyList<ComponentProvider<T>>();
+            ComponentsToWorld = new HECSList<FastComponentProvider<T>>();
         }
 
-        public ComponentProvider(World world)
+        public FastComponentProvider(World world)
         {
             World = world;
             world.RegisterProvider(this);
@@ -116,7 +116,7 @@ namespace HECSFramework.Core
         }
     }
 
-    public abstract partial class ComponentProvider
+    public abstract partial class FastComponentProvider
     {
         internal abstract int TypeIndexProvider { get; }
 

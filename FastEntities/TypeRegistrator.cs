@@ -10,14 +10,14 @@
     {
         public override void RegisterWorld(World world)
         {
-            var collection = ComponentProvider<T>.ComponentsToWorld;
-            collection.AddToIndex(new ComponentProvider<T>(world), world.Index);
+            var collection = FastComponentProvider<T>.ComponentsToWorld;
+            collection.AddToIndex(new FastComponentProvider<T>(world), world.Index);
         }
 
         public override void UnRegisterWorld(World world)
         {
-            ComponentProvider<T>.ComponentsToWorld.Data[world.Index].Dispose();
-            ComponentProvider<T>.ComponentsToWorld.Data[world.Index] = null;
+            FastComponentProvider<T>.ComponentsToWorld.Data[world.Index].Dispose();
+            FastComponentProvider<T>.ComponentsToWorld.Data[world.Index] = null;
         }
     }
 }
