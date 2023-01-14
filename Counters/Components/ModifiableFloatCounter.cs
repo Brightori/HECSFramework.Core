@@ -44,7 +44,7 @@ namespace Components
 
         public void AddUniqueModifier(Guid owner, IModifier<float> modifier)
         {
-            var oldValue =currentValue;
+            var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
             modifiersContainer.AddModifier(owner, modifier);

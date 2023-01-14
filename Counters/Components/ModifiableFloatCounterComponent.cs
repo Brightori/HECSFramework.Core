@@ -14,18 +14,52 @@ namespace Components
         public abstract float SetupValue { get; }
 
         protected ModifiableFloatCounter modifiableIntCounter = new ModifiableFloatCounter();
+        protected bool isReactive;
 
-        public bool IsReactive { get; protected set; }
+        public bool IsReactive { get => isReactive; protected set => isReactive = value; }
 
         public void Init()
         {
             modifiableIntCounter.Setup(Id, SetupValue);
         }
 
-        public void AddModifier(Guid owner, IModifier<float> modifier) => modifiableIntCounter.AddModifier(owner, modifier);
-        public void RemoveModifier(Guid owner, IModifier<float> modifier) => modifiableIntCounter.RemoveModifier(owner, modifier);
-        public void AddUniqueModifier(Guid owner, IModifier<float> modifier) => modifiableIntCounter.AddUniqueModifier(owner, modifier);
+        public void AddModifier(Guid owner, IModifier<float> modifier) 
+        {
+            var oldValue = Value;
+            modifiableIntCounter.AddModifier(owner, modifier);
 
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        } 
+
+        public void RemoveModifier(Guid owner, IModifier<float> modifier) 
+        {
+            var oldValue = Value;
+            modifiableIntCounter.RemoveModifier(owner, modifier);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        } 
+
+        public void AddUniqueModifier(Guid owner, IModifier<float> modifier)
+        {
+            var oldValue = Value;
+            modifiableIntCounter.AddUniqueModifier(owner, modifier);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        }
+
+        private DiffCounterCommand<float> GetDiffCommand(float oldValue)
+        {
+            return new DiffCounterCommand<float>
+            {
+                Id = this.Id,
+                Value = modifiableIntCounter.Value,
+                PreviousValue = oldValue,
+                MaxValue = modifiableIntCounter.CalculatedMaxValue
+            };
+        }
 
         public void SetReactive(bool state)
         {
