@@ -21,7 +21,7 @@ namespace HECSFramework.Core
                 f.Value.Dispose();
         }
 
-        public ConcurrencyList<IEntity> GetFilter(FilterMask include, bool includeAny = false)
+        public HECSList<IEntity> GetFilter(FilterMask include, bool includeAny = false)
         {
             int sumMask = include.GetHashCode();
 
@@ -34,7 +34,7 @@ namespace HECSFramework.Core
             return nf.Entities;
         }
 
-        public ConcurrencyList<IEntity> GetFilter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
+        public HECSList<IEntity> GetFilter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true)
         {
             int sumMask = include.GetHashCode();
             sumMask += exclude.GetHashCode();
@@ -58,7 +58,7 @@ namespace HECSFramework.Core
             private HECSMultiMask summaryInclude;
             private HECSMultiMask summaryExclude;
 
-            public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>(512);
+            public HECSList<IEntity> Entities { get; private set; } = new HECSList<IEntity>(512);
 
             public System.Guid ListenerGuid { get; } = Guid.NewGuid();
 

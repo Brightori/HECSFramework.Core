@@ -8,9 +8,9 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
-        private ConcurrencyList<ushort> updatedEntities = new ConcurrencyList<ushort>(1024);
+        private HECSList<ushort> updatedEntities = new HECSList<ushort>(1024);
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
-        private ConcurrencyList<FastEntitiesFilter> filters = new ConcurrencyList<FastEntitiesFilter>(16);
+        private HECSList<FastEntitiesFilter> filters = new HECSList<FastEntitiesFilter>(16);
 
         public bool FastEntitiesIsDirty;
 

@@ -63,7 +63,7 @@ namespace HECSFramework.Core.Helpers
             return false;
         }
 
-        public static void AddOrRemoveElement<T>(this ConcurrencyList<T> list, T element, bool add)
+        public static void AddOrRemoveElement<T>(this HECSList<T> list, T element, bool add)
         {
             if (add)
             {
@@ -78,7 +78,7 @@ namespace HECSFramework.Core.Helpers
             }
         }
 
-        public static void RemoveElement<T>(this ConcurrencyList<T> list, Func<T, bool> predicate)
+        public static void RemoveElement<T>(this HECSList<T> list, Func<T, bool> predicate)
         {
             for (var i = 0; i < list.Count; i++)
             {

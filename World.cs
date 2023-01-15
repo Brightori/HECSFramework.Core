@@ -61,12 +61,12 @@ namespace HECSFramework.Core
             IsInited = true;
         }
 
-        public ConcurrencyList<IEntity> Entities => entityService.Entities;
+        public HECSList<IEntity> Entities => entityService.Entities;
         public int EntitiesCount => Entities.Count;
 
-        public ConcurrencyList<IEntity> Filter(FilterMask include, bool includeAny = false) => entityFilter.GetFilter(include, includeAny);
-        public ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
-        public ConcurrencyList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
+        public HECSList<IEntity> Filter(FilterMask include, bool includeAny = false) => entityFilter.GetFilter(include, includeAny);
+        public HECSList<IEntity> Filter(FilterMask include, FilterMask exclude, bool includeAny = false, bool excludeAny = true) => entityFilter.GetFilter(include, exclude, includeAny, excludeAny);
+        public HECSList<IEntity> Filter(HECSMask mask, bool includeAny = false) => entityFilter.GetFilter(new FilterMask(mask), includeAny);
 
 
         public void AddToInit(IEntity entity)

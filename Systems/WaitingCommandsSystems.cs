@@ -9,10 +9,10 @@ namespace Systems
     {
         private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
 
-        private ConcurrencyList<WaitAndEntityCallbackCommand> waitAndCallbackEntityCommands = new ConcurrencyList<WaitAndEntityCallbackCommand>(8);
+        private HECSList<WaitAndEntityCallbackCommand> waitAndCallbackEntityCommands = new HECSList<WaitAndEntityCallbackCommand>(8);
         private Remover<WaitAndEntityCallbackCommand> removerwaitAndCallbackEntityCommands;
 
-        private ConcurrencyList<WaitAndCallbackCommand> waitCallbackCommands = new ConcurrencyList<WaitAndCallbackCommand>(8);
+        private HECSList<WaitAndCallbackCommand> waitCallbackCommands = new HECSList<WaitAndCallbackCommand>(8);
         private Remover<WaitAndCallbackCommand> removerCallbackCommands;
 
         public Guid ListenerGuid { get; } = Guid.NewGuid();

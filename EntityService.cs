@@ -5,9 +5,9 @@ namespace HECSFramework.Core
 {
     public class EntityService : IDisposable
     {
-        public ConcurrencyList<IEntity> Entities { get; private set; } = new ConcurrencyList<IEntity>();
+        public HECSList<IEntity> Entities { get; private set; } = new HECSList<IEntity>();
 
-        private ConcurrencyList<IReactEntity> reactEntities = new ConcurrencyList<IReactEntity>();
+        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
 
         public void RegisterEntity(IEntity entity, bool isAdded)
         {

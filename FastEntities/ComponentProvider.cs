@@ -5,14 +5,14 @@ namespace HECSFramework.Core
 {
     internal sealed partial class ComponentProvider<T> : ComponentProvider, IDisposable where T : struct, IData
     {
-        public static ConcurrencyList<ComponentProvider<T>> ComponentsToWorld = new ConcurrencyList<ComponentProvider<T>>(16);
+        public static HECSList<ComponentProvider<T>> ComponentsToWorld = new HECSList<ComponentProvider<T>>(16);
         public T[] Components = new T[1024];
         public World World;
         public int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
 
         static ComponentProvider()
         {
-            ComponentsToWorld = new ConcurrencyList<ComponentProvider<T>>();
+            ComponentsToWorld = new HECSList<ComponentProvider<T>>();
         }
 
         public ComponentProvider(World world)

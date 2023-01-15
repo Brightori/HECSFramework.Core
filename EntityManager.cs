@@ -6,10 +6,10 @@ namespace HECSFramework.Core
     {
         public const int AllWorld = -1;
 
-        private ConcurrencyList<World> worlds;
+        private HECSList<World> worlds;
         private static EntityManager Instance;
 
-        public static ConcurrencyList<World> Worlds => Instance.worlds;
+        public static HECSList<World> Worlds => Instance.worlds;
         public static World Default => Instance.worlds.Data[0];
         public static bool IsAlive => Instance != null;
 
@@ -18,7 +18,7 @@ namespace HECSFramework.Core
 
         public EntityManager(int worldsCount = 1)
         {
-            worlds = new ConcurrencyList<World>(worldsCount);
+            worlds = new HECSList<World>(worldsCount);
             Instance = this;
 
             for (int i = 0; i < worldsCount; i++)
@@ -114,9 +114,9 @@ namespace HECSFramework.Core
             entity.World.RegisterEntity(entity, add);
         }
 
-        public static ConcurrencyList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
-        public static ConcurrencyList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
-        public static ConcurrencyList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
+        public static HECSList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
+        public static HECSList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
+        public static HECSList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
 
         /// <summary>
         /// возвращаем первую ентити у которой есть необходимые нам компоненты

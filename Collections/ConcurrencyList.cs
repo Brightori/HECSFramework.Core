@@ -7,7 +7,7 @@ using System.Threading;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed partial class ConcurrencyList<T> : IEnumerable<T>
+    public sealed partial class HECSList<T> : IEnumerable<T>
     {
         private class SortComparer : IComparer<T>
         {
@@ -31,7 +31,7 @@ namespace HECSFramework.Core
 
         #region Constructor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ConcurrencyList()
+        public HECSList()
         {
             this.capacity = 3;
             this.Data = new T[this.capacity];
@@ -42,7 +42,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ConcurrencyList(int capacity)
+        public HECSList(int capacity)
         {
             this.capacity = HashHelpers.GetCapacity(capacity);
             this.Data = new T[this.capacity];
@@ -53,7 +53,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ConcurrencyList(ConcurrencyList<T> other)
+        public HECSList(HECSList<T> other)
         {
             this.capacity = other.capacity;
             this.Data = new T[this.capacity];
@@ -113,7 +113,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AddListRange(ConcurrencyList<T> other)
+        public void AddListRange(HECSList<T> other)
         {
             if (other.length > 0)
             {
@@ -263,7 +263,7 @@ namespace HECSFramework.Core
 
         public struct Enumerator : IEnumerator<T>
         {
-            public ConcurrencyList<T> list;
+            public HECSList<T> list;
 
             public T current;
             public int index;

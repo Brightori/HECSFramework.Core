@@ -7,9 +7,9 @@ namespace HECSFramework.Core
     {
         private readonly World world;
         private HashSet<ushort> check = new HashSet<ushort>(512);
-        private ConcurrencyList<ushort> entities = new ConcurrencyList<ushort>(512);
-        private ConcurrencyList<int> include = new ConcurrencyList<int>(4);
-        private ConcurrencyList<int> exclude = new ConcurrencyList<int>(4);
+        private HECSList<ushort> entities = new HECSList<ushort>(512);
+        private HECSList<int> include = new HECSList<int>(4);
+        private HECSList<int> exclude = new HECSList<int>(4);
 
         public bool IsNeedFullUpdate;
 

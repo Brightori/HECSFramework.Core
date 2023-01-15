@@ -12,7 +12,7 @@ namespace HECSFramework.Core
         private ConcurrentQueue<ActionInUpdate> actions = new();
         private Dictionary<Type, Stack<IJobProcessor>> pooling = new Dictionary<Type, Stack<IJobProcessor>>(32);
 
-        private ConcurrencyList<IJobProcessor> jobProcessors = new ConcurrencyList<IJobProcessor>(16);
+        private HECSList<IJobProcessor> jobProcessors = new HECSList<IJobProcessor>(16);
         private AddAndRemoveHelper<IJobProcessor> addAndRemoveHelper;
 
         public ExecuteInUpdate()

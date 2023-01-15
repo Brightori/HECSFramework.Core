@@ -17,8 +17,8 @@ namespace HECSFramework.Core
             }
         }
 
-        protected readonly ConcurrencyList<T> updatables = new ConcurrencyList<T>(128);
-        protected readonly ConcurrencyList<UpdateWithOwnerContainer> updateOnEntities = new ConcurrencyList<UpdateWithOwnerContainer>(128);
+        protected readonly HECSList<T> updatables = new HECSList<T>(128);
+        protected readonly HECSList<UpdateWithOwnerContainer> updateOnEntities = new HECSList<UpdateWithOwnerContainer>(128);
 
         private Queue<UpdateWithOwnerContainer> addWithOwnersQueue = new Queue<UpdateWithOwnerContainer>(16);
         private Queue<T> removeWithOwnersQueue = new Queue<T>(16);
