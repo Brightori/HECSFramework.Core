@@ -25,83 +25,83 @@ namespace HECSFramework.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T AddComponent(int entityIndex)
+        public T AddComponent(int entityIndex)
         {
-            Components[index] = new T();
-            Add(index);
-            return ref Components[index];
+            Components[entityIndex] = new T();
+            Add(entityIndex);
+            return Components[entityIndex];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T AddComponent(ushort index, in T component)
+        public T AddComponent(int index, in T component)
         {
             Components[index] = component;
             Add(index);
-            return ref this.Components[index];
+            return  this.Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetComponent(ushort index)
+        public ref T GetComponent(int index)
         {
             return ref Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetOrAddComponent(ushort index)
+        public  T GetOrAddComponent(int index)
         {
             if (Has(index))
-                return ref Components[index];
+                return  Components[index];
 
-            return ref AddComponent(index);
+            return  AddComponent(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetOrAddComponent(ushort index, in T component)
+        public  T GetOrAddComponent(int index, T component)
         {
             if (Has(index))
-                return ref Components[index];
+                return  Components[index];
 
-            return ref AddComponent(index, component);
+            return AddComponent(index, component);
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T TryGetComponent(ushort index, out bool exist)
+        public T TryGetComponent(int index, out bool exist)
         {
-            ref var fastEntity = ref World.FastEntities[index];
+            var entity = World.Entities[index];
 
-            if (fastEntity.ComponentIndeces.Contains(TypeIndex))
+            if (entity.Components.Contains(TypeIndex))
                 exist = true;
             else
                 exist = false;
 
-            return ref Components[index];
+            return Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void RemoveComponent(ushort entity)
+        public override void RemoveComponent(int entity)
         {
             Remove(entity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Has(ushort index)
+        public override bool Has(int index)
         {
-            return World.FastEntities[index].ComponentIndeces.Contains(TypeIndex);
+            return World.Entities[index].Components.Contains(TypeIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Remove(ushort fastEntityIndex)
+        private void Remove(int fastEntityIndex)
         {
             if (World.FastEntities[fastEntityIndex].ComponentIndeces.Remove(TypeIndex))
-                World.RegisterUpdatedFastEntity(fastEntityIndex);
+                World.RegisterDirtyEntity(fastEntityIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Add(ushort fastEntityIndex)
+        private void Add(int entityIndex)
         {
-            World.FastEntities[fastEntityIndex].ComponentIndeces.Add(TypeIndex);
-            World.RegisterUpdatedFastEntity(fastEntityIndex);
+            World.Entities[entityIndex].Components.Add(TypeIndex);
+            World.RegisterDirtyEntity(entityIndex);
         }
 
         public void Dispose()
@@ -126,10 +126,10 @@ namespace HECSFramework.Core
         internal abstract int TypeIndexProvider { get; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void RemoveComponent(ushort entity);
+        public abstract void RemoveComponent(int entity);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract bool Has(ushort index);
+        public abstract bool Has(int index);
         public abstract void Resize();
 
         public abstract void RegisterComponent(int entityIndex, bool add);

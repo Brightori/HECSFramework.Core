@@ -13,8 +13,6 @@ namespace HECSFramework.Core
         private readonly List<ISystem> systems = new List<ISystem>();
         private readonly HashSet<int> components = new HashSet<int>(8);
 
-        private Entity Check;
-
         public int WorldId => World.Index;
 
         public World World { get; private set; }
@@ -53,6 +51,7 @@ namespace HECSFramework.Core
         public int EntityIndex => entityIndex;
 
         public bool IsDirty { get; }
+        public int Generation { get; set; }
 
         public Entity(string id = "Empty")
         {

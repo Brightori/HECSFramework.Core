@@ -16,8 +16,6 @@ namespace HECSFramework.Core
 
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
-        private EntityFilter entityFilter;
-
         private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
         private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
 
@@ -35,9 +33,10 @@ namespace HECSFramework.Core
         public World(int index)
         {
             Index = index;
-            entityFilter = new EntityFilter(this);
+            InitStandartEntities();
             InitFastWorld();
         }
+
 
         partial void InitFastWorld();
 

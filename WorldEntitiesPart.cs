@@ -5,28 +5,35 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
-        private IEntity[] entities;
+        public IEntity[] Entities;
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
         
         //here we have free entities for pooling|using
         private Queue<int> freeIndices = new Queue<int>();
 
         //dirty entities should be processing 
-        private Queue<int> dirtyEntities = new Queue<int>();
+        private HECSList<int> dirtyEntities = new HECSList<int>();
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
+        private HECSList<EntitiesFilter> entityFilters = new HECSList<EntitiesFilter>(8);
 
+        private void InitStandartEntities()
+        {
+            GlobalUpdateSystem.FinishUpdate += ProcessDirtyEntities;
+        }
 
-
+        private void ProcessDirtyEntities()
+        {
+        }
 
         public ref IEntity PullEntity(string id = "empty")
         {
             if (freeIndices.TryDequeue(out var result))
             {
-                if (entities[result] == null)
-                    entities[result] = new Entity(this,  result, id);
+                if (Entities[result] == null)
+                    Entities[result] = new Entity(this,  result, id);
 
 
-                return ref entities[result];
+                return ref Entities[result];
             }
 
             else
@@ -42,12 +49,17 @@ namespace HECSFramework.Core
                 getEntity = entity;
             }
 
-            dirtyEntities.Enqueue(entity.EntityIndex);
+            dirtyEntities.Add(entity.EntityIndex);
 
             foreach (var c in entity.Components)
             {
 
             }
+        }
+
+        public void RegisterDirtyEntity(int index)
+        {
+            dirtyEntities.Add(index);
         }
 
         public int GetEntityFreeIndex()
@@ -69,14 +81,14 @@ namespace HECSFramework.Core
 
         private void ResizeEntitiesList()
         {
-            var currentLenght = entities.Length;
-            Array.Resize(ref entities, currentLenght * 2);
+            var currentLenght = Entities.Length;
+            Array.Resize(ref Entities, currentLenght * 2);
 
-            for (int i = currentLenght; i < entities.Length; i++)
+            for (int i = currentLenght; i < Entities.Length; i++)
             {
-                if (entities[i] == null)
+                if (Entities[i] == null)
                 {
-                    entities[i] = new Entity(this, i);
+                    Entities[i] = new Entity(this, i);
                     freeIndices.Enqueue(i);
                 }
             }
