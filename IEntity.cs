@@ -47,6 +47,6 @@ namespace HECSFramework.Core
         bool ContainsMask(int mask);
         bool ContainsAnyFromMask(HashSet<int> mask);
 
-        bool ContainsMask<T>() where T: IComponent;
+        bool ContainsMask<T>() where T: IComponent, new();
     }
 }

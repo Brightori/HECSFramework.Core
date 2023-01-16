@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -12,7 +13,9 @@ namespace HECSFramework.Core
         private Queue<int> freeIndices = new Queue<int>();
 
         //dirty entities should be processing 
-        private HECSList<int> dirtyEntities = new HECSList<int>();
+        private HashSet<int> dirtyEntities = new HashSet<int>(32);
+        private HECSList<RegisterEntity> registerEntity = new HECSList<RegisterEntity>(32);
+
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
         private HECSList<EntitiesFilter> entityFilters = new HECSList<EntitiesFilter>(8);
 
@@ -40,7 +43,17 @@ namespace HECSFramework.Core
                 return ref ResizeAndReturnEntity();
         }
 
-        public void RegisterEntity(IEntity entity)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RegisterEntity(IEntity entity, bool isAdded)
+        {
+            if (isAdded)
+                ProcessAddedEntity(entity);
+            else
+                ProcessRemovedEntity(entity);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessAddedEntity(IEntity entity)
         {
             if (entity.EntityIndex == -1)
             {
@@ -49,12 +62,23 @@ namespace HECSFramework.Core
                 getEntity = entity;
             }
 
-            dirtyEntities.Add(entity.EntityIndex);
+            registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
+            RegisterDirtyEntity(entity.EntityIndex);
 
             foreach (var c in entity.Components)
             {
+                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.EntityIndex);
+
+                if (icomponent is IInitable initable)
+                    initable.Init();
 
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessRemovedEntity(IEntity entity)
+        {
+
         }
 
         public void RegisterDirtyEntity(int index)
@@ -106,6 +130,12 @@ namespace HECSFramework.Core
 
         public ComponentProvider GetComponentProvider(int index) => componentProvidersByTypeIndex[index];
 
+
+        public void AddEntityListener(IReactEntity reactEntity, bool add)
+        {
+            entityService.AddEntityListener(reactEntity, add);
+        }
+
         public void ReleaseEntity(IEntity entity)
         {
             if (entity.IsAlive)
@@ -113,5 +143,11 @@ namespace HECSFramework.Core
 
             freeIndices.Enqueue(entity.EntityIndex);
         }
+    }
+
+    public struct RegisterEntity 
+    {
+        public IEntity Entity;
+        public bool IsAdded;
     }
 }

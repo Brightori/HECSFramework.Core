@@ -5,7 +5,7 @@ using Systems;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class World : IAddSingleComponent
+    public sealed partial class World 
     {
         public int Index { get; private set; }
 
@@ -45,7 +45,7 @@ namespace HECSFramework.Core
             if (IsInited)
                 return;
 
-            var worldService = new Entity("WorldService", Index);
+            var worldService = new Entity(this, "WorldService");
             waitingCommandsSystems = new WaitingCommandsSystems();
             worldService.AddHecsSystem(waitingCommandsSystems);
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
@@ -54,15 +54,10 @@ namespace HECSFramework.Core
             worldService.Init();
 
             while (waintingForInit.Count > 0)
-                waintingForInit.Dequeue().Init();
+                waintingForInit.Dequeue().Init(this);
 
             IsInited = true;
         }
-
-        public HECSList<IEntity> Entities => entityService.Entities;
-        public int EntitiesCount => Entities.Count;
-
-
 
         public void AddToInit(IEntity entity)
         {
@@ -79,16 +74,7 @@ namespace HECSFramework.Core
             GlobalUpdateSystem.Register(registerUpdatable, add);
         }
 
-        public void RegisterEntity(IEntity entity, bool isAdded)
-        {
-            if (isAdded && entity.GUID == Guid.Empty) entity.GenerateGuid();
-            entityService.RegisterEntity(entity, isAdded);
-        }
-
-        public void AddEntityListener(IReactEntity reactEntity, bool add)
-        {
-            entityService.AddEntityListener(reactEntity, add);
-        }
+      
 
         /// <summary>
         /// Рассылает команды по дефолту только  тем ентити у которых зарегестрированы глобальные системы, 
@@ -100,25 +86,6 @@ namespace HECSFramework.Core
         public void Command<T>(T command) where T : struct, ICommand, IGlobalCommand
         {
             commandService.Invoke(command);
-        }
-
-        /// <summary>
-        /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
-        /// то мы отправляем команду ожидать появления нужной сущности
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="command"></param>
-        /// <param name="waitForComponent"></param>
-        public void Command<T>(T command, ref HECSMask waitForComponent) where T : struct, ICommand, IGlobalCommand
-        {
-
-            if (TryGetEntityByComponents(out var entity, ref waitForComponent))
-            {
-                commandService.Invoke(command);
-                return;
-            }
-
-            waitingCommandsSystems.AddWaitingCommand(command, waitForComponent);
         }
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
@@ -157,32 +124,12 @@ namespace HECSFramework.Core
        
         public IEntity GetEntity(Func<IEntity, bool> func)
         {
-            foreach (var entity in entityService.Entities)
+            foreach (var entity in Entities)
             {
                 if (func(entity))
                     return entity;
             }
             return default;
-        }
-
-        /// <summary>
-        /// если нам нужно получить систему с одной из сущностей основной логики, 
-        /// или любой сущности которая имеет уникальный компонент
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="tagOfEntity">уникальный тэг для энтити</param>
-        /// <param name="system">тип системы</param>
-        /// <returns></returns>
-        public bool TryGetSystemFromEntity<T, U>(U component, out T system) where T : ISystem where U : IComponent
-        {
-            if (TryGetEntityByComponents(out var entity, ref mask))
-            {
-                if (entity.TryGetSystem(out system))
-                    return true;
-            }
-
-            system = default;
-            return false;
         }
 
         public T GetSingleSystem<T>() where T : ISystem
@@ -195,9 +142,9 @@ namespace HECSFramework.Core
                     return (T)system;
             }
 
-            for (int i = 0; i < entityService.Entities.Count; i++)
+            for (int i = 0; i < Entities.Length; i++)
             {
-                if (entityService.Entities.Data[i].TryGetSystem(out T needed))
+                if (Entities[i].TryGetSystem(out T needed))
                 {
                     if (needed.Owner.IsAlive)
                     {
@@ -216,9 +163,9 @@ namespace HECSFramework.Core
             return default;
         }
 
-        public T GetSingleComponent<T>() where T : IComponent, IWorldSingleComponent
+        public T GetSingleComponent<T>() where T : IComponent, IWorldSingleComponent, new()
         {
-            var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
+            var key = ComponentProvider<T>.TypeIndex;
 
             if (singleComponents.TryGetValue(key, out var component))
             {
@@ -226,19 +173,6 @@ namespace HECSFramework.Core
                     return (T)component;
             }
            
-            return default;
-        }
-
-        public T GetSingleComponent<T>(HECSMask mask) where T : IComponent, IWorldSingleComponent
-        {
-            var key = mask.TypeHashCode;
-
-            if (singleComponents.TryGetValue(key, out var component))
-            {
-                if (component != null && component.Owner.IsAlive && component.IsAlive)
-                    return (T)component;
-            }
-
             return default;
         }
 
@@ -281,18 +215,6 @@ namespace HECSFramework.Core
             return singleComponents.ContainsKey(index);
         }
 
-        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent) where T : IComponent
-        {
-            if (TryGetEntityByComponents(out var entity, ref owner))
-            {
-                component = entity.GetHECSComponent<T>();
-                return true;
-            }
-
-            component = default;
-            return false;
-        }
-
         public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)
         {
             if (cacheTryGetbyGuid.TryGetValue(entityGuid, out entity))
@@ -304,14 +226,13 @@ namespace HECSFramework.Core
             }
             
             entity = null;
-            var entities = entityService.Entities;
 
-            for (int i = 0; i < entities.Count; i++)
+            for (int i = 0; i < Entities.Length; i++)
             {
-                if (entities.Data[i].GUID == entityGuid)
+                if (Entities[i].GUID == entityGuid)
                 {
-                    cacheTryGetbyGuid.TryAdd(entityGuid, entities.Data[i]);
-                    entity = entities.Data[i];
+                    cacheTryGetbyGuid.TryAdd(entityGuid, Entities[i]);
+                    entity = Entities[i];
                     break;
                 }
             }
@@ -326,10 +247,8 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-            entityService.Dispose();
             componentsService.Dispose();
             commandService.Dispose();
-            entityFilter.Dispose();
             GlobalUpdateSystem.Dispose();
             FastWorldDispose();
             IsAlive = false;
@@ -337,9 +256,9 @@ namespace HECSFramework.Core
 
         partial void FastWorldDispose();
 
-        void IAddSingleComponent.AddSingleWorldComponent<T>(T component, bool add)
+        public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent, new() 
         {
-            var key = component.GetTypeHashCode;
+            var key = ComponentProvider<T>.TypeIndex;
 
             if (singleComponents.ContainsKey(key))
             {
@@ -366,12 +285,7 @@ namespace HECSFramework.Core
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(WorldGuid);
+            return WorldGuid.GetHashCode();
         }
-    }
-
-    internal interface IAddSingleComponent
-    {
-        void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent;
     }
 }

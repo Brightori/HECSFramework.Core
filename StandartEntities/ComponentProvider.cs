@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Codice.CM.Client.Differences;
 
 namespace HECSFramework.Core
 {
@@ -8,7 +9,7 @@ namespace HECSFramework.Core
         public static HECSList<ComponentProvider<T>> ComponentsToWorld = new HECSList<ComponentProvider<T>>(16);
         public T[] Components = new T[256];
         public World World;
-        public int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
+        public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
 
         static ComponentProvider()
         {
@@ -41,9 +42,9 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetComponent(int index)
+        public T GetComponent(int index)
         {
-            return ref Components[index];
+            return Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -66,16 +67,11 @@ namespace HECSFramework.Core
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T TryGetComponent(int index, out bool exist)
+        public bool TryGetComponent(int index, out T component)
         {
             var entity = World.Entities[index];
-
-            if (entity.Components.Contains(TypeIndex))
-                exist = true;
-            else
-                exist = false;
-
-            return Components[index];
+            component = Components[index];
+            return entity.Components.Contains(TypeIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -115,14 +111,24 @@ namespace HECSFramework.Core
             Array.Resize(ref Components, Components.Length * 2);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void RegisterComponent(int entityIndex, bool add)
         {
-            throw new NotImplementedException();
+            World.Entities[entityIndex].RegisterComponentListenersService.Invoke(Components[entityIndex], add);
+            World.GlobalComponentListenerService.Invoke(Components[entityIndex], add);
+
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void AddComponent(int entityIndex, IComponent component)
         {
             AddComponent(entityIndex, (T)component);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override IComponent GetIComponent(int entityIndex)
+        {
+            return GetComponent(entityIndex);
         }
     }
 
@@ -136,7 +142,12 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool Has(int index);
         public abstract void Resize();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void AddComponent(int entityIndex, IComponent component);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract IComponent GetIComponent(int entityIndex);
+        
         public abstract void RegisterComponent(int entityIndex, bool add);
     }
 }
