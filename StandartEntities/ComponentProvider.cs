@@ -119,6 +119,11 @@ namespace HECSFramework.Core
         {
             throw new NotImplementedException();
         }
+
+        public override void AddComponent(int entityIndex, IComponent component)
+        {
+            AddComponent(entityIndex, (T)component);
+        }
     }
 
     public abstract partial class ComponentProvider
@@ -131,7 +136,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool Has(int index);
         public abstract void Resize();
-
+        public abstract void AddComponent(int entityIndex, IComponent component);
         public abstract void RegisterComponent(int entityIndex, bool add);
     }
 }

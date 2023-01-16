@@ -81,7 +81,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveComponent(this FastEntity fastEntity, int typeIndex) 
         {
-            fastEntity.World.GetComponentProvider(typeIndex).RemoveComponent(fastEntity.Index);
+            fastEntity.World.GetFastComponentProvider(typeIndex).RemoveComponent(fastEntity.Index);
         }
     }
 }

@@ -104,6 +104,8 @@ namespace HECSFramework.Core
             componentProvidersByTypeIndex.Add(componentProvider.TypeIndexProvider, componentProvider);
         }
 
+        public ComponentProvider GetComponentProvider(int index) => componentProvidersByTypeIndex[index];
+
         public void ReleaseEntity(IEntity entity)
         {
             if (entity.IsAlive)

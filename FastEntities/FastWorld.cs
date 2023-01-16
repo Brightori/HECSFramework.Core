@@ -89,7 +89,7 @@ namespace HECSFramework.Core
             return ref GetFastEntity();
         }
 
-        public FastComponentProvider GetComponentProvider(int typeIndex)
+        public FastComponentProvider GetFastComponentProvider(int typeIndex)
         {
             return fastComponentProvidersByTypeIndex[typeIndex];
         }
