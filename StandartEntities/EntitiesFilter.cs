@@ -86,9 +86,9 @@ namespace HECSFramework.Core
     public sealed partial class EntitiesFilter : IDisposable
     {
         private readonly World world;
-
-
         public ArchiType ArchiType;
+
+
 
         public int Count => ArchiType.Count;
         public ref int[] Entities => ref ArchiType.Entities;
