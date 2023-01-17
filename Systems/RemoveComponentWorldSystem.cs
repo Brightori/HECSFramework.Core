@@ -22,7 +22,7 @@ namespace Systems
                 var component = componentsForRemove.Dequeue();
 
                 if (component != null && component.IsAlive)
-                    component.Owner.RemoveHecsComponent(component);
+                    component.Owner.RemoveComponent(component);
             }
 
             while (componentsToAdd.Count > 0)
@@ -30,7 +30,7 @@ namespace Systems
                 var command = componentsToAdd.Dequeue();
 
                 if (command.Component != null)
-                    command.Entity.AddHecsComponent(command.Component);
+                    command.Entity.AddComponent(command.Component);
             }
         }
 

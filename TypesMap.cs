@@ -48,12 +48,12 @@ namespace HECSFramework.Core
 
         public static void SetComponent(IEntity entity, IComponent component)
         {
-            componentsSetters[component.ComponentsMask.Index].SetComponent(entity, component);
+            componentsSetters[component.GetTypeHashCode].SetComponent(entity, component);
         }
 
         public static void RemoveComponent(IEntity entity, IComponent component)
         {
-            componentsSetters[component.ComponentsMask.Index].RemoveComponent(entity, component);
+            componentsSetters[component.GetTypeHashCode].RemoveComponent(entity, component);
         }
 
         public static void RegisterComponent(int index, IEntity entity, bool isAdded)
@@ -94,40 +94,7 @@ namespace HECSFramework.Core
                 throw new InvalidOperationException();
             }
         }
-
-        /// <summary>
-        /// Static extention for getting by generic type
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="Owner"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetHECSComponent<T>(this IEntity Owner)
-        {
-            var t = typeof(T);
-
-            if (TypeToComponentIndex.TryGetValue(t, out var index))
-                return (T)Owner.GetAllComponents[index];
-            else
-            {
-                var components = Owner.GetAllComponents;
-                var count = components.Length;
-                
-                for (int i = 0; i < count; i++)
-                {
-                    if (components[i] is T needed)
-                        return needed;
-                }
-            }
-
-            return default;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T GetHECSComponent<T>(this IEntity Owner, ref HECSMask hECSMask)
-        {
-            return (T)Owner.GetAllComponents[hECSMask.Index];
-        }
+       
 
         public static Type GetTypeByComponentHECSHash(int hash)
         {

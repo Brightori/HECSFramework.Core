@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Systems
 {
-    public sealed partial class PoolingSystem : BaseSystem, IReactComponent
+    public sealed partial class PoolingSystem : BaseSystem
     {
         private int maxCapacity = 512;
 
@@ -36,37 +36,6 @@ namespace Systems
         {
             arrayBuffer.Clear();
             arrayBufferWriters.PutObject(arrayBuffer);
-        }
-
-        public T GetComponentFromPool<T>(ref HECSMask mask) where T : IComponent
-        {
-            var index = mask.Index;
-
-            if (poolOfComponents.ContainsKey(index))
-            {
-                if (poolOfComponents[index].Count > 0)
-                {
-                    var needed = (T)poolOfComponents[index].Pop();
-                    needed.IsAlive = true;
-                    needed.UnRegister();
-                    return needed;
-                }
-            }
-            else
-                poolOfComponents.Add(index, new Stack<IComponent>());
-
-            return (T)TypesMap.GetComponentFromFactory(mask.TypeHashCode);
-        }
-
-        public void ComponentReact<T>(T component, bool isAdded) where T : IComponent
-        {
-            if (!isAdded)
-            {
-                var index = component.ComponentsMask.Index;
-                
-                if (poolOfComponents.ContainsKey(index) && poolOfComponents[index].Count < maxCapacity)
-                    poolOfComponents[index].Push(component);
-            }
         }
     }
 }

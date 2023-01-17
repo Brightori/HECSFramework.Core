@@ -98,38 +98,25 @@ namespace HECSFramework.Core
 
             Instance.worlds.Data[world].Command(command);
         }
-
-        /// <summary>
-        /// Если нам нужно убедиться что такая ентити существует, или дождаться когда она появиться, 
-        /// то мы отправляем команду ожидать появления нужной сущности
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="command"></param>
-        /// <param name="waitForComponent"></param>
-        public static void Command<T>(T command, ref HECSMask waitForComponent, int worldIndex = 0) where T : struct, ICommand, IGlobalCommand
-            => Worlds.Data[worldIndex].Command(command, ref waitForComponent);
-
+       
         public static void RegisterEntity(IEntity entity, bool add)
         {
             entity.World.RegisterEntity(entity, add);
         }
 
-        public static HECSList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
-        public static HECSList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
-        public static HECSList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
+        //todo filter
+        //public static HECSList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
+        //public static HECSList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
+        //public static HECSList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
 
-        /// <summary>
-        /// возвращаем первую ентити у которой есть необходимые нам компоненты
-        /// </summary>
-        /// <param name="outEntity"></param>
-        /// <param name="componentIDs"></param>
-        public static bool TryGetEntityByComponents(out IEntity outEntity, ref HECSMask mask, int worldIndex = 0)
+       
+        public static bool TryGetEntityByComponent<T>(out IEntity outEntity, int worldIndex = 0) where T : IComponent, new()
         {
             if (worldIndex == -1)
             {
                 foreach (var w in Worlds)
                 {
-                    if (w.TryGetEntityByComponents(out outEntity, ref mask))
+                    if (w.TryGetEntityByComponent<T>(out outEntity))
                     {
                         return true;
                     }
@@ -140,7 +127,7 @@ namespace HECSFramework.Core
             }
 
             var world = Instance.worlds.Data[worldIndex];
-            return world.TryGetEntityByComponents(out outEntity, ref mask);
+            return world.TryGetEntityByComponent<T>(out outEntity);
         }
 
         /// <summary>
@@ -157,11 +144,9 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="worldIndex"></param>
         /// <returns></returns>
-        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent, IWorldSingleComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
-        public static T GetSingleComponent<T>(HECSMask mask, int worldIndex = 0) where T : IComponent, IWorldSingleComponent => Instance.worlds.Data[worldIndex].GetSingleComponent<T>(mask);
+        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent, IWorldSingleComponent, new() => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
 
         public static bool TryGetSingleComponent<T>(int world, out T component) where T : IComponent, IWorldSingleComponent => Worlds.Data[world].TryGetSingleComponent<T>(out component);
-        public static bool TryGetSingleComponent<T>(int world, HECSMask mask, out T component) where T : IComponent, IWorldSingleComponent => Worlds.Data[world].TryGetSingleComponent<T>(mask, out component);
 
         public static bool TryGetWorld<T>(out World world) where T: IComponent, IWorldSingleComponent
         {
@@ -206,19 +191,10 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public bool TryGetSystemFromEntity<T>(ref HECSMask mask, out T system, int worldIndex = 0) where T : ISystem
-        {
-            var world = Instance.worlds.Data[worldIndex];
-            return world.TryGetSystemFromEntity(ref mask, out system);
-        }
-
         public static void AddOrRemoveComponent(IComponent component, bool isAdded)
         {
             Instance.worlds.Data[component.Owner.WorldId].AddOrRemoveComponent(component, isAdded);
         }
-
-        public bool TryGetComponentFromEntity<T>(out T component, ref HECSMask owner, ref HECSMask neededComponent, int worldIndex) where T : IComponent
-            => worlds.Data[worldIndex].TryGetComponentFromEntity(out component, ref owner, ref neededComponent);
 
         public void Dispose()
         {

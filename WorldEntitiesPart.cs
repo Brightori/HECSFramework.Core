@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using HECSFramework.Core.Helpers;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace HECSFramework.Core
 {
@@ -69,16 +71,39 @@ namespace HECSFramework.Core
             {
                 var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.EntityIndex);
 
+                //here we add unity part
+                ComponentAdditionalProcessing(icomponent, entity);
+
                 if (icomponent is IInitable initable)
                     initable.Init();
+            }
 
+            foreach (var s in entity.GetAllSystems)
+            {
+                SystemAdditionalProcessing(s, entity);
+
+                if (s is IInitable initable)
+                    s.InitSystem();
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        partial void ComponentAdditionalProcessing(IComponent component, IEntity owner);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        partial void SystemAdditionalProcessing(ISystem system, IEntity owner);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(IEntity entity)
         {
 
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void MigrateEntityToWorld(IEntity entity)
+        {
+            if (entity.World == this)
+                return;
         }
 
         public void RegisterDirtyEntity(int index)
@@ -133,7 +158,7 @@ namespace HECSFramework.Core
 
         public void AddEntityListener(IReactEntity reactEntity, bool add)
         {
-            entityService.AddEntityListener(reactEntity, add);
+            reactEntities.AddOrRemoveElement(reactEntity, add);
         }
 
         public void ReleaseEntity(IEntity entity)

@@ -21,23 +21,23 @@ namespace Components
         public void AddAbility(IEntity ability, bool needInit = false)
         {
             abilities.Add(ability);
-            IndexToAbility.Add(ability.GetHECSComponent<ActorContainerID>().ContainerIndex, ability);
+            IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
             if (needInit)
-                ability.Init();
+                ability.Init(Owner.World);
         }
 
         public void RemoveAbility(IEntity ability)
         {
             abilities.Remove(ability);
-            IndexToAbility.Remove(ability.GetHECSComponent<ActorContainerID>().ContainerIndex);
+            IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
         }
 
         public void CleanAbilities()
         {
             foreach (var a in abilities.ToArray())
             {
-                a.HecsDestroy();
+                a.Dispose();
             }
 
             abilities.Clear();

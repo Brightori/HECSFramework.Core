@@ -11,23 +11,22 @@ namespace Systems
     {
         private HECSMask passiveAbilMask = HMasks.GetMask<PassiveAbilityTag>();
         public AbilitiesHolderComponent abilitiesHolder;
-        private HECSMask abilityOwner = HMasks.GetMask<AbilityOwnerComponent>();
 
         public override void InitSystem()
         {
-            abilitiesHolder = Owner.GetHECSComponent<AbilitiesHolderComponent>();
+            abilitiesHolder = Owner.GetComponent<AbilitiesHolderComponent>();
         }
 
         public override void Execute(IEntity owner = null, IEntity target = null, bool enable = true)
         {
             foreach (var a in abilitiesHolder.Abilities)
             {
-                if (a.ContainsMask(ref passiveAbilMask)) continue;
+                if (a.ContainsMask<AbilityOwnerComponent>()) continue;
 
-                if (Owner.TryGetHecsComponent(abilityOwner, out AbilityOwnerComponent abilityOwnerComponent))
-                    a.GetOrAddComponent<AbilityOwnerComponent>(abilityOwner).AbilityOwner = abilityOwnerComponent.AbilityOwner;
+                if (Owner.TryGetComponent(out AbilityOwnerComponent abilityOwnerComponent))
+                    a.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = abilityOwnerComponent.AbilityOwner;
                 else
-                    a.GetOrAddComponent<AbilityOwnerComponent>(abilityOwner).AbilityOwner = Owner;
+                    a.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner;
 
                 a.Command(new ExecuteAbilityCommand
                 {
@@ -42,9 +41,9 @@ namespace Systems
         {
                 foreach (var a in abilitiesHolder.Abilities)
                 {
-                    if (!a.ContainsMask(ref passiveAbilMask)) continue;
+                    if (!a.ContainsMask<PassiveAbilityTag>()) continue;
 
-                    a.GetOrAddComponent<AbilityOwnerComponent>(abilityOwner).AbilityOwner = Owner.GetHECSComponent<AbilityOwnerComponent>(ref abilityOwner).AbilityOwner;
+                    a.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner.GetComponent<AbilityOwnerComponent>().AbilityOwner;
 
                     a.Command(new ExecuteAbilityCommand
                     {

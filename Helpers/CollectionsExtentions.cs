@@ -102,7 +102,7 @@ namespace HECSFramework.Core.Helpers
                 list.Remove(element);
         }
 
-        public static T GetHECSComponent<T>(this List<IComponent> components) where T : IComponent
+        public static T GetComponent<T>(this List<IComponent> components) where T : IComponent
         {
             for (int i = 0; i < components.Count; i++)
             {

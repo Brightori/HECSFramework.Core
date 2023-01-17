@@ -9,7 +9,7 @@ namespace HECSFramework.Core
     public sealed partial class Entity : IEntity
     {
         private int entityIndex;
-        private readonly List<ISystem> systems = new List<ISystem>();
+        private readonly HECSList<ISystem> systems = new HECSList<ISystem>();
         private readonly HashSet<int> components = new HashSet<int>(8);
 
         public int WorldId => World.Index;
@@ -20,7 +20,7 @@ namespace HECSFramework.Core
         public string ID { get; private set; }
 
         public HashSet<int> Components => components; 
-        public List<ISystem> GetAllSystems => systems;
+        public HECSList<ISystem> GetAllSystems => systems;
 
         public EntityLocalCommandService EntityCommandService { get; } = new EntityLocalCommandService();
         public LocalComponentListenersService RegisterComponentListenersService { get; } = new LocalComponentListenersService();
@@ -37,7 +37,7 @@ namespace HECSFramework.Core
         {
             get
             {
-                var container = this.GetHECSComponent<ActorContainerID>();
+                var container = this.GetComponent<ActorContainerID>();
 
                 if (container != null)
                     return container.ID;
@@ -143,7 +143,7 @@ namespace HECSFramework.Core
             GUID = guid;
         }
 
-        public IEnumerable<T> GetComponentsByType<T>()
+        public IEnumerable<T> GetComponentsByType<T>() 
         {
             foreach (var c in components)
             {
@@ -152,7 +152,11 @@ namespace HECSFramework.Core
             }
         }
 
-      
+        public void SetID(int index)
+        {
+            entityIndex = index;
+        }
+
 
         public override int GetHashCode()
         {
@@ -164,10 +168,7 @@ namespace HECSFramework.Core
             return obj is IEntity entity && entity.GUID == GUID;
         }
 
-        public void SetID(int index)
-        {
-            entityIndex = index;
-        }
+     
 
 
         #region Mask
@@ -236,6 +237,26 @@ namespace HECSFramework.Core
             }
         }
         #endregion
+
+        public void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveHecsSystem(ISystem system)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool RemoveHecsSystem<T>() where T : ISystem
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, IEntity owner = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public interface IChangeWorld

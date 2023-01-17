@@ -6,11 +6,9 @@ namespace HECSFramework.Core
     [Documentation(Doc.Abilities, "Basic system for passive abilities, they are launched through the command only at the stage of adding, 1 time")]
     public abstract class BasePassiveAbilitySystem : BaseSystem, IPassiveAbilitySystem
     {
-        private HECSMask predicateMask = HMasks.GetMask<AbilityPredicateComponent>();
-
         public void CommandReact(ExecutePassiveAbilityCommand command)
         {
-            if (command.Enabled && Owner.TryGetHecsComponent(predicateMask, out AbilityPredicateComponent predicatesComponent))
+            if (command.Enabled && Owner.TryGetComponent(out AbilityPredicateComponent predicatesComponent))
             {
                 if (!predicatesComponent.TargetPredicates.IsReady(command.Target, Owner))
                     return;

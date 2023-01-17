@@ -51,7 +51,7 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());
-            worldService.Init();
+            worldService.Init(this);
 
             while (waintingForInit.Count > 0)
                 waintingForInit.Dequeue().Init(this);
@@ -213,6 +213,23 @@ namespace HECSFramework.Core
         public bool IsHaveSingleComponent(int index)
         {
             return singleComponents.ContainsKey(index);
+        }
+
+        public bool TryGetEntityByComponent<T>(out IEntity outEntity) where T : IComponent, new()
+        {
+            var provider = ComponentProvider<T>.ComponentsToWorld.Data[Index];
+
+            for (int i = 0; i < provider.Components.Length; i++)
+            {
+                if (provider.Components[i] != null && provider.Components[i].IsAlive)
+                {
+                    outEntity = provider.Components[i].Owner;
+                    return true;
+                }
+            }
+
+            outEntity = null;
+            return false;
         }
 
         public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)

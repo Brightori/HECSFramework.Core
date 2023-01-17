@@ -51,7 +51,11 @@ namespace HECSFramework.Core
         public  T GetOrAddComponent(int index)
         {
             if (Has(index))
-                return  Components[index];
+            {
+                Components[index].IsAlive = true;
+                return Components[index];
+            }
+                
 
             return  AddComponent(index);
         }

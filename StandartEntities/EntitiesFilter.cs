@@ -1,36 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Codice.CM.Client.Differences;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class EntitiesFilter
+    public sealed class ArchiType : IEquatable<ArchiType>
     {
-        private readonly World world;
-        private HashSet<ushort> check = new HashSet<ushort>(512);
-        private HECSList<ushort> entities = new HECSList<ushort>(512);
+        private HashSet<int> check = new HashSet<int>(512);
+        private HECSList<int> entities = new HECSList<int>(512);
         private HECSList<int> include = new HECSList<int>(4);
         private HECSList<int> exclude = new HECSList<int>(4);
-
-        public bool IsNeedFullUpdate;
+        private World world;
 
         public int Count => entities.Count;
-        public ref ushort[] Entities => ref entities.Data;
+        public ref int[] Entities => ref entities.Data;
 
-        internal EntitiesFilter(World world)
+        public int IncludeHash { get; private set; }
+        public int ExcludeHash { get; private set; }
+
+        public override bool Equals(object obj)
         {
-            this.world = world;
+            return obj is ArchiType type &&
+                   EqualityComparer<HECSList<int>>.Default.Equals(include, type.include) &&
+                   EqualityComparer<HECSList<int>>.Default.Equals(exclude, type.exclude) &&
+                   IncludeHash == type.IncludeHash &&
+                   ExcludeHash == type.ExcludeHash;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public World GetWorld()
+        public bool Equals(ArchiType other)
         {
-            return world;
+            return other.IncludeHash == IncludeHash && other.ExcludeHash == ExcludeHash;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator()
+        public override int GetHashCode()
         {
-            return new Enumerator(this);
+            return HashCode.Combine(IncludeHash, ExcludeHash);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,8 +70,6 @@ namespace HECSFramework.Core
                 }
 
                 check.Add(currentEntity.Index);
-            //AddEntityToFilter(currentEntity);
-
             exit:;
             }
 
@@ -77,10 +80,41 @@ namespace HECSFramework.Core
                 entities.Add(entity);
             }
         }
+    }
 
-        public EntitiesFilter With<T>() where T : struct, IData
+
+    public sealed partial class EntitiesFilter : IDisposable
+    {
+        private readonly World world;
+
+
+        public ArchiType ArchiType;
+
+        public int Count => ArchiType.Count;
+        public ref int[] Entities => ref ArchiType.Entities;
+
+        internal EntitiesFilter(World world)
         {
-            var TIndex = FastComponentProvider<T>.ComponentsToWorld.Data[world.Index].TypeIndex;
+            this.world = world;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public World GetWorld()
+        {
+            return world;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+       
+
+        public EntitiesFilter With<T>() where T : class, IComponent, new()
+        {
+            var TIndex = ComponentProvider<T>.TypeIndex;
 
             if (!include.Contains(TIndex))
                 include.Add(TIndex);
@@ -103,7 +137,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RemoveEntityFromFilter(FastEntity fastEntity)
+        private void RemoveEntityFromFilter(IEntity fastEntity)
         {
             check.Remove(fastEntity.Index);
         }
@@ -118,13 +152,18 @@ namespace HECSFramework.Core
             entities.Add(neededIndex);
         }
 
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
         public ref struct Enumerator
         {
             readonly EntitiesFilter filter;
-            readonly ushort[] entities;
+            readonly int[] entities;
             readonly int count;
             private int currentStep;
-            private FastEntity[] fastEntities;
+            private IEntity[] fastEntities;
 
             public Enumerator(EntitiesFilter filter)
             {
@@ -132,10 +171,10 @@ namespace HECSFramework.Core
                 entities = filter.entities.Data;
                 count = filter.entities.Count;
                 currentStep = -1;
-                fastEntities = filter.world.FastEntities;
+                fastEntities = filter.world.Entities;
             }
 
-            public ref FastEntity Current
+            public ref IEntity Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => ref fastEntities[entities[currentStep]];

@@ -5,7 +5,7 @@ using HECSFramework.Core;
 
 namespace Systems
 {
-    public sealed class WaitingCommandsSystems : BaseSystem, IReactComponent, IReactEntity, IUpdatableDelta, IReactGlobalCommand<WaitAndEntityCallbackCommand>, IReactGlobalCommand<WaitAndCallbackCommand>
+    public sealed class WaitingCommandsSystems : BaseSystem, IReactEntity, IUpdatableDelta, IReactGlobalCommand<WaitAndEntityCallbackCommand>, IReactGlobalCommand<WaitAndCallbackCommand>
     {
         private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
 
@@ -23,19 +23,6 @@ namespace Systems
             removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
         }
 
-        public void ComponentReact<T>(T component, bool isAdded) where T: IComponent
-        {
-        //todo проверить почему сюда прилетает нал
-            if (component == null)
-                return;
-
-            if (waitingCommands.TryGetValue(component.ComponentsMask, out var globalCommands))
-            {
-                while (globalCommands.Count > 0)
-                    globalCommands.Dequeue().NowYourTime(Owner.WorldId);
-            }
-        }
-
         public void EntityReact(IEntity entity, bool isAdded)
         {
             if (isAdded)
@@ -43,7 +30,7 @@ namespace Systems
                 foreach (var kv in waitingCommands)
                 {
                     var key = kv.Key;
-                    if (entity.ContainsMask(ref key))
+                    if (entity.ContainsMask(key.TypeHashCode))
                     {
                         while (kv.Value.Count > 0)
                         {

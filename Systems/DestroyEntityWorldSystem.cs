@@ -21,7 +21,7 @@ namespace Systems
                 var entity = entitiesForDelete.Dequeue();
 
                 if (entity != null && entity.IsAlive)
-                    entity.HecsDestroy();
+                    entity.Dispose();
             }
         }
 

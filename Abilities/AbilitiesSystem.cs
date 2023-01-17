@@ -15,7 +15,7 @@ namespace Systems
         public void AfterEntityInit()
         {
             foreach (var a in abilitiesHolderComponent.Abilities)
-                a.Init();
+                a.Init(Owner.World);
 
             Owner.Command(new AbilitiesReadyCommand());
         }

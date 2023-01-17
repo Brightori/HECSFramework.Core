@@ -23,7 +23,7 @@ namespace HECSFramework.Core
         bool IsDirty { get; }
 
         HashSet<int> Components { get; }
-        List<ISystem> GetAllSystems { get; }
+        HECSList<ISystem> GetAllSystems { get; }
 
         IEnumerable<T> GetComponentsByType<T>();
         
