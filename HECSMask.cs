@@ -33,69 +33,81 @@ namespace HECSFramework.Core
         }
     }
 
-    public struct FilterMask
+
+    public struct Filter 
     {
-        public HECSMask Mask01;
-        public HECSMask Mask02;
-        public HECSMask Mask03;
-        public HECSMask Mask04;
-        public HECSMask Mask05;
-        public HECSMask Mask06;
+        public int Mask01;
+        public int Mask02;
+        public int Mask03;
+        public int Mask04;
+        public int Mask05;
+        public int Mask06;
+        public int Mask07;
 
         public int Lenght;
+        public int SummaryHash;
 
-        public HECSMask this[int index]
+
+        public int this[int index]
         {
             get
             {
-                if (index == 0 && Mask01.TypeHashCode != 0)
+                if (index == 0)
                     return Mask01;
-                if (index == 1 && Mask02.TypeHashCode != 0)
+                if (index == 1)
                         return Mask02;
-                if (index == 2 && Mask03.TypeHashCode != 0)
+                if (index == 2)
                     return Mask03;
-                if (index == 3 && Mask04.TypeHashCode != 0)
+                if (index == 3)
                     return Mask04;
-                if (index == 4 && Mask05.TypeHashCode != 0)
+                if (index == 4)
                     return Mask05;
-                if (index == 5 && Mask06.TypeHashCode != 0)
+                if (index == 5)
                     return Mask06;
+                if (index == 6)
+                    return Mask07;
 
-                return HECSMask.Empty;
+                return 0;
             }
         }
 
-        public FilterMask(HECSMask mask01) : this()
+        #region Constructors
+
+        public Filter(int mask01) : this()
         {
             Mask01 = mask01;
             Lenght = 1;
+            GetHashCode();
         }
         
-        public FilterMask(HECSMask mask01, HECSMask mask02) : this()
+        public Filter(int mask01, int mask02) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
             Lenght = 2;
+            GetHashCode();
         }
 
-        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03) : this()
+        public Filter(int mask01, int mask02, int mask03) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
             Mask03 = mask03;
             Lenght = 3;
+            GetHashCode();
         } 
         
-        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04) : this()
+        public Filter(int mask01, int mask02, int mask03, int mask04) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
             Mask03 = mask03;
             Mask04 = mask04;
             Lenght = 4;
+            GetHashCode();
         }
 
-        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04, HECSMask mask05) : this()
+        public Filter(int mask01, int mask02, int mask03, int mask04, int mask05) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
@@ -103,8 +115,9 @@ namespace HECSFramework.Core
             Mask04 = mask04;
             Mask05 = mask05;
             Lenght = 5;
+            GetHashCode();
         }
-        public FilterMask(HECSMask mask01, HECSMask mask02, HECSMask mask03, HECSMask mask04, HECSMask mask05, HECSMask mask06)
+        public Filter(int mask01, int mask02, int mask03, int mask04, int mask05, int mask06) : this()
         {
             Mask01 = mask01;
             Mask02 = mask02;
@@ -113,40 +126,138 @@ namespace HECSFramework.Core
             Mask05 = mask05;
             Mask06 = mask06;
             Lenght = 6;
+            GetHashCode();
         }
 
+        public Filter(int mask01, int mask02, int mask03, int mask04, int mask05, int mask06, int mask07) : this()
+        {
+            Mask01 = mask01;
+            Mask02 = mask02;
+            Mask03 = mask03;
+            Mask04 = mask04;
+            Mask05 = mask05;
+            Mask06 = mask06;
+            Mask07 = mask07;
+            Lenght = 7;
+            GetHashCode();
+        }
+        #endregion
+
+        public void AddToHashSet(HashSet<int> typesHashes)
+        {
+            for (int i = 0; i < Lenght; i++)
+            {
+                if (this[i] != 0)
+                    typesHashes.Add(this[i]);
+            }
+        }
+
+        public static Filter Get<T>() where T: IComponent, new()
+        {
+            return new Filter(ComponentProvider<T>.TypeIndex);
+        }
+
+        public static Filter Get<T,U>() where T : IComponent, new() where U : IComponent, new()
+        {
+            return new Filter(ComponentProvider<T>.TypeIndex, ComponentProvider<U>.TypeIndex);
+        }
+
+        public static Filter Get<T, U, Z>() 
+            where T : IComponent, new() 
+            where U : IComponent, new()
+            where Z : IComponent, new()
+        {
+            return new Filter(ComponentProvider<T>.TypeIndex, ComponentProvider<U>.TypeIndex, ComponentProvider<Z>.TypeIndex);
+        }
+
+        public static Filter Get<T, U, Z, S>()
+          where T : IComponent, new()
+          where U : IComponent, new()
+          where Z : IComponent, new()
+          where S : IComponent, new()
+        {
+            return new Filter(
+                ComponentProvider<T>.TypeIndex, 
+                ComponentProvider<U>.TypeIndex, 
+                ComponentProvider<Z>.TypeIndex,
+                ComponentProvider<S>.TypeIndex);
+        }
+
+        public static Filter Get<T, U, Z, S, X>()
+         where T : IComponent, new()
+         where U : IComponent, new()
+         where Z : IComponent, new()
+         where S : IComponent, new()
+         where X : IComponent, new()
+        {
+            return new Filter(
+                ComponentProvider<T>.TypeIndex,
+                ComponentProvider<U>.TypeIndex,
+                ComponentProvider<Z>.TypeIndex,
+                ComponentProvider<X>.TypeIndex,
+                ComponentProvider<S>.TypeIndex);
+        }
+
+        public static Filter Get<T, U, Z, S, X, L>()
+        where T : IComponent, new()
+        where U : IComponent, new()
+        where Z : IComponent, new()
+        where S : IComponent, new()
+        where X : IComponent, new()
+        where L : IComponent, new()
+        {
+            return new Filter(
+                ComponentProvider<T>.TypeIndex,
+                ComponentProvider<U>.TypeIndex,
+                ComponentProvider<Z>.TypeIndex,
+                ComponentProvider<X>.TypeIndex,
+                ComponentProvider<L>.TypeIndex,
+                ComponentProvider<S>.TypeIndex);
+        }
+
+        public static Filter Get<T, U, Z, S, X, L, F>()
+        where T : IComponent, new()
+        where U : IComponent, new()
+        where Z : IComponent, new()
+        where S : IComponent, new()
+        where X : IComponent, new()
+        where L : IComponent, new()
+        where F : IComponent, new()
+        {
+            return new Filter(
+                ComponentProvider<T>.TypeIndex,
+                ComponentProvider<U>.TypeIndex,
+                ComponentProvider<Z>.TypeIndex,
+                ComponentProvider<X>.TypeIndex,
+                ComponentProvider<L>.TypeIndex,
+                ComponentProvider<F>.TypeIndex,
+                ComponentProvider<S>.TypeIndex);
+        }
+
+        #region EqualsHashOverrides
         public override bool Equals(object obj)
         {
-            return obj is FilterMask mask &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask01, mask.Mask01) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask02, mask.Mask02) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask03, mask.Mask03) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask04, mask.Mask04) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask05, mask.Mask05) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask06, mask.Mask06);
+            return obj is Filter mask && mask.SummaryHash == SummaryHash;
+                   
         }
-        public bool Equals(FilterMask mask)
+        public bool Equals(Filter mask)
         {
-            return EqualityComparer<HECSMask>.Default.Equals(Mask01, mask.Mask01) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask02, mask.Mask02) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask03, mask.Mask03) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask04, mask.Mask04) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask05, mask.Mask05) &&
-                   EqualityComparer<HECSMask>.Default.Equals(Mask06, mask.Mask06);
+            return mask.SummaryHash == SummaryHash;
         }
 
         public override int GetHashCode()
         {
-            int hashCode = -830334321;
-            hashCode = hashCode * -1521134295 + Mask01.GetHashCode();
-            hashCode = hashCode * -1521134295 + Mask02.GetHashCode();
-            hashCode = hashCode * -1521134295 + Mask03.GetHashCode();
-            hashCode = hashCode * -1521134295 + Mask04.GetHashCode();
-            hashCode = hashCode * -1521134295 + Mask05.GetHashCode();
-            hashCode = hashCode * -1521134295 + Mask06.GetHashCode();
-            return hashCode;
+            SummaryHash = 0;
+            SummaryHash += Mask01;
+            SummaryHash += Mask02;
+            SummaryHash += Mask03;
+            SummaryHash += Mask04;
+            SummaryHash += Mask05;
+            SummaryHash += Mask06;
+            SummaryHash += Mask07;
+            return SummaryHash;
         }
-        public static FilterMask operator -(FilterMask left, HECSMask right)
+        public static Filter operator -(Filter left, HECSMask right)
         {
             left.Lenght--;
             if (left.Mask01.Equals(right))
@@ -181,152 +292,8 @@ namespace HECSFramework.Core
             }
             left.Lenght++;
             return left;
-        }   
-    }
-
-    public class HECSMultiMask
-    {
-        public List<int> CurrentIndexes = new List<int>(8);
-        private readonly byte[] Components = new byte[TypesMap.SizeOfComponents];
-
-        public HECSMultiMask() { }
-
-        public HECSMultiMask(HECSMask mask, params HECSMask[] masks)
-        {
-            CurrentIndexes.Add(mask.Index);
-            Components[mask.Index] = 1;
-
-            for (int i = 0; i < masks.Length; i++)
-            {
-                Components[masks[i].Index] = 1;
-                CurrentIndexes.AddUniqueElement(masks[i].Index);
-            }
         }
 
-        public HECSMultiMask(FilterMask mask)
-        {
-            if (mask.Mask01.TypeHashCode != 0)
-                AddMask(mask.Mask01.Index);
-
-            if (mask.Mask02.TypeHashCode != 0)
-                AddMask(mask.Mask02.Index);
-
-            if (mask.Mask03.TypeHashCode != 0)
-                AddMask(mask.Mask03.Index);
-            
-            if (mask.Mask04.TypeHashCode != 0)
-                AddMask(mask.Mask04.Index);
-            
-            if (mask.Mask05.TypeHashCode != 0)
-                AddMask(mask.Mask05.Index);
-
-            if (mask.Mask06.TypeHashCode != 0)
-                AddMask(mask.Mask06.Index);
-        }
-
-        public void AddMask(int index)
-        {
-            CurrentIndexes.Add(index);
-            Components[index] = 1;
-        }
-
-        public void RemoveMask(int index)
-        {
-            CurrentIndexes.Remove(index);
-            Components[index] = 0;
-        }
-
-        public bool Contains(HECSMultiMask multiMask)
-        {
-            var indexes = multiMask.CurrentIndexes;
-            var count = indexes.Count;
-
-            if (count == 0)
-                return false;
-
-            for (int i = 0; i < count; i++)
-            {
-                if (Components[indexes[i]] == 0)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool Contains(FilterMask multiMask)
-        {
-            for (int i = 0; i < multiMask.Lenght; i++)
-            {
-                if (Components[multiMask[i].Index] == 0)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool Contains(HECSMask mask)
-        {
-            return Components[mask.Index] == 1;
-        }
-
-        public bool Contains(HECSMask mask1, HECSMask mask2)
-        {
-            return Contains(mask1) && Contains(mask2);
-        }
-
-        public bool ContainsAny(HECSMask mask1, HECSMask mask2)
-        {
-            return Contains(mask1) || Contains(mask2);
-        }
-
-        public bool Contains(HECSMask mask1, HECSMask mask2, HECSMask mask3)
-        {
-            return Contains(mask1) && Contains(mask2) && Contains(mask3);
-        }
-
-        public bool Contains(HECSMask mask1, HECSMask mask2, HECSMask mask3, HECSMask mask4)
-        {
-            return Contains(mask1, mask2) && Contains(mask3, mask4);
-        }
-
-        public bool Contains(HECSMask mask, params HECSMask[] moreMasks)
-        {
-            return Contains(mask) && Contains(moreMasks);
-        }
-
-        private bool Contains(HECSMask[] array)
-        {
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (Components[array[i].Index] == 0)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool ContainsAny(FilterMask mask)
-        {
-            for (int i = 0; i < mask.Lenght; i++)
-            {
-                var currentMask = mask[i];
-
-                if (Contains(currentMask))
-                    return true;
-            }
-
-            return false;
-        }
-
-        internal bool ContainsAny(HECSMultiMask mask)
-        {
-            foreach (var index in mask.CurrentIndexes)
-            {
-                if (Components[index] == 1)
-                    return true;
-            }
-
-            return false;
-        }
+        #endregion
     }
 }

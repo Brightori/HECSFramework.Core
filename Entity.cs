@@ -45,7 +45,7 @@ namespace HECSFramework.Core
                 return "Container Empty";
             }
         }
-        public int EntityIndex => entityIndex;
+        public int Index => entityIndex;
 
         public bool IsDirty { get; }
         public int Generation { get; set; }
@@ -147,7 +147,7 @@ namespace HECSFramework.Core
         {
             foreach (var c in components)
             {
-                if (World.GetComponentProvider(c).GetIComponent(EntityIndex) is T needed)
+                if (World.GetComponentProvider(c).GetIComponent(Index) is T needed)
                     yield return needed;
             }
         }

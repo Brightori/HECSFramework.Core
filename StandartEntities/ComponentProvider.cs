@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Codice.CM.Client.Differences;
 
 namespace HECSFramework.Core
 {

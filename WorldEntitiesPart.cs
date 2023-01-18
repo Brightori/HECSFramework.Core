@@ -57,19 +57,19 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessAddedEntity(IEntity entity)
         {
-            if (entity.EntityIndex == -1)
+            if (entity.Index == -1)
             {
                 ref var getEntity = ref PullEntity();
-                entity.SetID(getEntity.EntityIndex);
+                entity.SetID(getEntity.Index);
                 getEntity = entity;
             }
 
             registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
-            RegisterDirtyEntity(entity.EntityIndex);
+            RegisterDirtyEntity(entity.Index);
 
             foreach (var c in entity.Components)
             {
-                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.EntityIndex);
+                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
 
                 //here we add unity part
                 ComponentAdditionalProcessing(icomponent, entity);
@@ -166,7 +166,7 @@ namespace HECSFramework.Core
             if (entity.IsAlive)
                 entity.Dispose();
 
-            freeIndices.Enqueue(entity.EntityIndex);
+            freeIndices.Enqueue(entity.Index);
         }
     }
 

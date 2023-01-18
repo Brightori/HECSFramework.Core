@@ -14,7 +14,7 @@ namespace HECSFramework.Core
         Guid GUID { get; }
         string ID { get; }
         string ContainerID { get; }
-        int EntityIndex { get; }
+        int Index { get; }
         int Generation { get; set; }
 
         bool IsInited { get; }
