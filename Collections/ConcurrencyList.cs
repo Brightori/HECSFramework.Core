@@ -33,7 +33,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HECSList()
         {
-            this.capacity = 3;
+            this.capacity = 4;
             this.Data = new T[this.capacity];
             this.length = 0;
 

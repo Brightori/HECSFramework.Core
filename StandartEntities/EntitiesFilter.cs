@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class EntitiesFilter
+    public sealed partial class EntitiesFilter : IEquatable<EntitiesFilter>
     {
         private readonly World world;
         private HashSet<int> check = new HashSet<int>(512);
@@ -12,6 +13,12 @@ namespace HECSFramework.Core
         private HECSList<int> exclude = new HECSList<int>(4);
 
         public bool IsNeedFullUpdate;
+        
+        private int includeHash;
+        private int excludeHash;
+
+        public int IncludeHash { get => includeHash;}
+        public int ExcludeHash { get => excludeHash; }
 
         public int Count => entities.Count;
         public ref int[] Entities => ref entities.Data;
@@ -19,11 +26,19 @@ namespace HECSFramework.Core
         internal EntitiesFilter(World world, Filter include, Filter exclude)
         {
             this.world = world;
+            include.AddToHashSet(this.include);
+            exclude.AddToHashSet(this.exclude);
+            
+            includeHash = includeHash.GetHashCode();
+            excludeHash = excludeHash.GetHashCode();
         }
 
         internal EntitiesFilter(World world, Filter include)
         {
             this.world = world;
+            include.AddToHashSet(this.include);
+            includeHash = includeHash.GetHashCode();
+            world.RegisterEntityFilter(this);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -39,13 +54,13 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void UpdateFilter(ushort[] updatedEntities, int lenght)
+        internal void UpdateFilter(int[] updatedEntities, int lenght)
         {
             for (int i = 0; i < lenght; i++)
             {
-                ref var currentEntity = ref world.FastEntities[updatedEntities[i]];
+                ref var currentEntity = ref world.Entities[updatedEntities[i]];
 
-                if (!currentEntity.IsReady)
+                if (!currentEntity.IsAlive)
                 {
                     check.Remove(currentEntity.Index);
                     continue;
@@ -53,7 +68,7 @@ namespace HECSFramework.Core
 
                 for (int z = 0; z < include.Count; z++)
                 {
-                    if (!currentEntity.ComponentIndeces.Contains(include.Data[z]))
+                    if (!currentEntity.Components.Contains(include.Data[z]))
                     {
                         check.Remove(currentEntity.Index);
                         goto exit;
@@ -62,7 +77,7 @@ namespace HECSFramework.Core
 
                 for (int x = 0; x < exclude.Count; x++)
                 {
-                    if (currentEntity.ComponentIndeces.Contains(exclude.Data[x]))
+                    if (currentEntity.Components.Contains(exclude.Data[x]))
                     {
                         check.Remove(currentEntity.Index);
                         goto exit;
@@ -70,7 +85,7 @@ namespace HECSFramework.Core
                 }
 
                 check.Add(currentEntity.Index);
-                exit:;
+            exit:;
             }
 
             entities.ClearFast();
@@ -79,6 +94,26 @@ namespace HECSFramework.Core
             {
                 entities.Add(entity);
             }
+        }
+
+        public void ForceUpdateFilter()
+        {
+            world.ForceUpdateFilter(this);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is EntitiesFilter filter && filter.GetHashCode() == GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return includeHash + excludeHash;
+        }
+
+        public bool Equals(EntitiesFilter other)
+        {
+            return other.GetHashCode() == GetHashCode();
         }
 
         public ref struct Enumerator

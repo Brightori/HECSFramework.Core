@@ -45,8 +45,6 @@ namespace HECSFramework.Core
         public int Mask07;
 
         public int Lenght;
-        public int SummaryHash;
-
 
         public int this[int index]
         {
@@ -152,6 +150,16 @@ namespace HECSFramework.Core
             }
         }
 
+        public void AddToHashSet(HECSList<int> typesHashes)
+        {
+            for (int i = 0; i < Lenght; i++)
+            {
+                if (this[i] != 0)
+                    typesHashes.Add(this[i]);
+            }
+        }
+
+
         public static Filter Get<T>() where T: IComponent, new()
         {
             return new Filter(ComponentProvider<T>.TypeIndex);
@@ -237,25 +245,25 @@ namespace HECSFramework.Core
         #region EqualsHashOverrides
         public override bool Equals(object obj)
         {
-            return obj is Filter mask && mask.SummaryHash == SummaryHash;
+            return obj is Filter mask && mask.GetHashCode() == GetHashCode();
                    
         }
         public bool Equals(Filter mask)
         {
-            return mask.SummaryHash == SummaryHash;
+            return mask.GetHashCode() == GetHashCode();
         }
 
         public override int GetHashCode()
         {
-            SummaryHash = 0;
-            SummaryHash += Mask01;
-            SummaryHash += Mask02;
-            SummaryHash += Mask03;
-            SummaryHash += Mask04;
-            SummaryHash += Mask05;
-            SummaryHash += Mask06;
-            SummaryHash += Mask07;
-            return SummaryHash;
+            int summaryHash = 0;
+            summaryHash += Mask01;
+            summaryHash += Mask02;
+            summaryHash += Mask03;
+            summaryHash += Mask04;
+            summaryHash += Mask05;
+            summaryHash += Mask06;
+            summaryHash += Mask07;
+            return summaryHash;
         }
         public static Filter operator -(Filter left, HECSMask right)
         {

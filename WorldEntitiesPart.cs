@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HECSFramework.Core.Helpers;
-using static UnityEngine.UI.GridLayoutGroup;
+using Helpers;
 
 namespace HECSFramework.Core
 {
@@ -15,11 +15,51 @@ namespace HECSFramework.Core
         private Queue<int> freeIndices = new Queue<int>();
 
         //dirty entities should be processing 
-        private HashSet<int> dirtyEntities = new HashSet<int>(32);
+        private HECSList<int> dirtyEntities = new HECSList<int>(32);
         private HECSList<RegisterEntity> registerEntity = new HECSList<RegisterEntity>(32);
 
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
-        private HECSList<EntitiesFilter> entityFilters = new HECSList<EntitiesFilter>(8);
+        private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int,EntitiesFilter>(8);
+
+        public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
+        public EntitiesFilter GetFilter(Filter inclide) => GetFilterFromCache(inclide, new Filter());
+        public EntitiesFilter GetFilter(Filter inclide, Filter exclude) => GetFilterFromCache(inclide, exclude);
+
+        private EntitiesFilter GetFilterFromCache(Filter include, Filter exclude)
+        {
+            var key = include.GetHashCode() + exclude.GetHashCode();
+
+            if (entitiesFilters.TryGetValue(key, out var filter))
+                return filter;
+
+
+            return new EntitiesFilter(this, include, exclude);
+        }
+
+     
+        public void RegisterEntityFilter(EntitiesFilter filter)
+        {
+            var key = filter.GetHashCode();
+            if (entitiesFilters.ContainsKey(key))
+                throw new Exception("we alrdy have filter with this key, probably u should use getfilter on the world, instead of manualy creating");
+
+            entitiesFilters.Add(key, filter);
+
+            var pool = HECSPooledArray<int>.GetArray(Entities.Length);
+            
+            for (int i = 0; i < Entities.Length; i++)
+            {
+                pool.Items[i] = i;
+            }
+
+            filter.UpdateFilter(pool.Items, Entities.Length);
+            pool.Release();
+        }
+
+        public void ForceUpdateFilter(EntitiesFilter filter)
+        {
+            filter.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+        }
 
         private void InitStandartEntities()
         {
@@ -104,6 +144,18 @@ namespace HECSFramework.Core
         {
             if (entity.World == this)
                 return;
+
+            if (entity.World == this)
+                return;
+
+            var previousWorld = entity.World;
+            var previousIndex = entity.Index;
+            var freeIndex = PullEntity();
+
+            entity.SetID(freeIndex.Index);
+            Entities[freeIndex.Index] = entity;
+
+
         }
 
         public void RegisterDirtyEntity(int index)
