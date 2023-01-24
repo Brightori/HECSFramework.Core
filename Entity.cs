@@ -1,33 +1,34 @@
-using Components;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
+using Components;
+using HECSFramework.Core.Helpers;
+using Helpers;
+using UnityEngine.Rendering.VirtualTexturing;
 
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed partial class Entity : IEntity
+    public sealed partial class Entity
     {
-        private int entityIndex;
-        private readonly HECSList<ISystem> systems = new HECSList<ISystem>();
-        private readonly HashSet<int> components = new HashSet<int>(8);
+        public readonly HECSList<ISystem> Systems = new HECSList<ISystem>();
+        public readonly HashSet<int> Components = new HashSet<int>(8);
 
         public int WorldId => World.Index;
+        public World World;
 
-        public World World { get; private set; }
+        public Guid GUID;
+        public string ID;
 
-        public Guid GUID { get; private set; }
-        public string ID { get; private set; }
+        public readonly EntityLocalCommandService EntityCommandService = new EntityLocalCommandService();
+        public readonly LocalComponentListenersService RegisterComponentListenersService = new LocalComponentListenersService();
 
-        public HashSet<int> Components => components; 
-        public HECSList<ISystem> GetAllSystems => systems;
+        public bool IsInited;
+        public bool IsAlive = true;
+        public bool IsPaused;
 
-        public EntityLocalCommandService EntityCommandService { get; } = new EntityLocalCommandService();
-        public LocalComponentListenersService RegisterComponentListenersService { get; } = new LocalComponentListenersService();
-
-        public bool IsInited { get; private set; }
-        public bool IsAlive { get; private set; } = true;
-        public bool IsPaused { get; private set; }
+        public int Index;
+        public bool IsDirty;
 
         /// <summary>
         /// this is slow method, purpose - using at Editor or for debugging
@@ -45,22 +46,18 @@ namespace HECSFramework.Core
                 return "Container Empty";
             }
         }
-        public int Index => entityIndex;
-
-        public bool IsDirty { get; }
-        public int Generation { get; set; }
 
         public Entity(string id = "Empty")
         {
             World = EntityManager.Default;
-            entityIndex = EntityManager.Default.GetEntityFreeIndex();
+            Index = EntityManager.Default.GetEntityFreeIndex();
             GenerateGuid();
         }
 
         public Entity(World world, string id = "Empty")
         {
             GenerateGuid();
-            entityIndex = world.GetEntityFreeIndex();
+            Index = world.GetEntityFreeIndex();
         }
 
         /// <summary>
@@ -73,7 +70,7 @@ namespace HECSFramework.Core
         public Entity(World world, int index, string id = "Empty")
         {
             GenerateGuid();
-            entityIndex = index;
+            Index = index;
         }
 
         public void SetID(string id)
@@ -83,10 +80,9 @@ namespace HECSFramework.Core
 
         public void Init(World world)
         {
-           
+            World = world;
+            world.RegisterEntity(this, true);
         }
-
-
 
         public void Command<T>(T command) where T : struct, ICommand
         {
@@ -96,18 +92,33 @@ namespace HECSFramework.Core
             EntityCommandService.Invoke(command);
         }
 
-        //this method for actor
-       
-      
 
         public void Dispose()
         {
-           
+            Clean();
+            World.RegisterEntity(this, false);
+        }
+
+        private void Clean()
+        {
+            foreach (var c in Components)
+                World.GetComponentProvider(c).RemoveComponent(Index);
+
+            var pool = HECSPooledArray<ISystem>.GetArray(64);
+
+            foreach (var s in Systems)
+                pool.Add(s);
+
+            for (int i = 0; i < pool.Count; i++)
+                RemoveHecsSystem(pool.Items[i]);
+
+            Systems.Clear();
+            pool.Release();
         }
 
         public bool TryGetSystem<T>(out T system) where T : ISystem
         {
-            foreach (var s in systems)
+            foreach (var s in Systems)
             {
                 if (s is T casted)
                 {
@@ -120,12 +131,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public void GenerateId()
-        {
-            GUID = System.Guid.NewGuid();
-        }
-
-        public bool Equals(IEntity other)
+        public bool Equals(Entity other)
         {
             return other.GUID == GUID;
         }
@@ -143,20 +149,14 @@ namespace HECSFramework.Core
             GUID = guid;
         }
 
-        public IEnumerable<T> GetComponentsByType<T>() 
+        public IEnumerable<T> GetComponentsByType<T>()
         {
-            foreach (var c in components)
+            foreach (var c in Components)
             {
                 if (World.GetComponentProvider(c).GetIComponent(Index) is T needed)
                     yield return needed;
             }
         }
-
-        public void SetID(int index)
-        {
-            entityIndex = index;
-        }
-
 
         public override int GetHashCode()
         {
@@ -165,25 +165,22 @@ namespace HECSFramework.Core
 
         public override bool Equals(object obj)
         {
-            return obj is IEntity entity && entity.GUID == GUID;
+            return obj is Entity entity && entity.GUID == GUID;
         }
-
-     
-
 
         #region Mask
 
         public bool ContainsMask<T>() where T : IComponent, new()
         {
             var index = ComponentProvider<T>.TypeIndex;
-            return components.Contains(index);
+            return Components.Contains(index);
         }
 
         public bool ContainsMask(HashSet<int> mask)
         {
             foreach (var m in mask)
             {
-                foreach (var c in components)
+                foreach (var c in Components)
                 {
                     if (m != c)
                         return false;
@@ -197,7 +194,7 @@ namespace HECSFramework.Core
         {
             foreach (var m in mask)
             {
-                foreach (var c in components)
+                foreach (var c in Components)
                 {
                     if (m == c)
                         return true;
@@ -206,11 +203,11 @@ namespace HECSFramework.Core
 
             return false;
         }
-       
-      
+
+
         public bool ContainsMask(int mask)
         {
-            return components.Contains(mask);
+            return Components.Contains(mask);
         }
         #endregion
 
@@ -219,7 +216,7 @@ namespace HECSFramework.Core
         {
             IsPaused = true;
 
-            foreach (var sys in systems)
+            foreach (var sys in Systems)
             {
                 if (sys is IHavePause havePause)
                     havePause.Pause();
@@ -230,7 +227,7 @@ namespace HECSFramework.Core
         {
             IsPaused = false;
 
-            foreach (var sys in systems)
+            foreach (var sys in Systems)
             {
                 if (sys is IHavePause havePause)
                     havePause.UnPause();
@@ -238,30 +235,58 @@ namespace HECSFramework.Core
         }
         #endregion
 
-        public void AddHecsSystem<T>(T system, IEntity owner = null) where T : ISystem
+        public bool AddHecsSystem<T>(T system) where T : ISystem
         {
-            throw new NotImplementedException();
+            system.Owner = this;
+
+            foreach (var s in Systems)
+            {
+                if (s.GetTypeHashCode == system.GetTypeHashCode)
+                    return false;
+            }
+
+            if (IsInited)
+            {
+                TypesMap.BindSystem(system);
+                system.InitSystem();
+                World.RegisterSystem(system);
+
+                if (system is IAfterEntityInit afterSysEntityInit)
+                    afterSysEntityInit.AfterEntityInit();
+            }
+
+            Systems.Add(system);
+            return true;
         }
 
-        public void RemoveHecsSystem(ISystem system)
+        public bool RemoveHecsSystem(ISystem system)
         {
-            throw new NotImplementedException();
+            if (IsInited)
+                World.UnRegisterSystem(system);
+
+            if (!system.IsDisposed)
+                system.Dispose();
+
+            system.ReturnToPool();
+            return Systems.Remove(system);
         }
 
         public bool RemoveHecsSystem<T>() where T : ISystem
         {
-            throw new NotImplementedException();
+            var needed = (T)Systems.FirstOrDefault(x => x is T);
+
+            if (needed != null)
+                return RemoveHecsSystem(needed);
+
+            return false;
         }
 
-        public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, IEntity owner = null)
+        public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, Entity owner = null)
         {
-            throw new NotImplementedException();
-        }
-    }
+            if (!isAdditive)
+                Dispose();
 
-    public interface IChangeWorld
-    {
-        void SetWorld(World world);
-        void SetWorld(int world);
+
+        }
     }
 }

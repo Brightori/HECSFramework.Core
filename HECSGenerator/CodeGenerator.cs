@@ -626,7 +626,7 @@ namespace HECSFramework.Core.Generator
             {
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(2), new SimpleSyntax(AggressiveInline), new ParagraphSyntax()));
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(2),
-                    new SimpleSyntax($"public static {c.Name} Get{c.Name}(this IEntity entity)"), new ParagraphSyntax()));
+                    new SimpleSyntax($"public static {c.Name} Get{c.Name}(this Entity entity)"), new ParagraphSyntax()));
                 body.Add(new LeftScopeSyntax(2));
                 body.Add(new CompositeSyntax(new TabSpaceSyntax(3),
                     new SimpleSyntax($"return entity.ComponentContext.Get{c.Name};"), new ParagraphSyntax()));

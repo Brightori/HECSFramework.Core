@@ -63,18 +63,19 @@ namespace HECSFramework.Core.Helpers
             return false;
         }
 
-        public static void AddOrRemoveElement<T>(this HECSList<T> list, T element, bool add)
+        public static bool AddOrRemoveElement<T>(this HECSList<T> list, T element, bool add)
         {
             if (add)
             {
                 if (list.Contains(element))
-                    return;
+                    return false;
 
                 list.Add(element);
+                return true;
             }
             else
             {
-                list.Remove(element);
+               return list.Remove(element);
             }
         }
 

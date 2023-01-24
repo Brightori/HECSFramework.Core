@@ -5,10 +5,10 @@ namespace HECSFramework.Core
     public abstract class BaseSystem : ISystem
     {
         private int typeHashCode = -1;
-        public IEntity Owner { get; set; }
+        public Entity Owner { get; set; }
         public Guid SystemGuid { get; } = Guid.NewGuid();
 
-        public bool IsDisposed { get; protected set; }
+        public bool IsDisposed { get; set; }
 
         public int GetTypeHashCode
         {
@@ -38,7 +38,7 @@ namespace HECSFramework.Core
         Guid SystemGuid { get; }
         void InitSystem();
         int GetTypeHashCode { get; }
-        bool IsDisposed { get; }
+        bool IsDisposed { get; set; }
     }
    
     public interface IHavePause

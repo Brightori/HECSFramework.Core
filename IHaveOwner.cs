@@ -2,6 +2,6 @@
 {
     public interface IHaveOwner
     {
-        IEntity Owner { get; set; }
+        Entity Owner { get; set; }
     }
 }

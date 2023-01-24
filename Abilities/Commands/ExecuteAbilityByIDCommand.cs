@@ -10,8 +10,8 @@ namespace Commands
     public struct ExecuteAbilityByIDCommand : ICommand
     {
         public int AbilityIndex;
-        public IEntity Target;
-        public IEntity Owner;
+        public Entity Target;
+        public Entity Owner;
         public bool Enable;
         public bool IgnorePredicates;
     }

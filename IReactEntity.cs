@@ -2,7 +2,7 @@
 {
     public interface IReactEntity
     {
-        void EntityReact(IEntity entity, bool isAdded);
+        void EntityReact(Entity entity, bool isAdded);
     }
 
 }

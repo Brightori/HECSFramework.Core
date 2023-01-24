@@ -8,15 +8,15 @@ namespace Commands
     public struct WaitAndEntityCallbackCommand : IGlobalCommand
     {
         public float Timer;
-        public Action<IEntity> CallBack;
+        public Action<Entity> CallBack;
         public bool IsOnRun;
-        public IEntity CallBackWaiter;
+        public Entity CallBackWaiter;
 
         public override bool Equals(object obj)
         {
             return obj is WaitAndEntityCallbackCommand command &&
-                   EqualityComparer<Action<IEntity>>.Default.Equals(CallBack, command.CallBack) &&
-                   EqualityComparer<IEntity>.Default.Equals(CallBackWaiter, command.CallBackWaiter);
+                   EqualityComparer<Action<Entity>>.Default.Equals(CallBack, command.CallBack) &&
+                   EqualityComparer<Entity>.Default.Equals(CallBackWaiter, command.CallBackWaiter);
         }
 
         public override int GetHashCode()

@@ -7,10 +7,10 @@ namespace HECSFramework.Core
     {
         protected sealed class UpdateWithOwnerContainer
         {
-            public IEntity Entity;
+            public Entity Entity;
             public T Updatable;
 
-            public UpdateWithOwnerContainer(IEntity entity, T updatable)
+            public UpdateWithOwnerContainer(Entity entity, T updatable)
             {
                 Entity = entity;
                 Updatable = updatable;

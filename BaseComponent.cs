@@ -5,7 +5,7 @@
         private int getTypeHashCode;
 
         public bool IsAlive { get; set; }
-        public IEntity Owner { get; set; }
+        public Entity Owner { get; set; }
         public int GetTypeHashCode 
         {
             get

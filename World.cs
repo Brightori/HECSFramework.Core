@@ -16,15 +16,15 @@ namespace HECSFramework.Core
 
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
-        private ConcurrentDictionary<HECSMask, IEntity> cacheTryGet = new ConcurrentDictionary<HECSMask, IEntity>();
-        private ConcurrentDictionary<Guid, IEntity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, IEntity>();
+        private ConcurrentDictionary<HECSMask, Entity> cacheTryGet = new ConcurrentDictionary<HECSMask, Entity>();
+        private ConcurrentDictionary<Guid, Entity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, Entity>();
 
         private Dictionary<Type, ISystem> singleSystems = new Dictionary<Type, ISystem>();
         private Dictionary<int, IComponent> singleComponents = new Dictionary<int, IComponent>(16);
 
         private WaitingCommandsSystems waitingCommandsSystems;
 
-        private Queue<IEntity> waintingForInit = new Queue<IEntity>();
+        private Queue<Entity> waintingForInit = new Queue<Entity>();
 
         public bool IsAlive { get; private set; } = true;
         public Guid WorldGuid { get; private set; } = Guid.NewGuid();
@@ -59,7 +59,7 @@ namespace HECSFramework.Core
             IsInited = true;
         }
 
-        public void AddToInit(IEntity entity)
+        public void AddToInit(Entity entity)
         {
             waintingForInit.Enqueue(entity);
         }
@@ -122,7 +122,7 @@ namespace HECSFramework.Core
             GlobalComponentListenerService.RemoveListener<T>(system);
         }
        
-        public IEntity GetEntity(Func<IEntity, bool> func)
+        public Entity GetEntity(Func<Entity, bool> func)
         {
             foreach (var entity in Entities)
             {
@@ -215,7 +215,7 @@ namespace HECSFramework.Core
             return singleComponents.ContainsKey(index);
         }
 
-        public bool TryGetEntityByComponent<T>(out IEntity outEntity) where T : IComponent, new()
+        public bool TryGetEntityByComponent<T>(out Entity outEntity) where T : IComponent, new()
         {
             var provider = ComponentProvider<T>.ComponentsToWorld.Data[Index];
 
@@ -232,7 +232,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public bool TryGetEntityByID(Guid entityGuid, out IEntity entity)
+        public bool TryGetEntityByID(Guid entityGuid, out Entity entity)
         {
             if (cacheTryGetbyGuid.TryGetValue(entityGuid, out entity))
             {

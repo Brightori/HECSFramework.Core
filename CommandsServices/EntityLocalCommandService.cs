@@ -58,10 +58,10 @@ namespace HECSFramework.Core
     {
         private struct ListenerContainer
         {
-            public IEntity Owner;
+            public Entity Owner;
             public IReactCommand<T> Listener;
 
-            public ListenerContainer(IEntity owner, IReactCommand<T> listener)
+            public ListenerContainer(Entity owner, IReactCommand<T> listener)
             {
                 Owner = owner;
                 Listener = listener;

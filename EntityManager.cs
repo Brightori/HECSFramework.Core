@@ -73,7 +73,7 @@ namespace HECSFramework.Core
         {
             foreach (var world in Worlds)
                 foreach (var entity in world.Entities)
-                    foreach (ISystem system in entity.GetAllSystems)
+                    foreach (ISystem system in entity.Systems)
                     {
                         if (system is IOnApplicationQuit sys) sys.OnApplicationExit();
                     }
@@ -99,18 +99,18 @@ namespace HECSFramework.Core
             Instance.worlds.Data[world].Command(command);
         }
        
-        public static void RegisterEntity(IEntity entity, bool add)
+        public static void RegisterEntity(Entity entity, bool add)
         {
             entity.World.RegisterEntity(entity, add);
         }
 
         //todo filter
-        //public static HECSList<IEntity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
-        //public static HECSList<IEntity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
-        //public static HECSList<IEntity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
+        //public static HECSList<Entity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
+        //public static HECSList<Entity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
+        //public static HECSList<Entity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
 
        
-        public static bool TryGetEntityByComponent<T>(out IEntity outEntity, int worldIndex = 0) where T : IComponent, new()
+        public static bool TryGetEntityByComponent<T>(out Entity outEntity, int worldIndex = 0) where T : IComponent, new()
         {
             if (worldIndex == -1)
             {
@@ -179,7 +179,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public static bool TryGetEntityByID(Guid entityGuid, out IEntity entity, int worldIndex = 0)
+        public static bool TryGetEntityByID(Guid entityGuid, out Entity entity, int worldIndex = 0)
         {
             foreach (var w in Worlds)
             {

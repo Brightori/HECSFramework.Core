@@ -7,7 +7,7 @@ namespace Systems
     [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
     public sealed partial class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
     {
-        private Queue<IEntity> entitiesForDelete = new Queue<IEntity>(8);
+        private Queue<Entity> entitiesForDelete = new Queue<Entity>(8);
 
         public override void InitSystem()
         {
@@ -42,6 +42,6 @@ namespace Commands
 {
     public struct DestroyEntityWorldCommand : IGlobalCommand
     {
-        public IEntity Entity;
+        public Entity Entity;
     }
 }

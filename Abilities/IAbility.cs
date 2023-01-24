@@ -4,6 +4,6 @@ namespace HECSFramework.Core
 {
     public interface IAbility 
     {
-        void Execute(IEntity owner = null, IEntity target = null, bool enable = true);
+        void Execute(Entity owner = null, Entity target = null, bool enable = true);
     }
 }

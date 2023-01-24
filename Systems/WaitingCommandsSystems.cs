@@ -23,7 +23,7 @@ namespace Systems
             removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
         }
 
-        public void EntityReact(IEntity entity, bool isAdded)
+        public void EntityReact(Entity entity, bool isAdded)
         {
             if (isAdded)
             {

@@ -64,6 +64,6 @@ namespace Commands
     public struct AddHecsComponentWorldCommand : IGlobalCommand
     {
         public IComponent Component;
-        public IEntity Entity;
+        public Entity Entity;
     }
 }

@@ -16,7 +16,7 @@ namespace Components
         /// <param name="target">передаем сюда цель</param>
         /// <param name="owner">передаем сюда владельца предиката</param>
         /// <returns></returns>
-        public bool IsReady(IEntity target, IEntity owner = null)
+        public bool IsReady(Entity target, Entity owner = null)
         {
             if (Predicates.Count == 0) return true;
 

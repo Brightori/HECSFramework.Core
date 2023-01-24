@@ -2,7 +2,7 @@
 {
     public struct ExecuteReward : ICommand
     {
-        public IEntity Owner;
-        public IEntity Target;
+        public Entity Owner;
+        public Entity Target;
     }
 }

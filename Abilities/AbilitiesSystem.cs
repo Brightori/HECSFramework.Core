@@ -10,8 +10,6 @@ namespace Systems
         [Required]
         public AbilitiesHolderComponent abilitiesHolderComponent;
 
-        private HECSMask actorContainerIDMask = HMasks.GetMask<ActorContainerID>();
-
         public void AfterEntityInit()
         {
             foreach (var a in abilitiesHolderComponent.Abilities)

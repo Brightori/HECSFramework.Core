@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -46,17 +45,17 @@ namespace HECSFramework.Core
             systemsSetters[key].UnBindSystem(system);
         }
 
-        public static void SetComponent(IEntity entity, IComponent component)
+        public static void SetComponent(Entity entity, IComponent component)
         {
             componentsSetters[component.GetTypeHashCode].SetComponent(entity, component);
         }
 
-        public static void RemoveComponent(IEntity entity, IComponent component)
+        public static void RemoveComponent(Entity entity, IComponent component)
         {
             componentsSetters[component.GetTypeHashCode].RemoveComponent(entity, component);
         }
 
-        public static void RegisterComponent(int index, IEntity entity, bool isAdded)
+        public static void RegisterComponent(int index, Entity entity, bool isAdded)
         {
             componentsSetters[index].RegisterComponent(entity, isAdded);
         }
@@ -124,9 +123,9 @@ namespace HECSFramework.Core
 
     public interface IComponentContextSetter
     {
-        void SetComponent(IEntity entity, IComponent component);
-        void RemoveComponent(IEntity entity, IComponent component);
-        void RegisterComponent(IEntity entity, bool isAdded);
+        void SetComponent(Entity entity, IComponent component);
+        void RemoveComponent(Entity entity, IComponent component);
+        void RegisterComponent(Entity entity, bool isAdded);
     }
 
     public interface ISystemSetter 

@@ -10,7 +10,7 @@
         /// <param name="target">здесь нужно указывать кого мы будем проверять в первую очередь</param>
         /// <param name="owner">здесь мы передаем владельца предиката</param>
         /// <returns></returns>
-        bool IsReady(IEntity target, IEntity owner = null);
+        bool IsReady(Entity target, Entity owner = null);
     }
 
     public interface IPredicateContainer

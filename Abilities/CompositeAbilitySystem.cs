@@ -17,7 +17,7 @@ namespace Systems
             abilitiesHolder = Owner.GetComponent<AbilitiesHolderComponent>();
         }
 
-        public override void Execute(IEntity owner = null, IEntity target = null, bool enable = true)
+        public override void Execute(Entity owner = null, Entity target = null, bool enable = true)
         {
             foreach (var a in abilitiesHolder.Abilities)
             {

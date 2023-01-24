@@ -121,7 +121,7 @@ namespace HECSFramework.Core
             readonly int[] entities;
             readonly int count;
             private int currentStep;
-            private IEntity[] fastEntities;
+            private Entity[] fastEntities;
 
             public Enumerator(EntitiesFilter filter)
             {
@@ -131,7 +131,7 @@ namespace HECSFramework.Core
                 fastEntities = filter.world.Entities;
             }
 
-            public ref IEntity Current
+            public ref Entity Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => ref fastEntities[entities[currentStep]];
