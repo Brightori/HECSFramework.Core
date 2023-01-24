@@ -205,8 +205,18 @@ namespace HECSFramework.Core
             entity.Index = freeIndex.Index;
             Entities[freeIndex.Index] = entity;
 
+            foreach (var c in entity.Components)
+            {
+                ref var oldComponent = ref previousWorld.GetComponentProvider(c).GetIComponent(previousIndex);
+            }
+        }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SwapComponents<T>(ref T a, ref T b) where T : IComponent
+        {
+            T temp = a; 
+            a = b;      
+            b = temp;
         }
 
         public void RegisterDirtyEntity(int index)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
@@ -37,33 +38,33 @@ namespace HECSFramework.Core
         {
             Components[index] = component;
             Add(index);
-            return  this.Components[index];
+            return this.Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetComponent(int index)
+        public ref T GetComponent(int index)
         {
-            return Components[index];
+            return ref Components[index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public  T GetOrAddComponent(int index)
+        public T GetOrAddComponent(int index)
         {
             if (Has(index))
             {
                 Components[index].IsAlive = true;
                 return Components[index];
             }
-                
 
-            return  AddComponent(index);
+
+            return AddComponent(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public  T GetOrAddComponent(int index, T component)
+        public T GetOrAddComponent(int index, T component)
         {
             if (Has(index))
-                return  Components[index];
+                return Components[index];
 
             return AddComponent(index, component);
         }
@@ -131,7 +132,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override IComponent GetIComponent(int entityIndex)
         {
-            return GetComponent(entityIndex);
+            return Components[entityIndex];
         }
     }
 
@@ -150,7 +151,7 @@ namespace HECSFramework.Core
         public abstract void AddComponent(int entityIndex, IComponent component);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract IComponent GetIComponent(int entityIndex);
-        
+
         public abstract void RegisterComponent(int entityIndex, bool add);
     }
 }
