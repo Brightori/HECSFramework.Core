@@ -66,12 +66,31 @@ namespace Systems
                 }
             }
         }
+
+        public void CommandReact(AddCounterModifierCommand<int> command)
+        {
+            if (countersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
+            {
+                if (command.IsUnique)
+                    counter.AddUniqueModifier(command.Owner, command.Modifier);
+                else
+                    counter.AddModifier(command.Owner, command.Modifier);
+            }
+        }
+
+        public void CommandReact(RemoveCounterModifierCommand<int> command)
+        {
+            if (countersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
+                counter.RemoveModifier(command.Owner, command.Modifier);
+        }
     }
 
     public interface ICountersHolderSystem : ISystem,
         IReactCommand<AddCounterModifierCommand<float>>,
+        IReactCommand<AddCounterModifierCommand<int>>,
         IReactCommand<AddCounterModifierBySubIDCommand<float>>,
         IReactCommand<RemoveCounterModifierCommand<float>>,
+        IReactCommand<RemoveCounterModifierCommand<int>>,
         IReactCommand<ResetCountersCommand>
     {
     }
