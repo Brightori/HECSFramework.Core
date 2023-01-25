@@ -207,15 +207,15 @@ namespace HECSFramework.Core
 
             foreach (var c in entity.Components)
             {
-                ref var oldComponent = ref previousWorld.GetComponentProvider(c).GetIComponent(previousIndex);
+                
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SwapComponents<T>(ref T a, ref T b) where T : IComponent
+        private void SwapComponents(int indexComponent, int indexFromEntity, World fromWorld, int indexToEntity, World toWorld) 
         {
-            T temp = a; 
-            a = b;      
+            var temp = b.GetComponentProvider(indexComponent).GetIComponent(indexToEntity); 
+            var changeA = b;      
             b = temp;
         }
 
