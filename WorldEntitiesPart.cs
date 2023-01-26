@@ -22,7 +22,7 @@ namespace HECSFramework.Core
         private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int, EntitiesFilter>(8);
 
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
-        public EntitiesFilter GetFilter(Filter inclide) => GetFilterFromCache(inclide, new Filter());
+        public EntitiesFilter GetFilter(Filter include) => GetFilterFromCache(include, new Filter());
         public EntitiesFilter GetFilter(Filter inclide, Filter exclude) => GetFilterFromCache(inclide, exclude);
 
         private SystemRegisterService systemRegisterService = new SystemRegisterService();
