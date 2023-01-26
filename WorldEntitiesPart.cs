@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HECSFramework.Core.Helpers;
 using Helpers;
-using Unity.VisualScripting;
-using UnityEditor.Build.Pipeline.Interfaces;
 
 namespace HECSFramework.Core
 {
