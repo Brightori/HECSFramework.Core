@@ -6,7 +6,7 @@
        public abstract void UnRegisterWorld(World world);
     }
 
-    internal sealed class TypeRegistrator<T> : TypeRegistrator where T : struct, IData
+    internal sealed class TypeRegistrator<T> : TypeRegistrator where T : struct, IFastComponent
     {
         public override void RegisterWorld(World world)
         {

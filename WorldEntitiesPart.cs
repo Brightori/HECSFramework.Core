@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HECSFramework.Core.Helpers;
 using Helpers;
+using Unity.VisualScripting;
 using UnityEditor.Build.Pipeline.Interfaces;
 
 namespace HECSFramework.Core
@@ -11,7 +12,7 @@ namespace HECSFramework.Core
     {
         public Entity[] Entities;
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
-        
+
         //here we have free entities for pooling|using
         private Queue<int> freeIndices = new Queue<int>();
 
@@ -20,7 +21,7 @@ namespace HECSFramework.Core
         private HECSList<RegisterEntity> registerEntity = new HECSList<RegisterEntity>(32);
 
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
-        private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int,EntitiesFilter>(8);
+        private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int, EntitiesFilter>(8);
 
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
         public EntitiesFilter GetFilter(Filter inclide) => GetFilterFromCache(inclide, new Filter());
@@ -39,7 +40,7 @@ namespace HECSFramework.Core
 
             return new EntitiesFilter(this, include, exclude);
         }
-     
+
         public void RegisterEntityFilter(EntitiesFilter filter)
         {
             var key = filter.GetHashCode();
@@ -49,7 +50,7 @@ namespace HECSFramework.Core
             entitiesFilters.Add(key, filter);
 
             var pool = HECSPooledArray<int>.GetArray(Entities.Length);
-            
+
             for (int i = 0; i < Entities.Length; i++)
             {
                 pool.Items[i] = i;
@@ -71,6 +72,13 @@ namespace HECSFramework.Core
 
         private void ProcessDirtyEntities()
         {
+            foreach (var f in entitiesFilters)
+                f.Value.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+
+            foreach (var e in dirtyEntities)
+                Entities[e].IsDirty = false;
+
+            dirtyEntities.Clear();
         }
 
         public ref Entity PullEntity(string id = "empty")
@@ -78,8 +86,10 @@ namespace HECSFramework.Core
             if (freeIndices.TryDequeue(out var result))
             {
                 if (Entities[result] == null)
-                    Entities[result] = new Entity(this,  result, id);
+                    Entities[result] = new Entity(this, result, id);
 
+                Entities[result].IsInited = false;
+                Entities[result].IsAlive = true;
 
                 return ref Entities[result];
             }
@@ -124,15 +134,29 @@ namespace HECSFramework.Core
             foreach (var s in entity.Systems)
             {
                 SystemAdditionalProcessing(s, entity);
+                s.InitSystem();
+            }
 
-                if (s is IInitable initable)
-                    s.InitSystem();
+            foreach (var c in entity.Components)
+            {
+                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
+
+                if (icomponent is IAfterEntityInit initable)
+                    initable.AfterEntityInit();
+            }
+
+            foreach (var s in entity.Systems)
+            {
+                SystemAdditionalProcessing(s, entity);
+
+                if (s is IAfterEntityInit initable)
+                    initable.AfterEntityInit();
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         partial void ComponentAdditionalProcessing(IComponent component, Entity owner);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         partial void SystemAdditionalProcessing(ISystem system, Entity owner);
 
@@ -143,7 +167,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public System GetSystemFromPool<System>(int index) where System: class, ISystem, new()
+        public System GetSystemFromPool<System>(int index) where System : class, ISystem, new()
         {
             if (systemsPool.TryGetValue(index, out var systemStack))
             {
@@ -178,9 +202,6 @@ namespace HECSFramework.Core
             if (entity.World == this)
                 return;
 
-            if (entity.World == this)
-                return;
-
             var previousWorld = entity.World;
             var previousIndex = entity.Index;
             var freeIndex = PullEntity();
@@ -199,28 +220,62 @@ namespace HECSFramework.Core
                 {
                     if (s is IBeforeMigrationToWorld before)
                         before.BeforeMigration();
+
+                    UnRegisterSystem(s);
                 }
             }
 
             entity.Index = freeIndex.Index;
             Entities[freeIndex.Index] = entity;
+            entity.World = this;
 
             foreach (var c in entity.Components)
+                SwapComponents(c, previousIndex, previousWorld, entity.Index, this);
+
+            if (entity.IsInited)
             {
-                
+                foreach (var c in entity.Components)
+                {
+                    var component = previousWorld.GetComponentProvider(c).GetIComponent(previousIndex);
+
+                    if (component is IAfterMigrationToWorld before)
+                        before.AfterMigration();
+                }
+
+                foreach (var s in entity.Systems)
+                {
+                    if (s is IAfterMigrationToWorld before)
+                        before.AfterMigration();
+
+                    TypesMap.BindSystem(s);
+                    RegisterSystem(s);
+                }
             }
+
+            RegisterDirtyEntity(entity.Index);
+            registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
+            previousWorld.RegisterDirtyEntity(previousIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SwapComponents(int indexComponent, int indexFromEntity, World fromWorld, int indexToEntity, World toWorld) 
+        private void SwapComponents(int indexComponent, int indexFromEntity, World fromWorld, int indexToEntity, World toWorld)
         {
-            var temp = b.GetComponentProvider(indexComponent).GetIComponent(indexToEntity); 
-            var changeA = b;      
-            b = temp;
+            var temp = toWorld.GetComponentProvider(indexComponent).GetIComponent(indexToEntity);
+
+            toWorld.GetComponentProvider(indexComponent)
+                .SetIComponent(indexToEntity, fromWorld.GetComponentProvider(indexComponent).GetIComponent(indexFromEntity));
+
+            fromWorld.GetComponentProvider(indexComponent)
+                .SetIComponent(indexToEntity, temp);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterDirtyEntity(int index)
         {
+            if (Entities[index].IsDirty)
+                return;
+
+            Entities[index].IsDirty = true;
             dirtyEntities.Add(index);
         }
 
@@ -295,7 +350,7 @@ namespace HECSFramework.Core
         }
     }
 
-    public struct RegisterEntity 
+    public struct RegisterEntity
     {
         public Entity Entity;
         public bool IsAdded;

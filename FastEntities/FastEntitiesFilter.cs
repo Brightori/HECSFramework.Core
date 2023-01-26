@@ -78,9 +78,9 @@ namespace HECSFramework.Core
             }
         }
 
-        public FastEntitiesFilter With<T>() where T : struct, IData
+        public FastEntitiesFilter With<T>() where T : struct, IFastComponent
         {
-            var TIndex = FastComponentProvider<T>.ComponentsToWorld.Data[world.Index].TypeIndex;
+            var TIndex = FastComponentProvider<T>.TypeIndex;
 
             if (!include.Contains(TIndex))
                 include.Add(TIndex);
@@ -90,9 +90,9 @@ namespace HECSFramework.Core
             return this;
         }
 
-        public FastEntitiesFilter WithOut<T>() where T : struct, IData
+        public FastEntitiesFilter WithOut<T>() where T : struct, IFastComponent
         {
-            var TIndex = FastComponentProvider<T>.ComponentsToWorld.Data[world.Index].TypeIndex;
+            var TIndex = FastComponentProvider<T>.TypeIndex;
 
             if (!exclude.Contains(TIndex))
                 exclude.Add(TIndex);

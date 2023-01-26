@@ -28,6 +28,11 @@ namespace Systems
             return arrayBufferWriters.GetObject();
         }
 
+        public void UpdateMaxCapacity(int maxCapacity)
+        {
+            this.maxCapacity = maxCapacity;
+        }
+
         /// <summary>
         /// we clear array buffer when return to pool
         /// </summary>

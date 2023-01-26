@@ -3,12 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    internal sealed partial class FastComponentProvider<T> : FastComponentProvider, IDisposable where T : struct, IData
+    internal sealed partial class FastComponentProvider<T> : FastComponentProvider, IDisposable where T : struct, IFastComponent
     {
         public static HECSList<FastComponentProvider<T>> ComponentsToWorld = new HECSList<FastComponentProvider<T>>(16);
         public T[] Components = new T[1024];
         public World World;
-        public int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
+        public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
 
         static FastComponentProvider()
         {

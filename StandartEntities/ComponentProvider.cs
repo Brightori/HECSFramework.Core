@@ -62,12 +62,14 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetOrAddComponent(int index, T component)
         {
-            if (Has(index))
+            if (Has(index) || Components[index] != null)
+            {
+                Components[index].IsAlive = true;
                 return Components[index];
+            }
 
             return AddComponent(index, component);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetComponent(int index, out T component)
@@ -90,10 +92,10 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Remove(int fastEntityIndex)
+        private void Remove(int index)
         {
-            if (World.FastEntities[fastEntityIndex].ComponentIndeces.Remove(TypeIndex))
-                World.RegisterDirtyEntity(fastEntityIndex);
+            if (World.FastEntities[index].ComponentIndeces.Remove(TypeIndex))
+                World.RegisterDirtyEntity(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -133,6 +135,18 @@ namespace HECSFramework.Core
         {
             return Components[entityIndex];
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool SetIComponent(int entityIndex, IComponent component)
+        {
+            if (component is T needed)
+            {
+                Components[entityIndex] = needed;
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public abstract partial class ComponentProvider
@@ -148,8 +162,12 @@ namespace HECSFramework.Core
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void AddComponent(int entityIndex, IComponent component);
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract IComponent GetIComponent(int entityIndex);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract bool SetIComponent(int entityIndex, IComponent component);
 
         public abstract void RegisterComponent(int entityIndex, bool add);
     }
