@@ -78,8 +78,11 @@ namespace HECSFramework.Core
             ID = id;
         }
 
-        public void Init(World world)
+        public void Init(World world = null)
         {
+            if (world == null)
+                world = EntityManager.Default;
+
             World = world;
             world.RegisterEntity(this, true);
         }
