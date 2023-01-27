@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 
 namespace HECSFramework.Core
 {
@@ -41,6 +42,27 @@ namespace HECSFramework.Core
                 OnNewWorldAdded?.Invoke(newWorld);
                 return newWorld;
             }
+        }
+
+        public static bool TryGetEntityByComponents<T>(out Entity entity, World world = null) where T: IComponent, new()
+        {
+            if (world == null)
+                world = Default;
+
+            var components = ComponentProvider<T>.ComponentsToWorld.Data[world.Index].Components;
+
+            for (int i = 0; i < components.Length; i++)
+            {
+                T c = components[i];
+                if (c != null && c.IsAlive)
+                {
+                    entity = world.Entities[i];
+                    return true;
+                }
+            }
+
+            entity = null;
+            return false;
         }
 
         public static void RemoveWorld(int index, bool dispose = true)

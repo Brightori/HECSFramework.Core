@@ -96,6 +96,17 @@ namespace HECSFramework.Core
             }
         }
 
+        public Entity FirstOrDefault(Func<Entity, bool> func)
+        {
+            foreach (var e in entities)
+            {
+                if (func(world.Entities[e]))
+                    return world.Entities[e];
+            }
+
+            return null;
+        }
+
         public void ForceUpdateFilter()
         {
             world.ForceUpdateFilter(this);
@@ -116,7 +127,7 @@ namespace HECSFramework.Core
             return other.GetHashCode() == GetHashCode();
         }
 
-        public ref struct Enumerator
+        public struct Enumerator
         {
             readonly int[] entities;
             readonly int count;
