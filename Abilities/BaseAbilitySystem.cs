@@ -6,8 +6,6 @@ namespace HECSFramework.Core
     [Documentation(Doc.Abilities, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
     public abstract class BaseAbilitySystem : BaseSystem, IActiveAbilitySystem
     {
-        private HECSMask predicateMask = HMasks.GetMask<AbilityPredicateComponent>();
-
         public void CommandReact(ExecuteAbilityCommand command)
         {
             if (command.Enabled && !command.IgnorePredicates && Owner.TryGetComponent(out AbilityPredicateComponent predicatesComponent))
