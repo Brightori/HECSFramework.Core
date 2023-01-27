@@ -4,14 +4,13 @@ using HECSFramework.Core;
 
 namespace Helpers
 {
-    public static class VectorExtensions
+    public static partial class VectorExtensions
     {
         private static Random random;
         private const double DegToRad = Math.PI / 180f;
         private const float RadToDeg = 57.29578f;
 
-        public static Vector3 ToNumericsV3(this Vector3Serialize vector3)
-            => new Vector3(vector3.X, vector3.Y, vector3.Z);
+       
 
         public static Vector3 AsV3(this Vector2 vector2)
             => new Vector3(vector2.X, 0, vector2.Y);

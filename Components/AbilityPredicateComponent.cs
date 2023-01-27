@@ -14,13 +14,8 @@ namespace Components
         public void Init()
         {
             AbilityPredicates.Owner = Owner;
-            AbilityPredicates.Init();
-
             TargetPredicates.Owner = Owner;
-            TargetPredicates.Init();
-
             AbilityOwnerPredicates.Owner = Owner;
-            AbilityOwnerPredicates.Init();
         }
     }
 }
