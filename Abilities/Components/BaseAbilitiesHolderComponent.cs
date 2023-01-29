@@ -24,7 +24,7 @@ namespace Components
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
             if (needInit)
-                ability.Init(Owner.World);
+                ability.Init();
         }
 
         public void RemoveAbility(Entity ability)

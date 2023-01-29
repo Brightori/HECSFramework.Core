@@ -4,39 +4,50 @@ using System.Collections.Generic;
 namespace HECSFramework.Core
 {
 
-    [Documentation (Doc.GameLogic, Doc.HECS, "Это старая реализация, где мы глобально подписываемся на все компоненты подряд")]
+    [Documentation(Doc.GameLogic, Doc.HECS, "Это старая реализация, где мы глобально подписываемся на все компоненты подряд")]
     public sealed partial class ComponentsService : IDisposable
     {
-        private Dictionary<Guid, IReactComponent> listeners = new Dictionary<Guid, IReactComponent>(16);
+        private World world;
+        private Dictionary<Type, HashSet<ComponentProvider>> typeToProviders;
 
-        public void AddListener(IReactComponent listener)
+        public ComponentsService(World world)
         {
-            if (listeners.ContainsKey(listener.ListenerGuid))
-                return;
-
-            listeners.Add(listener.ListenerGuid, listener);
+            this.world = world;
         }
 
-        public void RemoveListener(IReactComponent listener)
+        public void AddListener<T>(IReactComponentGlobal<T> listener, bool add) where T: IComponent
         {
-            if (listeners.TryGetValue(listener.ListenerGuid, out var action))
+            ComponentProvider<T>.ComponentsToWorld.Data[world.Index].AddGlobalComponentListener(listener, add);
+        }
+
+        public void AddGenericListener<T>(IReactGenericGlobalComponent<T> listener, bool add)
+        {
+            var key = typeof(T);
+            if (typeToProviders.TryGetValue(key, out var listeners))
             {
-                listeners.Remove(listener.ListenerGuid);
+                foreach (var provider in listeners)
+                    provider.AddGlobalUniversalListener(listener, add);
+                
+                return;
+            }
+
+            typeToProviders.Add(key, new HashSet<ComponentProvider>(8));
+
+            foreach (var c in world.ComponentProviders)
+            {
+                if (c.IsNeededType<T>())
+                    typeToProviders[key].Add(c);
             }
         }
 
-        public void ProcessComponent(IComponent component, bool isAdded)
-        {
-            if (component == null)
-                return;
-
-            foreach (var listener in listeners.Values)
-                listener.ComponentReact(component, isAdded);
-        }
-        
         public void Dispose()
         {
-            listeners.Clear();
+            world = null;
+        }
+
+        internal void AddLocalListener<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
+        {
+            ComponentProvider<T>.ComponentsToWorld.Data[world.Index].AddGlobalComponentListener
         }
     }
 }

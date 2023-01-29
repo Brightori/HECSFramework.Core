@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Commands;
 using Components;
 using HECSFramework.Core;
@@ -8,10 +7,12 @@ namespace Systems
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Counters, "System for operating counters on this entity, process changes of values and add|remove modifiers to modifiable counters")]
-    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactComponentLocal
+    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactGenericLocal<ICounter>
     {
         [Required]
         public CountersHolderComponent countersHolder;
+
+        public Guid ListenerGuid { get; }
 
         public override void InitSystem()
         {
@@ -39,17 +40,6 @@ namespace Systems
             countersHolder.ResetCounters();
         }
 
-        public void ComponentReactLocal(IComponent component, bool isAdded)
-        {
-            if (component is ICounter counter)
-            {
-                if (isAdded)
-                    countersHolder.AddCounter(counter);
-                else
-                    countersHolder.RemoveCounter(counter);
-            }
-        }
-
         public void CommandReact(AddCounterModifierBySubIDCommand<float> command)
         {
             foreach (var c in countersHolder.Counters)
@@ -65,6 +55,14 @@ namespace Systems
                     }
                 }
             }
+        }
+
+        public void ComponentReactLocal(ICounter counter, bool isAdded)
+        {
+            if (isAdded)
+                countersHolder.AddCounter(counter);
+            else
+                countersHolder.RemoveCounter(counter);
         }
     }
 

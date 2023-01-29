@@ -7,8 +7,8 @@ namespace HECSFramework.Core
     public sealed partial class EntitiesFilter : IEquatable<EntitiesFilter>
     {
         private readonly World world;
-        private HashSet<int> check = new HashSet<int>(512);
-        private HECSList<int> entities = new HECSList<int>(512);
+        private HashSet<int> check = new HashSet<int>(World.StartEntitiesCount);
+        private HECSList<int> entities = new HECSList<int>(World.StartEntitiesCount);
         private HECSList<int> include = new HECSList<int>(4);
         private HECSList<int> exclude = new HECSList<int>(4);
 
@@ -29,15 +29,8 @@ namespace HECSFramework.Core
             include.AddToHashSet(this.include);
             exclude.AddToHashSet(this.exclude);
             
-            includeHash = includeHash.GetHashCode();
-            excludeHash = excludeHash.GetHashCode();
-        }
-
-        internal EntitiesFilter(World world, Filter include)
-        {
-            this.world = world;
-            include.AddToHashSet(this.include);
-            includeHash = includeHash.GetHashCode();
+            includeHash = include.GetHashCode();
+            excludeHash = exclude.GetHashCode();
             world.RegisterEntityFilter(this);
         }
 

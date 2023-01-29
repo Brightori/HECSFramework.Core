@@ -213,11 +213,6 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public static void AddOrRemoveComponent(IComponent component, bool isAdded)
-        {
-            Instance.worlds.Data[component.Owner.WorldId].AddOrRemoveComponent(component, isAdded);
-        }
-
         public void Dispose()
         {
             for (int i = 0; i < worlds.Count; i++)

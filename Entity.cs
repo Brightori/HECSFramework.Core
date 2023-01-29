@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Components;
-using HECSFramework.Core.Helpers;
 using Helpers;
-using UnityEngine.Rendering.VirtualTexturing;
 
 namespace HECSFramework.Core
 {
@@ -21,7 +19,6 @@ namespace HECSFramework.Core
         public string ID;
 
         public readonly EntityLocalCommandService EntityCommandService = new EntityLocalCommandService();
-        public readonly LocalComponentListenersService RegisterComponentListenersService = new LocalComponentListenersService();
 
         public bool IsInited;
         public bool IsAlive = true;
@@ -51,26 +48,30 @@ namespace HECSFramework.Core
         {
             World = EntityManager.Default;
             Index = EntityManager.Default.GetEntityFreeIndex();
+            World.Entities[Index] = this;
             GenerateGuid();
         }
 
         public Entity(World world, string id = "Empty")
         {
-            GenerateGuid();
+            World = world;
             Index = world.GetEntityFreeIndex();
+            World.Entities[Index] = this;
+            GenerateGuid();
         }
 
         /// <summary>
-        /// this constructor by default used by world for making entities, 
-        /// here u should provide free index from world
+        /// this constructor for worlds, they fill entitis pooling through this
         /// </summary>
-        /// <param name="world">u should provide world here</param>
-        /// <param name="id">this is id or name of entity</param>
         /// <param name="index"></param>
-        public Entity(World world, int index, string id = "Empty")
+        /// <param name="world"></param>
+        /// <param name="id"></param>
+        public Entity(int index, World world, string id = "Empty")
         {
             GenerateGuid();
+            World = world;
             Index = index;
+            ID = id;
         }
 
         public void SetID(string id)
@@ -78,13 +79,9 @@ namespace HECSFramework.Core
             ID = id;
         }
 
-        public void Init(World world = null)
+        public void Init()
         {
-            if (world == null)
-                world = EntityManager.Default;
-
-            World = world;
-            world.RegisterEntity(this, true);
+            World.RegisterEntity(this, true);
         }
 
         public void Command<T>(T command) where T : struct, ICommand
@@ -107,7 +104,7 @@ namespace HECSFramework.Core
             foreach (var c in Components)
                 World.GetComponentProvider(c).RemoveComponent(Index);
 
-            var pool = HECSPooledArray<ISystem>.GetArray(64);
+            var pool = HECSPooledArray<ISystem>.GetArray(Systems.Count);
 
             foreach (var s in Systems)
                 pool.Add(s);
@@ -116,6 +113,7 @@ namespace HECSFramework.Core
                 RemoveHecsSystem(pool.Items[i]);
 
             Systems.Clear();
+            Components.Clear();
             pool.Release();
         }
 

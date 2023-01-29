@@ -8,6 +8,8 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
+        public const int StartEntitiesCount = 32;
+
         public Entity[] Entities;
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
 
@@ -21,9 +23,13 @@ namespace HECSFramework.Core
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
         private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int, EntitiesFilter>(8);
 
+        private ComponentProviderRegistrator[] componentProviderRegistrators;
+
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
         public EntitiesFilter GetFilter(Filter include) => GetFilterFromCache(include, new Filter());
         public EntitiesFilter GetFilter(Filter inclide, Filter exclude) => GetFilterFromCache(inclide, exclude);
+
+        public IEnumerable<ComponentProvider> ComponentProviders => componentProvidersByTypeIndex.Values;
 
         private SystemRegisterService systemRegisterService = new SystemRegisterService();
         private Dictionary<int, Stack<ISystem>> systemsPool = new Dictionary<int, Stack<ISystem>>(32);
@@ -35,9 +41,10 @@ namespace HECSFramework.Core
             if (entitiesFilters.TryGetValue(key, out var filter))
                 return filter;
 
-
             return new EntitiesFilter(this, include, exclude);
         }
+
+        partial void FillStandartComponentRegistrators();
 
         public void RegisterEntityFilter(EntitiesFilter filter)
         {
@@ -63,13 +70,32 @@ namespace HECSFramework.Core
             filter.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
         }
 
+        public void ForceComponentsReact<T>() where T: IComponent
+        {
+            ComponentProvider<T>.ComponentsToWorld.Data[Index].ForceReact();
+        }
+
         private void InitStandartEntities()
         {
+            Entities = new Entity[StartEntitiesCount];
+
+            for (int i = 0; i < Entities.Length; i++)
+            {
+                Entities[i] = new Entity(i, this);
+                freeIndices.Enqueue(i);
+            }
+
             GlobalUpdateSystem.FinishUpdate += ProcessDirtyEntities;
         }
 
         private void ProcessDirtyEntities()
         {
+            foreach (var r in registerEntity)
+            {
+                foreach (var react in reactEntities)
+                    react.EntityReact(r.Entity, r.IsAdded);
+            }
+
             foreach (var f in entitiesFilters)
                 f.Value.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
 
@@ -77,14 +103,15 @@ namespace HECSFramework.Core
                 Entities[e].IsDirty = false;
 
             dirtyEntities.Clear();
+            registerEntity.Clear();
         }
 
-        public ref Entity PullEntity(string id = "empty")
+        public ref Entity GetEntityFromPool(string id = "empty")
         {
             if (freeIndices.TryDequeue(out var result))
             {
                 if (Entities[result] == null)
-                    Entities[result] = new Entity(this, result, id);
+                    Entities[result] = new Entity (result, this, id);
 
                 Entities[result].IsInited = false;
                 Entities[result].IsAlive = true;
@@ -110,7 +137,7 @@ namespace HECSFramework.Core
         {
             if (entity.Index == -1)
             {
-                ref var getEntity = ref PullEntity();
+                ref var getEntity = ref GetEntityFromPool();
                 entity.SetID(getEntity.ID);
                 getEntity = entity;
             }
@@ -150,6 +177,8 @@ namespace HECSFramework.Core
                 if (s is IAfterEntityInit initable)
                     initable.AfterEntityInit();
             }
+
+            entity.IsInited = true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,7 +190,14 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(Entity entity)
         {
+            freeIndices.Enqueue(entity.Index);
+            entity.IsAlive = false;
+            entity.IsInited = false;
+            entity.IsPaused = false;
+            entity.IsDirty = false;
 
+            RegisterDirtyEntity(entity.Index);
+            registerEntity.Add(new RegisterEntity { Entity = entity, IsAdded = false });
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -202,7 +238,7 @@ namespace HECSFramework.Core
 
             var previousWorld = entity.World;
             var previousIndex = entity.Index;
-            var freeIndex = PullEntity();
+            var freeIndex = GetEntityFromPool();
 
             if (entity.IsInited)
             {
@@ -291,7 +327,7 @@ namespace HECSFramework.Core
         private ref Entity ResizeAndReturnEntity()
         {
             ResizeEntitiesList();
-            return ref PullEntity();
+            return ref GetEntityFromPool();
         }
 
         private void ResizeEntitiesList()
@@ -303,12 +339,12 @@ namespace HECSFramework.Core
             {
                 if (Entities[i] == null)
                 {
-                    Entities[i] = new Entity(this, i);
+                    Entities[i] = new Entity (i, this);
                     freeIndices.Enqueue(i);
                 }
             }
 
-            foreach (var p in fastComponentProvidersByTypeIndex)
+            foreach (var p in componentProvidersByTypeIndex)
             {
                 p.Value.Resize();
             }

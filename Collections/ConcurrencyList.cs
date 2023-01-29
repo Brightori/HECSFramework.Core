@@ -44,7 +44,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HECSList(int capacity)
         {
-            this.capacity = HashHelpers.GetCapacity(capacity);
+            this.capacity = capacity;
             this.Data = new T[this.capacity];
             this.length = 0;
 

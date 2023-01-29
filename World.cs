@@ -9,10 +9,8 @@ namespace HECSFramework.Core
     {
         public int Index { get; private set; }
 
-        public GlobalComponentListenersService GlobalComponentListenerService = new GlobalComponentListenersService();
-
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
-        private ComponentsService componentsService = new ComponentsService();
+        private ComponentsService componentsService;
 
         private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
@@ -33,10 +31,15 @@ namespace HECSFramework.Core
         public World(int index)
         {
             Index = index;
+            FillStandartComponentRegistrators();
+
+            foreach (var tr in componentProviderRegistrators)
+                tr.RegisterWorld(this);
+
+            componentsService = new ComponentsService(this);
             InitStandartEntities();
             InitFastWorld();
         }
-
 
         partial void InitFastWorld();
 
@@ -51,10 +54,10 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());
-            worldService.Init(this);
+            worldService.Init();
 
             while (waintingForInit.Count > 0)
-                waintingForInit.Dequeue().Init(this);
+                waintingForInit.Dequeue().Init();
 
             IsInited = true;
         }
@@ -64,17 +67,10 @@ namespace HECSFramework.Core
             waintingForInit.Enqueue(entity);
         }
 
-        public void AddOrRemoveComponent<T>(T component, bool isAdded) where T : IComponent
-        {
-            componentsService.ProcessComponent(component, isAdded);
-        }
-
         public void RegisterUpdatable<T>(T registerUpdatable, bool add) where T : IRegisterUpdatable
         {
             GlobalUpdateSystem.Register(registerUpdatable, add);
         }
-
-      
 
         /// <summary>
         /// Рассылает команды по дефолту только  тем ентити у которых зарегестрированы глобальные системы, 
@@ -103,23 +99,19 @@ namespace HECSFramework.Core
             commandService.RemoveListener<T>(system);
         }
 
-        public void AddGlobalReactComponent(IReactComponent reactComponent)
+        public void AddGlobalGenericReactComponent<T>(IReactGenericGlobalComponent<T> reactComponent, bool added)
         {
-            componentsService.AddListener(reactComponent);
-        }
-        public void AddGlobalReactComponent<T>(ISystem system, IReactComponentGlobal<T> action) where T : IComponent
-        {
-            GlobalComponentListenerService.AddListener(system, action);
+            componentsService.AddGenericListener(reactComponent, added);
         }
 
-        public void RemoveGlobalReactComponent(IReactComponent reactComponent)
+        public void AddGlobalReactComponent<T>(IReactComponentGlobal<T> action, bool added) where T : IComponent
         {
-            componentsService.RemoveListener(reactComponent);
+            componentsService.AddListener(action, added);
         }
 
-        public void RemoveGlobalReactComponent<T>(ISystem system) where T : IComponent
+        public void AddLocalReactComponent<T>(int entity, IReactComponentLocal<T> action, bool add) where T: IComponent
         {
-            GlobalComponentListenerService.RemoveListener<T>(system);
+            componentsService.AddLocalListener(entity, action, add);
         }
        
         public Entity GetEntity(Func<Entity, bool> func)
@@ -178,8 +170,7 @@ namespace HECSFramework.Core
 
         public bool TryGetSingleComponent<T>(out T component) where T: IComponent, IWorldSingleComponent
         {
-            var key = TypesMap.GetComponentInfo<T>().ComponentsMask.TypeHashCode;
-            component = default;
+            var key = ComponentProvider<T>.TypeIndex;
 
             if (singleComponents.TryGetValue(key, out var lookForComponent))
             {
@@ -190,23 +181,7 @@ namespace HECSFramework.Core
                 }
             }
 
-            return false;
-        }
-
-        public bool TryGetSingleComponent<T>(HECSMask mask, out T component) where T : IComponent, IWorldSingleComponent
-        {
-            var key = mask.TypeHashCode;
             component = default;
-
-            if (singleComponents.TryGetValue(key, out var lookForComponent))
-            {
-                if (lookForComponent != null && lookForComponent.Owner.IsAlive && lookForComponent.IsAlive)
-                {
-                    component = (T)lookForComponent;
-                    return true;
-                }
-            }
-
             return false;
         }
 
@@ -273,7 +248,7 @@ namespace HECSFramework.Core
 
         partial void FastWorldDispose();
 
-        public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent, new() 
+        public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent 
         {
             var key = ComponentProvider<T>.TypeIndex;
 
