@@ -2,16 +2,16 @@
 
 namespace HECSFramework.Core
 {
-    public sealed class UniversalReactGlobalT<T> : UniversalReact, IPriorityUpdatable
+    public sealed class UniversalReactLocalT<T> : UniversalReact, IPriorityUpdatable
     {
-        private HashSet<IReactGenericGlobalComponent<T>> reacts = new HashSet<IReactGenericGlobalComponent<T>>(8);
-        private Queue<T> addedQueue = new Queue<T>(8);
+        private HashSet<IReactGenericLocalComponent<T>> reacts = new HashSet<IReactGenericLocalComponent<T>>(2);
+        private Queue<T> addedQueue = new Queue<T>(2);
 
         public int Priority { get; } = -1;
 
         private World world;
 
-        public UniversalReactGlobalT(World world)
+        public UniversalReactLocalT(World world)
         {
             this.world = world;
             world.GlobalUpdateSystem.Register(this, true);
@@ -26,12 +26,12 @@ namespace HECSFramework.Core
                 else
                 {
                     foreach (var r in reacts)
-                        r?.ComponentReact(needed, false);
+                        r?.ComponentReactLocal(needed, false);
                 }
             }
         }
 
-        public void AddListener(IReactGenericGlobalComponent<T> listener, bool add)
+        public void AddListener(IReactGenericLocalComponent<T> listener, bool add)
         {
             if (add)
                 reacts.Add(listener);
@@ -48,10 +48,10 @@ namespace HECSFramework.Core
 
         public void PriorityUpdateLocal()
         {
-            while(addedQueue.TryDequeue(out var component))
+            while (addedQueue.TryDequeue(out var component))
             {
                 foreach (var r in reacts)
-                    r?.ComponentReact(component, true);
+                    r?.ComponentReactLocal(component, true);
             }
         }
 

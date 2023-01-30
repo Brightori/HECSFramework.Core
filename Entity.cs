@@ -81,6 +81,9 @@ namespace HECSFramework.Core
 
         public void Init()
         {
+            if (IsInited)
+                return;
+
             World.RegisterEntity(this, true);
         }
 
@@ -92,18 +95,23 @@ namespace HECSFramework.Core
             EntityCommandService.Invoke(command);
         }
 
-
         public void Dispose()
         {
             Clean();
+            EntityCommandService.Dispose();
             World.RegisterEntity(this, false);
         }
 
         private void Clean()
         {
-            foreach (var c in Components)
-                World.GetComponentProvider(c).RemoveComponent(Index);
+            var poolComponents = HECSPooledArray<int>.GetArray(Components.Count);
 
+            foreach (var c in Components)
+                poolComponents.Add(c);
+
+            for (int i = 0; i < poolComponents.Count; i++)
+                World.GetComponentProvider(poolComponents.Items[i]).RemoveComponent(Index);
+                
             var pool = HECSPooledArray<ISystem>.GetArray(Systems.Count);
 
             foreach (var s in Systems)
@@ -114,7 +122,19 @@ namespace HECSFramework.Core
 
             Systems.Clear();
             Components.Clear();
+            
             pool.Release();
+            poolComponents.Release();
+        }
+
+
+        public T GetSystem<T>() where T: ISystem
+        {
+            foreach (var s in Systems)
+                if (s is T needed)
+                    return needed;
+
+            return default;
         }
 
         public bool TryGetSystem<T>(out T system) where T : ISystem
@@ -285,9 +305,19 @@ namespace HECSFramework.Core
         public void Inject(List<IComponent> components, List<ISystem> systems, bool isAdditive = false, Entity owner = null)
         {
             if (!isAdditive)
+            {
                 Dispose();
+                IsInited = false;
+            }
 
+            foreach (var c in components)
+                this.AddComponent(c);
 
+            foreach (var s in systems)
+                AddHecsSystem(s);
+
+            Init();
         }
+             
     }
 }

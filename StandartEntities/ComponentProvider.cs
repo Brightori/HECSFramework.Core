@@ -11,12 +11,22 @@ namespace HECSFramework.Core
         public World World;
         public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
         private HashSet<IReactComponentGlobal<T>> reactComponentGlobals = new HashSet<IReactComponentGlobal<T>>(8);
-        private Dictionary<Type, UniversalReactGlobal> universalReactGlobals = new Dictionary<Type, UniversalReactGlobal>(8);
+        private Dictionary<Type, UniversalReact> universalReactGlobals = new Dictionary<Type, UniversalReact>(8);
         private Dictionary<int, HashSet<IReactComponentLocal<T>>> localListeners = new Dictionary<int, HashSet<IReactComponentLocal<T>>>(4);
+        private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(16);
 
         private Queue<T> addedComponent = new Queue<T>(4);
-        private Queue<(int,T, bool)> addLocalComponent = new Queue<(int, T, bool)>(4);
-        private bool IsDirty;
+        private Queue<(int, T, bool)> addLocalComponent = new Queue<(int, T, bool)>(4);
+
+        private bool isDirty;
+
+        //here we try to avoid reacts if they didnt needed;
+        private bool isReactive;
+
+        private bool isReactiveGlobal;
+        private bool isReactiveLocal;
+        private bool isGenericReactive;
+        private bool isGenericReactiveLocal;
 
         private T check;
 
@@ -107,7 +117,9 @@ namespace HECSFramework.Core
         {
             RegisterComponent(index, false);
 
-            if (Components[index] is IDisposable disposable)
+            ref var component = ref Components[index];
+
+            if (component is IDisposable disposable)
                 disposable.Dispose();
 
             if (World.Entities[index].Components.Remove(TypeIndex))
@@ -141,34 +153,53 @@ namespace HECSFramework.Core
             if (Components[entityIndex] is IWorldSingleComponent singleComponent)
                 World.AddSingleWorldComponent(singleComponent, add);
 
-            foreach (var ul in universalReactGlobals)
-                ul.Value.React(Components[entityIndex], add);
+            if (!isReactive)
+                return;
 
-            if (localListeners.ContainsKey(entityIndex))
+            if (isGenericReactive)
             {
-                if (add)
+                foreach (var ul in universalReactGlobals)
+                    ul.Value.React(Components[entityIndex], add);
+            }
+
+            if (isGenericReactiveLocal)
+            {
+                if (localGenericListeners.TryGetValue(entityIndex, out var localListeners))
+                    foreach (var l in localListeners)
+                        l.Value.React(Components[entityIndex], add);
+            }
+
+            if (isReactiveLocal)
+            {
+                if (localListeners.ContainsKey(entityIndex))
                 {
-                    addLocalComponent.Enqueue((entityIndex, Components[entityIndex], add));
-                    IsDirty = true;
-                }
-                else
-                {
-                    foreach (var listener in localListeners[entityIndex])
+                    if (add)
                     {
-                        listener.ComponentReact(Components[entityIndex], true);
+                        addLocalComponent.Enqueue((entityIndex, Components[entityIndex], add));
+                        isDirty = true;
+                    }
+                    else
+                    {
+                        foreach (var listener in localListeners[entityIndex])
+                        {
+                            listener.ComponentReact(Components[entityIndex], true);
+                        }
                     }
                 }
             }
 
-            if (add)
+            if (isReactiveGlobal)
             {
-                IsDirty = true;
-                addedComponent.Enqueue(Components[entityIndex]);
-            }
-            else
-            {
-                foreach (var r in reactComponentGlobals)
-                    r.ComponentReactGlobal(Components[entityIndex], add);
+                if (add)
+                {
+                    isDirty = true;
+                    addedComponent.Enqueue(Components[entityIndex]);
+                }
+                else
+                {
+                    foreach (var r in reactComponentGlobals)
+                        r.ComponentReactGlobal(Components[entityIndex], add);
+                }
             }
         }
 
@@ -207,6 +238,9 @@ namespace HECSFramework.Core
                 this.reactComponentGlobals.Add(reactComponentGlobal as IReactComponentGlobal<T>);
             else
                 this.reactComponentGlobals.Remove(reactComponentGlobal as IReactComponentGlobal<T>);
+
+            isReactiveGlobal = true;
+            isReactive = true;
         }
 
         public void AddLocalComponentListener(int entityIndex, IReactComponentLocal<T> reactComponentLocal, bool add)
@@ -218,9 +252,12 @@ namespace HECSFramework.Core
                 else
                     listeners.Remove(reactComponentLocal);
             }
+
+            isReactiveLocal = true;
+            isReactive = true;
         }
 
-        public override void AddGlobalUniversalListener<Component>(IReactGenericGlobalComponent<Component> reactComponentGlobal, bool add)
+        public override void AddGlobalGenericListener<Component>(IReactGenericGlobalComponent<Component> reactComponentGlobal, bool add)
         {
             var key = typeof(Component);
 
@@ -232,6 +269,29 @@ namespace HECSFramework.Core
                 react.AddListener(reactComponentGlobal, add);
                 universalReactGlobals.Add(key, react);
             }
+
+            isReactive = true;
+            isGenericReactive = true;
+        }
+
+        public override void AddLocalGenericListener<Component>(int index, IReactGenericLocalComponent<Component> reactComponentGlobal, bool add)
+        {
+            var key = typeof(Component);
+
+            if (localGenericListeners.TryGetValue(index, out var listeners))
+            {
+                if (listeners.TryGetValue(key, out var reactive))
+                    (reactive as UniversalReactLocalT<Component>).AddListener(reactComponentGlobal, add);
+                else
+                {
+                    var react = new UniversalReactLocalT<Component>(World);
+                    react.AddListener(reactComponentGlobal, add);
+                    listeners.Add(key, react);
+                }
+            }
+
+            isReactive = true;
+            isReactiveLocal = true;
         }
 
         public void ForceReact()
@@ -244,7 +304,7 @@ namespace HECSFramework.Core
 
         public void PriorityUpdateLocal()
         {
-            if (IsDirty)
+            if (isDirty)
             {
                 while (addedComponent.TryDequeue(out var component))
                 {
@@ -252,7 +312,7 @@ namespace HECSFramework.Core
                         r.ComponentReactGlobal(component, true);
                 }
 
-                while(addLocalComponent.TryDequeue(out var component))
+                while (addLocalComponent.TryDequeue(out var component))
                 {
                     if (localListeners.TryGetValue(component.Item1, out var listeners))
                     {
@@ -263,7 +323,7 @@ namespace HECSFramework.Core
                     }
                 }
 
-                IsDirty = false;
+                isDirty = false;
             }
         }
     }
@@ -292,6 +352,7 @@ namespace HECSFramework.Core
         public abstract bool IsNeededType<Type>();
 
         public abstract void AddGlobalComponentListener<Component>(IReactComponentGlobal<Component> reactComponentGlobal, bool add) where Component : IComponent;
-        public abstract void AddGlobalUniversalListener<Component>(IReactGenericGlobalComponent<Component> reactComponentGlobal, bool add);
+        public abstract void AddGlobalGenericListener<Component>(IReactGenericGlobalComponent<Component> reactComponentGlobal, bool add);
+        public abstract void AddLocalGenericListener<Component>(int index, IReactGenericLocalComponent<Component> reactComponentGlobal, bool add);
     }
 }

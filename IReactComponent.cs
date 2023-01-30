@@ -10,7 +10,7 @@ namespace HECSFramework.Core
     }
 
     [Documentation(Doc.HECS, "this interface provide subscribe to event  - add or remove any component by interface on local entity")]
-    public interface IReactGenericLocal<T> : IHaveOwner
+    public interface IReactGenericLocalComponent<T> : IHaveOwner
     {
         Guid ListenerGuid { get; }
         void ComponentReactLocal(T component, bool isAdded);

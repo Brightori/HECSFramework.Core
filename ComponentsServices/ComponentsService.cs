@@ -14,8 +14,18 @@ namespace HECSFramework.Core
         {
             this.world = world;
         }
+       
+        public void Dispose()
+        {
+            world = null;
+        }
 
-        public void AddListener<T>(IReactComponentGlobal<T> listener, bool add) where T: IComponent
+        internal void AddLocalListener<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
+        {
+            ComponentProvider<T>.ComponentsToWorld.Data[world.Index].AddLocalComponentListener(entity, action, add);
+        }
+
+        public void AddListener<T>(IReactComponentGlobal<T> listener, bool add) where T : IComponent
         {
             ComponentProvider<T>.ComponentsToWorld.Data[world.Index].AddGlobalComponentListener(listener, add);
         }
@@ -26,8 +36,8 @@ namespace HECSFramework.Core
             if (typeToProviders.TryGetValue(key, out var listeners))
             {
                 foreach (var provider in listeners)
-                    provider.AddGlobalUniversalListener(listener, add);
-                
+                    provider.AddGlobalGenericListener(listener, add);
+
                 return;
             }
 
@@ -40,14 +50,24 @@ namespace HECSFramework.Core
             }
         }
 
-        public void Dispose()
+        internal void AddLocalGenericListener<T>(int index, IReactGenericLocalComponent<T> reactComponent, bool added)
         {
-            world = null;
-        }
+            var key = typeof(T);
+            if (typeToProviders.TryGetValue(key, out var listeners))
+            {
+                foreach (var provider in listeners)
+                    provider.AddLocalGenericListener(index, reactComponent, added);
 
-        internal void AddLocalListener<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
-        {
-            ComponentProvider<T>.ComponentsToWorld.Data[world.Index].AddGlobalComponentListener
+                return;
+            }
+
+            typeToProviders.Add(key, new HashSet<ComponentProvider>(8));
+
+            foreach (var c in world.ComponentProviders)
+            {
+                if (c.IsNeededType<T>())
+                    typeToProviders[key].Add(c);
+            }
         }
     }
 }

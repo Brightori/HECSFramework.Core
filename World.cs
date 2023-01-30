@@ -104,6 +104,11 @@ namespace HECSFramework.Core
             componentsService.AddGenericListener(reactComponent, added);
         }
 
+        public void AddLocalGenericReactComponent<T>(int index, IReactGenericLocalComponent<T> reactComponent, bool added)
+        {
+            componentsService.AddLocalGenericListener(index, reactComponent, added);
+        }
+
         public void AddGlobalReactComponent<T>(IReactComponentGlobal<T> action, bool added) where T : IComponent
         {
             componentsService.AddListener(action, added);

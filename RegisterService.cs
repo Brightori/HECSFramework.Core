@@ -10,12 +10,6 @@
             if (system is IReactEntity enitiesChanges)
                 system.Owner.World.AddEntityListener(enitiesChanges, true);
 
-            if (system is IReactGenericGlobalComponent componentsChanges)
-                system.Owner.World.AddGlobalReactComponent(componentsChanges);
-
-            if (system is IReactGenericLocal reactComponent)
-                system.Owner.RegisterComponentListenersService.AddLocalListener(system, reactComponent);
-
             RegisterAdditionalSystems(system);
         }
 
@@ -26,12 +20,6 @@
 
             if (system is IReactEntity enitiesChanges)
                 system.Owner.World.AddEntityListener(enitiesChanges, false);
-
-            if (system is IReactGenericGlobalComponent componentsChanges)
-                system.Owner.World.RemoveGlobalReactComponent(componentsChanges);
-
-            if (system is IReactGenericLocal)
-                system.Owner.RegisterComponentListenersService.ReleaseListener(system);
 
             UnRegisterAdditionalSystems(system);
             TypesMap.UnBindSystem(system);
