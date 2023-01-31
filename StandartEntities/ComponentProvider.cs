@@ -16,7 +16,7 @@ namespace HECSFramework.Core
         private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(16);
 
         private Queue<T> addedComponent = new Queue<T>(4);
-        private Queue<(int, T, bool)> addLocalComponent = new Queue<(int, T, bool)>(4);
+        private Queue<(int, bool)> addLocalComponent = new Queue<(int, bool)>(4);
 
         private bool isDirty;
 
@@ -40,6 +40,7 @@ namespace HECSFramework.Core
             World = world;
             world.RegisterComponentProvider(this);
             check = (T)TypesMap.GetComponentFromFactory(TypeIndex);
+            world.GlobalUpdateSystem.Register(this, true);
         }
 
         internal override int TypeIndexProvider => TypeIndex;
@@ -138,6 +139,7 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            World.GlobalUpdateSystem.Register(this, false);
             Array.Clear(Components, 0, Components.Length);
             World = null;
         }
@@ -175,14 +177,14 @@ namespace HECSFramework.Core
                 {
                     if (add)
                     {
-                        addLocalComponent.Enqueue((entityIndex, Components[entityIndex], add));
+                        addLocalComponent.Enqueue((entityIndex, add));
                         isDirty = true;
                     }
                     else
                     {
                         foreach (var listener in localListeners[entityIndex])
                         {
-                            listener.ComponentReact(Components[entityIndex], true);
+                            listener.ComponentReact(Components[entityIndex], false);
                         }
                     }
                 }
@@ -252,6 +254,14 @@ namespace HECSFramework.Core
                 else
                     listeners.Remove(reactComponentLocal);
             }
+            else
+            {
+                if (add)
+                {
+                    localListeners.Add(entityIndex, new HashSet<IReactComponentLocal<T>>());
+                    localListeners[entityIndex].Add(reactComponentLocal);
+                }
+            }
 
             isReactiveLocal = true;
             isReactive = true;
@@ -289,9 +299,16 @@ namespace HECSFramework.Core
                     listeners.Add(key, react);
                 }
             }
+            else
+            {
+                localGenericListeners.Add(index, new Dictionary<Type, UniversalReact>(4));
+                var reactContainer = new UniversalReactLocalT<Component>(World);
+                reactContainer.AddListener(reactComponentGlobal, add);
+                localGenericListeners[index].Add(key, reactContainer);
+            }
 
             isReactive = true;
-            isReactiveLocal = true;
+            isGenericReactiveLocal = true;
         }
 
         public void ForceReact()
@@ -318,7 +335,7 @@ namespace HECSFramework.Core
                     {
                         foreach (var l in listeners)
                         {
-                            l.ComponentReact(component.Item2, component.Item3);
+                            l.ComponentReact(Components[component.Item1], component.Item2);
                         }
                     }
                 }
@@ -348,6 +365,11 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract bool SetIComponent(int entityIndex, IComponent component);
 
+        /// <summary>
+        /// u should provide entity index here, not type index
+        /// </summary>
+        /// <param name="entityIndex"></param>
+        /// <param name="add"></param>
         public abstract void RegisterComponent(int entityIndex, bool add);
         public abstract bool IsNeededType<Type>();
 

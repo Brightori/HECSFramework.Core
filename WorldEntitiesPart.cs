@@ -157,6 +157,9 @@ namespace HECSFramework.Core
             }
 
             foreach (var s in entity.Systems)
+                TypesMap.BindSystem(s);
+
+            foreach (var s in entity.Systems)
             {
                 SystemAdditionalProcessing(s, entity);
                 s.InitSystem();
@@ -176,6 +179,8 @@ namespace HECSFramework.Core
 
                 if (s is IAfterEntityInit initable)
                     initable.AfterEntityInit();
+
+                RegisterSystem(s);
             }
 
             entity.IsInited = true;
@@ -294,13 +299,18 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SwapComponents(int indexComponent, int indexFromEntity, World fromWorld, int indexToEntity, World toWorld)
         {
-            var temp = toWorld.GetComponentProvider(indexComponent).GetIComponent(indexToEntity);
+            var componentProvider = toWorld.GetComponentProvider(indexComponent);
+            var temp = componentProvider.GetIComponent(indexToEntity);
+            
+            fromWorld.GetComponentProvider(indexComponent).RegisterComponent(indexFromEntity, false);
 
             toWorld.GetComponentProvider(indexComponent)
                 .SetIComponent(indexToEntity, fromWorld.GetComponentProvider(indexComponent).GetIComponent(indexFromEntity));
 
             fromWorld.GetComponentProvider(indexComponent)
                 .SetIComponent(indexToEntity, temp);
+
+            toWorld.GetComponentProvider(indexComponent).RegisterComponent(indexToEntity, true);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -373,11 +383,13 @@ namespace HECSFramework.Core
             freeIndices.Enqueue(entity.Index);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RegisterSystem<T>(T system) where T : ISystem
         {
             systemRegisterService.RegisterSystem(system);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void UnRegisterSystem(ISystem system)
         {
             systemRegisterService.UnRegisterSystem(system);

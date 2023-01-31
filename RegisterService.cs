@@ -1,7 +1,10 @@
-﻿namespace HECSFramework.Core
+﻿using System.Runtime.CompilerServices;
+
+namespace HECSFramework.Core
 {
     public sealed partial class SystemRegisterService : IRegisterService
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterSystem<T>(T system) where T : ISystem
         {
             if (system is IRegisterUpdatable asyncupdate)
@@ -13,6 +16,7 @@
             RegisterAdditionalSystems(system);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UnRegisterSystem<T>(T system) where T: ISystem
         {
             if (system is IRegisterUpdatable asyncupdate)

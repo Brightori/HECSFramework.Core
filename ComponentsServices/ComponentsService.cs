@@ -8,7 +8,7 @@ namespace HECSFramework.Core
     public sealed partial class ComponentsService : IDisposable
     {
         private World world;
-        private Dictionary<Type, HashSet<ComponentProvider>> typeToProviders;
+        private Dictionary<Type, HashSet<ComponentProvider>> typeToProviders = new Dictionary<Type, HashSet<ComponentProvider>>(8);
 
         public ComponentsService(World world)
         {
@@ -48,6 +48,8 @@ namespace HECSFramework.Core
                 if (c.IsNeededType<T>())
                     typeToProviders[key].Add(c);
             }
+            foreach (var provider in typeToProviders[key])
+                provider.AddGlobalGenericListener(listener, add);
         }
 
         internal void AddLocalGenericListener<T>(int index, IReactGenericLocalComponent<T> reactComponent, bool added)
@@ -68,6 +70,9 @@ namespace HECSFramework.Core
                 if (c.IsNeededType<T>())
                     typeToProviders[key].Add(c);
             }
+
+            foreach (var provider in typeToProviders[key])
+                provider.AddLocalGenericListener(index, reactComponent, added);
         }
     }
 }
