@@ -21,7 +21,7 @@
             {
                 var calc = baseForCalculation;
                 valueMod.Modifier.Modify(ref calc);
-                currentMod += calc;
+                currentMod += (calc - baseForCalculation);
             }
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Subtract])
