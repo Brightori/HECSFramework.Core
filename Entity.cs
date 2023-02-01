@@ -111,7 +111,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < poolComponents.Count; i++)
                 World.GetComponentProvider(poolComponents.Items[i]).RemoveComponent(Index);
-                
+
             var pool = HECSPooledArray<ISystem>.GetArray(Systems.Count);
 
             foreach (var s in Systems)
@@ -122,13 +122,13 @@ namespace HECSFramework.Core
 
             Systems.Clear();
             Components.Clear();
-            
+
             pool.Release();
             poolComponents.Release();
         }
 
 
-        public T GetSystem<T>() where T: ISystem
+        public T GetSystem<T>() where T : ISystem
         {
             foreach (var s in Systems)
                 if (s is T needed)
@@ -177,6 +177,23 @@ namespace HECSFramework.Core
                 if (World.GetComponentProvider(c).GetIComponent(Index) is T needed)
                     yield return needed;
             }
+        }
+
+
+        /// <summary>
+        /// this is for editor only, do not use it runtime logic
+        /// </summary>
+        /// <returns></returns>
+        public List<IComponent> DebugGetListOfComponents()
+        {
+            var list = new List<IComponent>();
+
+            foreach (var c in Components)
+            {
+                list.Add(World.GetComponentProvider(c).GetIComponent(Index));
+            }
+
+            return list;
         }
 
         public override int GetHashCode()
@@ -318,6 +335,6 @@ namespace HECSFramework.Core
 
             Init();
         }
-             
+
     }
 }

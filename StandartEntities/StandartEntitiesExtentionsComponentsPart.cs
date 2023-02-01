@@ -38,7 +38,7 @@ namespace HECSFramework.Core
         public static IComponent AddComponent(this Entity entity, IComponent component) 
         {
             var typeIndex = TypesMap.GetComponentInfo(component);
-            var provider = entity.World.GetComponentProvider(typeIndex.ComponentsMask.Index);
+            var provider = entity.World.GetComponentProvider(typeIndex.ComponentsMask.TypeHashCode);
             provider.AddComponent(entity.Index, component);
             return component;
         }

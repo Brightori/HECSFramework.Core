@@ -66,6 +66,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetComponent(int index)
         {
+            //probably we should  check if component is alive and return null if component not alive
             return ref Components[index];
         }
 
