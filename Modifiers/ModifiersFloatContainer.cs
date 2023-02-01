@@ -42,7 +42,7 @@
             {
                 var calc = baseForCalculation;
                 valueMod.Modifier.Modify(ref calc);
-                currentMod = calc < currentMod ? calc : currentMod;
+                currentMod = calc;
             }
 
             return currentMod;
