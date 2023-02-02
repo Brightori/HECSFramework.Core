@@ -54,22 +54,11 @@ namespace HECSFramework.Core
 
 namespace HECSFramework.Core
 {
-    public sealed class GlobalCommandListener<T> : IRemoveSystemListener where T : struct, IGlobalCommand
+    public sealed partial class GlobalCommandListener<T> : IRemoveSystemListener where T : struct, IGlobalCommand
     {
-        private struct ListenerContainer
-        {
-            public Entity Owner;
-            public IReactGlobalCommand<T> Listener;
+        public static HECSList<GlobalCommandListener<T>> ListenersToWorld = new HECSList<GlobalCommandListener<T>>(4);
+        public HECSList<IReactGlobalCommand<T>> reactGlobalCommands = new HECSList<IReactGlobalCommand<T>>(64);
 
-            public ListenerContainer(Entity owner, IReactGlobalCommand<T> listener)
-            {
-                Owner = owner;
-                Listener = listener;
-            }
-        }
-
-        private Dictionary<Guid, ListenerContainer> listeners = new Dictionary<Guid, ListenerContainer>(16);
-        private Queue<Guid> listenersToRemove = new Queue<Guid>(4);
         private bool isDirty;
 
         public GlobalCommandListener(ISystem listener, IReactGlobalCommand<T> react)
@@ -133,5 +122,10 @@ namespace HECSFramework.Core
                 isDirty = true;
             }
         }
+    }
+
+    public abstract class CommandGlobalListener
+    {
+
     }
 }
