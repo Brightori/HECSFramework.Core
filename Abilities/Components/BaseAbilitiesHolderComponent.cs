@@ -33,22 +33,15 @@ namespace Components
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
         }
 
-        public void CleanAbilities()
+        public void Dispose()
         {
             foreach (var a in abilities.ToArray())
             {
-                a.Dispose();
+                a.HecsDestroy();
             }
 
             abilities.Clear();
             IndexToAbility.Clear();
-        }
-
-        public void Dispose()
-        {
-            CleanAbilities();
-            abilities = null;
-            IndexToAbility = null;
         }
     }
 }

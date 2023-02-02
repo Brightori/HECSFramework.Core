@@ -206,15 +206,15 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public System GetSystemFromPool<System>(int index) where System : class, ISystem, new()
+        public ISystem GetSystemFromPool(int index)
         {
             if (systemsPool.TryGetValue(index, out var systemStack))
             {
                 if (systemStack.TryPop(out var system))
-                    return (System)system;
+                    return system;
             }
 
-            return new System();
+            return TypesMap.GetSystemFromFactory(index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
