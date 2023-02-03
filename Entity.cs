@@ -18,8 +18,6 @@ namespace HECSFramework.Core
         public Guid GUID;
         public string ID;
 
-        public readonly EntityLocalCommandService EntityCommandService = new EntityLocalCommandService();
-
         public bool IsInited;
         public bool IsAlive = true;
         public bool IsPaused;
@@ -92,13 +90,12 @@ namespace HECSFramework.Core
             if (IsPaused || !IsAlive)
                 return;
 
-            EntityCommandService.Invoke(command);
+            LocalCommandListener<T>.ListenersToWorld.Data[WorldId].Invoke(Index, command);
         }
 
         public void Dispose()
         {
             Clean();
-            EntityCommandService.Dispose();
             World.RegisterEntity(this, false);
         }
 

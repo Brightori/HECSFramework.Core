@@ -17,7 +17,6 @@
         public override void UnRegisterWorld(World world)
         {
             FastComponentProvider<T>.ComponentsToWorld.Data[world.Index].Dispose();
-            FastComponentProvider<T>.ComponentsToWorld.Data[world.Index] = null;
         }
     }
 }

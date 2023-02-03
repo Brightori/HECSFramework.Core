@@ -2,17 +2,17 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Systems;
+using UnityEditor;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class World 
+    public sealed partial class World
     {
-        public int Index { get; private set; }
+        private int index;
+        public int Index { get => index; private set => index = value; }
 
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private ComponentsService componentsService;
-
-        private EntityGlobalCommandService commandService = new EntityGlobalCommandService();
 
         private ConcurrentDictionary<HECSMask, Entity> cacheTryGet = new ConcurrentDictionary<HECSMask, Entity>();
         private ConcurrentDictionary<Guid, Entity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, Entity>();
@@ -81,22 +81,17 @@ namespace HECSFramework.Core
         /// <param name="isGlobalOnly"></param>
         public void Command<T>(T command) where T : struct, ICommand, IGlobalCommand
         {
-            commandService.Invoke(command);
+            GlobalCommandListener<T>.ListenersToWorld.Data[index].Invoke(command);
         }
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
         {
-            commandService.AddListener(system, react);
+            GlobalCommandListener<T>.ListenersToWorld.Data[index].AddListener(react);
         }
-
-        public void RemoveGlobalReactCommand(ISystem system)
-        {
-            commandService.ReleaseListener(system);
-        }
-
+      
         public void RemoveGlobalReactCommand<T>(ISystem system) where T : struct, IGlobalCommand
         {
-            commandService.RemoveListener<T>(system);
+            GlobalCommandListener<T>.ListenersToWorld.Data[index].RemoveListener(system);
         }
 
         public void AddGlobalGenericReactComponent<T>(IReactGenericGlobalComponent<T> reactComponent, bool added)
@@ -114,11 +109,11 @@ namespace HECSFramework.Core
             componentsService.AddListener(action, added);
         }
 
-        public void AddLocalReactComponent<T>(int entity, IReactComponentLocal<T> action, bool add) where T: IComponent
+        public void AddLocalReactComponent<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
         {
             componentsService.AddLocalListener(entity, action, add);
         }
-       
+
         public Entity GetEntity(Func<Entity, bool> func)
         {
             foreach (var entity in Entities)
@@ -169,11 +164,11 @@ namespace HECSFramework.Core
                 if (component != null && component.Owner.IsAlive && component.IsAlive)
                     return (T)component;
             }
-           
+
             return default;
         }
 
-        public bool TryGetSingleComponent<T>(out T component) where T: IComponent, IWorldSingleComponent
+        public bool TryGetSingleComponent<T>(out T component) where T : IComponent, IWorldSingleComponent
         {
             var key = ComponentProvider<T>.TypeIndex;
 
@@ -221,7 +216,7 @@ namespace HECSFramework.Core
                 else
                     cacheTryGetbyGuid.TryRemove(entityGuid, out var entityOut);
             }
-            
+
             entity = null;
 
             for (int i = 0; i < Entities.Length; i++)
@@ -245,7 +240,6 @@ namespace HECSFramework.Core
         public void Dispose()
         {
             componentsService.Dispose();
-            commandService.Dispose();
             GlobalUpdateSystem.Dispose();
             FastWorldDispose();
             IsAlive = false;
@@ -253,7 +247,7 @@ namespace HECSFramework.Core
 
         partial void FastWorldDispose();
 
-        public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent 
+        public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent
         {
             var key = ComponentProvider<T>.TypeIndex;
 
