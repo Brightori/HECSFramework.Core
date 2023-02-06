@@ -90,7 +90,7 @@ namespace HECSFramework.Core
             if (IsPaused || !IsAlive)
                 return;
 
-            LocalCommandListener<T>.ListenersToWorld.Data[WorldId].Invoke(Index, command);
+            LocalCommandListener<T>.Invoke(World.Index, Index, command);
         }
 
         public void Dispose()

@@ -31,7 +31,7 @@ namespace HECSFramework.Core
         public World(int index)
         {
             Index = index;
-            FillStandartComponentRegistrators();
+            FillRegistrators();
 
             foreach (var tr in componentProviderRegistrators)
                 tr.RegisterWorld(this);
@@ -86,12 +86,12 @@ namespace HECSFramework.Core
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
         {
-            GlobalCommandListener<T>.ListenersToWorld.Data[index].AddListener(react);
+            GlobalCommandListener<T>.AddListener(Index, react);
         }
       
         public void RemoveGlobalReactCommand<T>(ISystem system) where T : struct, IGlobalCommand
         {
-            GlobalCommandListener<T>.ListenersToWorld.Data[index].RemoveListener(system);
+            GlobalCommandListener<T>.RemoveListener(Index, system);
         }
 
         public void AddGlobalGenericReactComponent<T>(IReactGenericGlobalComponent<T> reactComponent, bool added)

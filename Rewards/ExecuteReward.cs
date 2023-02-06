@@ -1,4 +1,6 @@
-﻿namespace HECSFramework.Core
+﻿using HECSFramework.Core;
+
+namespace Commands
 {
     public struct ExecuteReward : ICommand
     {

@@ -44,7 +44,7 @@ namespace HECSFramework.Core
             return new EntitiesFilter(this, include, exclude);
         }
 
-        partial void FillStandartComponentRegistrators();
+        partial void FillRegistrators();
 
         public void RegisterEntityFilter(EntitiesFilter filter)
         {

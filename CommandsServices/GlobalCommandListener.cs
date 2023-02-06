@@ -14,6 +14,60 @@ namespace HECSFramework.Core
         private bool isDirty;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddListener(int index, IReactGlobalCommand<T> react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new GlobalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new GlobalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].AddListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveListener(int index, IReactGlobalCommand<T> react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new GlobalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new GlobalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].RemoveListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveListener(int index, ISystem react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new GlobalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new GlobalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].RemoveListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Invoke(int WorldIndex, T command)
+        {
+            if (WorldIndex < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[WorldIndex] != null)
+                {
+                    ListenersToWorld.Data[WorldIndex].Invoke(command);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddListener(IReactGlobalCommand<T> react)
         {
             listeners.Add(react);

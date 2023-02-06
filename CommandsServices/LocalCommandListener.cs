@@ -14,6 +14,46 @@ namespace HECSFramework.Core
         private bool isDirty;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddListener(int index, IReactCommand<T> react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new LocalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new LocalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].AddListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveListener(int index, ISystem react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new LocalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new LocalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].RemoveListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Invoke(int WorldIndex, int entityIndex, T command)
+        {
+            if (WorldIndex < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[WorldIndex] != null)
+                {
+                    ListenersToWorld.Data[WorldIndex].Invoke(entityIndex, command);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddListener(IReactCommand<T> react)
         {
             var entityIndex = react.Owner.Index;
@@ -24,6 +64,7 @@ namespace HECSFramework.Core
                 listeners.Add(entityIndex, new HECSList<IReactCommand<T>> { react });
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Invoke(int entity, T data)
         {
             ProcessRemove();
