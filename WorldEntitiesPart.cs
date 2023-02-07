@@ -11,7 +11,7 @@ namespace HECSFramework.Core
         public const int StartEntitiesCount = 32;
 
         public Entity[] Entities;
-        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>();
+        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(256);
 
         //here we have free entities for pooling|using
         private Queue<int> freeIndices = new Queue<int>();
@@ -90,17 +90,25 @@ namespace HECSFramework.Core
 
         private void ProcessDirtyEntities()
         {
-            foreach (var r in registerEntity)
+            var registerCount = registerEntity.Count;
+            var reactEntityCount = reactEntities.Count;
+
+            for (int i = 0; i < registerCount; i++)
             {
-                foreach (var react in reactEntities)
-                    react.EntityReact(r.Entity, r.IsAdded);
+                for (int z = 0; z < reactEntityCount; z++)
+                {
+                    var data = registerEntity.Data[i];
+                    reactEntities.Data[z].EntityReact(data.Entity, data.IsAdded);
+                }
             }
 
             foreach (var f in entitiesFilters)
                 f.Value.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
 
-            foreach (var e in dirtyEntities)
-                Entities[e].IsDirty = false;
+            for (int i = 0; i < dirtyEntities.Count; i++)
+            {
+                Entities[dirtyEntities.Data[i]].IsDirty = false;
+            }
 
             dirtyEntities.Clear();
             registerEntity.Clear();
@@ -372,7 +380,10 @@ namespace HECSFramework.Core
 
         public void AddEntityListener(IReactEntity reactEntity, bool add)
         {
-            reactEntities.AddOrRemoveElement(reactEntity, add);
+            if (add)
+                reactEntities.Add(reactEntity);
+            else
+                reactEntities.Remove(reactEntity);
         }
 
         public void ReleaseEntity(Entity entity)

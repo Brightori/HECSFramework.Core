@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -19,6 +20,7 @@ namespace HECSFramework.Core
     [Documentation(Doc.HECS, "the implementation of this interface in the system allows you to find out the add or removal of a component of a particular type on the current entity")]
     public interface IReactComponentLocal<T> : IHaveOwner where T : IComponent  
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void ComponentReact(T component, bool isAdded);
     }
 

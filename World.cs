@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Newtonsoft.Json.Schema;
 using Systems;
-using UnityEditor;
 
 namespace HECSFramework.Core
 {
@@ -14,7 +14,6 @@ namespace HECSFramework.Core
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
         private ComponentsService componentsService;
 
-        private ConcurrentDictionary<HECSMask, Entity> cacheTryGet = new ConcurrentDictionary<HECSMask, Entity>();
         private ConcurrentDictionary<Guid, Entity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, Entity>();
 
         private Dictionary<Type, ISystem> singleSystems = new Dictionary<Type, ISystem>();
@@ -242,6 +241,26 @@ namespace HECSFramework.Core
             componentsService.Dispose();
             GlobalUpdateSystem.Dispose();
             FastWorldDispose();
+
+            singleSystems.Clear();
+            singleComponents.Clear();
+            freeEntities.Clear();
+            dirtyEntities.Clear();
+            componentProvidersByTypeIndex.Clear();
+            reactEntities.Clear();
+            entitiesFilters.Clear();
+            
+            foreach (var c in componentProvidersByTypeIndex.Values)
+                c.Dispose();
+
+            systemRegisterService = null;
+            componentProvidersByTypeIndex.Clear();
+            componentProviderRegistrators = null;
+
+            foreach (var pool in systemsPool.Values)
+                pool.Clear();
+
+            systemsPool.Clear();
             IsAlive = false;
         }
 

@@ -4,16 +4,16 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    internal sealed partial class ComponentProvider<T> : ComponentProvider, IPriorityUpdatable, IDisposable where T : IComponent
+    public sealed partial class ComponentProvider<T> : ComponentProvider, IPriorityUpdatable, IDisposable where T : IComponent
     {
         public static HECSList<ComponentProvider<T>> ComponentsToWorld = new HECSList<ComponentProvider<T>>(16);
         public T[] Components = new T[World.StartEntitiesCount];
         public World World;
         public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
-        private HashSet<IReactComponentGlobal<T>> reactComponentGlobals = new HashSet<IReactComponentGlobal<T>>(8);
-        private Dictionary<Type, UniversalReact> universalReactGlobals = new Dictionary<Type, UniversalReact>(8);
-        private Dictionary<int, HashSet<IReactComponentLocal<T>>> localListeners = new Dictionary<int, HashSet<IReactComponentLocal<T>>>(4);
-        private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(16);
+        private HECSList<IReactComponentGlobal<T>> reactComponentGlobals = new HECSList<IReactComponentGlobal<T>>(256);
+        private Dictionary<Type, UniversalReact> universalReactGlobals = new Dictionary<Type, UniversalReact>(256);
+        private Dictionary<int, HECSList<IReactComponentLocal<T>>> localListeners = new Dictionary<int, HECSList<IReactComponentLocal<T>>>(256);
+        private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(128);
 
         private Queue<T> addedComponent = new Queue<T>(4);
         private Queue<(int, bool)> addLocalComponent = new Queue<(int, bool)>(4);
@@ -140,7 +140,7 @@ namespace HECSFramework.Core
             RegisterComponent(entityIndex, true);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             World.GlobalUpdateSystem.Register(this, false);
             Array.Clear(Components, 0, Components.Length);
@@ -185,10 +185,11 @@ namespace HECSFramework.Core
                     }
                     else
                     {
-                        foreach (var listener in localListeners[entityIndex])
-                        {
-                            listener.ComponentReact(Components[entityIndex], false);
-                        }
+                        var list = localListeners[entityIndex];
+                        var count = list.Count;
+
+                        for (int i = 0; i < count; i++)
+                            list.Data[i].ComponentReact(Components[entityIndex], false);
                     }
                 }
             }
@@ -202,8 +203,9 @@ namespace HECSFramework.Core
                 }
                 else
                 {
-                    foreach (var r in reactComponentGlobals)
-                        r.ComponentReactGlobal(Components[entityIndex], add);
+                    var count = reactComponentGlobals.Count;
+                    for (int i = 0; i < count; i++)
+                        reactComponentGlobals.Data[i].ComponentReactGlobal(Components[entityIndex], add);
                 }
             }
         }
@@ -242,7 +244,7 @@ namespace HECSFramework.Core
             if (add)
                 this.reactComponentGlobals.Add(reactComponentGlobal as IReactComponentGlobal<T>);
             else
-                this.reactComponentGlobals.Remove(reactComponentGlobal as IReactComponentGlobal<T>);
+                this.reactComponentGlobals.RemoveSwap(reactComponentGlobal as IReactComponentGlobal<T>, out _);
 
             isReactiveGlobal = true;
             isReactive = true;
@@ -255,13 +257,13 @@ namespace HECSFramework.Core
                 if (add)
                     listeners.Add(reactComponentLocal);
                 else
-                    listeners.Remove(reactComponentLocal);
+                    listeners.RemoveSwap(reactComponentLocal, out _);
             }
             else
             {
                 if (add)
                 {
-                    localListeners.Add(entityIndex, new HashSet<IReactComponentLocal<T>>());
+                    localListeners.Add(entityIndex, new HECSList<IReactComponentLocal<T>>(8));
                     localListeners[entityIndex].Add(reactComponentLocal);
                 }
             }
@@ -328,18 +330,20 @@ namespace HECSFramework.Core
             {
                 while (addedComponent.TryDequeue(out var component))
                 {
-                    foreach (var r in reactComponentGlobals)
-                        r.ComponentReactGlobal(component, true);
+                    var reactComponentGlobalsCount = reactComponentGlobals.Count;
+                    
+                    for (int i = 0; i < reactComponentGlobalsCount; i++)
+                        reactComponentGlobals.Data[i].ComponentReactGlobal(component, true);
                 }
 
                 while (addLocalComponent.TryDequeue(out var component))
                 {
                     if (localListeners.TryGetValue(component.Item1, out var listeners))
                     {
-                        foreach (var l in listeners)
-                        {
-                            l.ComponentReact(Components[component.Item1], component.Item2);
-                        }
+                        var listenersCount = listeners.Count;
+
+                        for (int i = 0; i < listenersCount; i++)
+                            listeners.Data[i].ComponentReact(Components[component.Item1], component.Item2);
                     }
                 }
 
@@ -348,7 +352,7 @@ namespace HECSFramework.Core
         }
     }
 
-    public abstract partial class ComponentProvider
+    public abstract partial class ComponentProvider : IDisposable
     {
         internal abstract int TypeIndexProvider { get; }
 
@@ -379,5 +383,6 @@ namespace HECSFramework.Core
         public abstract void AddGlobalComponentListener<Component>(IReactComponentGlobal<Component> reactComponentGlobal, bool add) where Component : IComponent;
         public abstract void AddGlobalGenericListener<Component>(IReactGenericGlobalComponent<Component> reactComponentGlobal, bool add);
         public abstract void AddLocalGenericListener<Component>(int index, IReactGenericLocalComponent<Component> reactComponentGlobal, bool add);
+        public abstract void Dispose();
     }
 }

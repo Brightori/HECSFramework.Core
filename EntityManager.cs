@@ -82,6 +82,7 @@ namespace HECSFramework.Core
             }
         }
 
+        //todo переделать на массив и свободные индексы
         public static void RemoveWorld(World world)
         {
             var index = Worlds.IndexOf(world);

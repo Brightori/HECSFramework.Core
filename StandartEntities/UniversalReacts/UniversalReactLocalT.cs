@@ -4,7 +4,7 @@ namespace HECSFramework.Core
 {
     public sealed class UniversalReactLocalT<T> : UniversalReact, IPriorityUpdatable
     {
-        private HashSet<IReactGenericLocalComponent<T>> reacts = new HashSet<IReactGenericLocalComponent<T>>(2);
+        private HECSList<IReactGenericLocalComponent<T>> reacts = new HECSList<IReactGenericLocalComponent<T>>(8);
         private Queue<T> addedQueue = new Queue<T>(2);
 
         public int Priority { get; } = -1;
@@ -36,7 +36,7 @@ namespace HECSFramework.Core
             if (add)
                 reacts.Add(listener);
             else
-                reacts.Remove(listener);
+                reacts.RemoveSwap(listener, out _);
         }
 
         public override void Dispose()
@@ -48,10 +48,16 @@ namespace HECSFramework.Core
 
         public void PriorityUpdateLocal()
         {
+            var count = reacts.Count;
+
             while (addedQueue.TryDequeue(out var component))
             {
-                foreach (var r in reacts)
-                    r?.ComponentReactLocal(component, true);
+                for (int i = 0; i < count; i++)
+                {
+                    var react = reacts.Data[i];
+                    if (react.Owner.IsAlive)
+                        react.ComponentReactLocal(component, true);
+                }
             }
         }
 

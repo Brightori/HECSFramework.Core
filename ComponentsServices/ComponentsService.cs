@@ -8,7 +8,7 @@ namespace HECSFramework.Core
     public sealed partial class ComponentsService : IDisposable
     {
         private World world;
-        private Dictionary<Type, HashSet<ComponentProvider>> typeToProviders = new Dictionary<Type, HashSet<ComponentProvider>>(8);
+        private Dictionary<Type, HashSet<ComponentProvider>> typeToProviders = new Dictionary<Type, HashSet<ComponentProvider>>(256);
 
         public ComponentsService(World world)
         {
@@ -18,6 +18,7 @@ namespace HECSFramework.Core
         public void Dispose()
         {
             world = null;
+            typeToProviders.Clear();
         }
 
         internal void AddLocalListener<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
