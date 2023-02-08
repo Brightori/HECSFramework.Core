@@ -143,7 +143,10 @@ namespace HECSFramework.Core
         public override void Dispose()
         {
             World.GlobalUpdateSystem.Register(this, false);
-            Array.Clear(Components, 0, Components.Length);
+            for (int i = 0; i < Components.Length; i++)
+            {
+                Components[i] = default;
+            }
             World = null;
         }
 

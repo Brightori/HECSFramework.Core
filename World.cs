@@ -238,6 +238,8 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+         
+
             componentsService.Dispose();
             GlobalUpdateSystem.Dispose();
             FastWorldDispose();
@@ -246,12 +248,14 @@ namespace HECSFramework.Core
             singleComponents.Clear();
             freeEntities.Clear();
             dirtyEntities.Clear();
-            componentProvidersByTypeIndex.Clear();
-            reactEntities.Clear();
-            entitiesFilters.Clear();
-            
+
             foreach (var c in componentProvidersByTypeIndex.Values)
                 c.Dispose();
+            componentProvidersByTypeIndex.Clear();
+            
+            
+            reactEntities.Clear();
+            entitiesFilters.Clear();
 
             systemRegisterService = null;
             componentProvidersByTypeIndex.Clear();
@@ -261,6 +265,8 @@ namespace HECSFramework.Core
                 pool.Clear();
 
             systemsPool.Clear();
+
+            Array.Clear(Entities, 0, Entities.Length);
             IsAlive = false;
         }
 

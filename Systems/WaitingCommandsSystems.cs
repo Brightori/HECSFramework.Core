@@ -5,10 +5,8 @@ using HECSFramework.Core;
 
 namespace Systems
 {
-    public sealed class WaitingCommandsSystems : BaseSystem, IReactEntity, IUpdatableDelta, IReactGlobalCommand<WaitAndEntityCallbackCommand>, IReactGlobalCommand<WaitAndCallbackCommand>
+    public sealed class WaitingCommandsSystems : BaseSystem, IUpdatableDelta, IReactGlobalCommand<WaitAndEntityCallbackCommand>, IReactGlobalCommand<WaitAndCallbackCommand>
     {
-        private Dictionary<HECSMask, Queue<IWaitingCommand>> waitingCommands = new Dictionary<HECSMask, Queue<IWaitingCommand>>();
-
         private HECSList<WaitAndEntityCallbackCommand> waitAndCallbackEntityCommands = new HECSList<WaitAndEntityCallbackCommand>(8);
         private Remover<WaitAndEntityCallbackCommand> removerwaitAndCallbackEntityCommands;
 
@@ -21,36 +19,6 @@ namespace Systems
         {
             removerCallbackCommands = new Remover<WaitAndCallbackCommand>(waitCallbackCommands);
             removerwaitAndCallbackEntityCommands = new Remover<WaitAndEntityCallbackCommand>(waitAndCallbackEntityCommands);
-        }
-
-        public void EntityReact(Entity entity, bool isAdded)
-        {
-            if (isAdded)
-            {
-                foreach (var kv in waitingCommands)
-                {
-                    var key = kv.Key;
-                    if (entity.ContainsMask(key.TypeHashCode))
-                    {
-                        while (kv.Value.Count > 0)
-                        {
-                            kv.Value.Dequeue().NowYourTime(Owner.WorldId);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void AddWaitingCommand<T>(T command, HECSMask mask) where T : struct, IGlobalCommand
-        {
-            if (waitingCommands.TryGetValue(mask, out var globalCommands))
-                globalCommands.Enqueue(new WaitingCommand<T>(command));
-            else
-            {
-                var newQueue = new Queue<IWaitingCommand>();
-                newQueue.Enqueue(new WaitingCommand<T>(command));
-                waitingCommands.Add(mask, newQueue);
-            }
         }
 
         public void CommandGlobalReact(WaitAndEntityCallbackCommand command)
@@ -127,7 +95,7 @@ namespace Systems
 
         public void NowYourTime(int worldIndex = 0)
         {
-            EntityManager.Worlds.Data[worldIndex].Command(command);
+            EntityManager.Worlds[worldIndex].Command(command);
         }
     }
 

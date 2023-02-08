@@ -1,5 +1,6 @@
 ﻿using System;
-using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HECSFramework.Core
 {
@@ -7,20 +8,28 @@ namespace HECSFramework.Core
     {
         public const int AllWorld = -1;
 
-        private HECSList<World> worlds;
+        private World[] worlds;
         private static EntityManager Instance;
 
-        public static HECSList<World> Worlds => Instance.worlds;
-        public static World Default => Instance.worlds.Data[0];
+        public static World[] Worlds => Instance.worlds;
+        public static World Default => Instance.worlds[0];
         public static bool IsAlive => Instance != null;
 
         public static event Action<World> OnNewWorldAdded;
+        public static event Action<World> WorldRemoved;
 
+        private static Queue<int> worldsFreeIndeces;
 
         public EntityManager(int worldsCount = 1)
         {
-            worlds = new HECSList<World>(worldsCount);
+            worlds = new World[worldsCount * 2];
             Instance = this;
+            worldsFreeIndeces = new Queue<int>(8);
+
+            for (int i = 0; i < worlds.Length; i++)
+            {
+                worldsFreeIndeces.Enqueue(i);
+            }
 
             for (int i = 0; i < worldsCount; i++)
             {
@@ -29,7 +38,7 @@ namespace HECSFramework.Core
 
             foreach (var world in worlds)
             {
-                world.Init();
+                world?.Init();
             }
         }
 
@@ -37,14 +46,47 @@ namespace HECSFramework.Core
         {
             lock (Instance.worlds)
             {
-                var newWorld = new World(Worlds.Count);
-                Instance.worlds.Add(newWorld);
+                if (worldsFreeIndeces.TryDequeue(out var freeIndex))
+                {
+                    return AddWorld(freeIndex);
+                }
+                else
+                {
+                    ResizeWorlds();
+                    return AddWorld();
+                }
+            }
+        }
+
+        private static void ResizeWorlds() 
+        {
+            lock (Instance.worlds)
+            {
+                var lenght = Instance.worlds.Length;
+                Array.Resize(ref Instance.worlds, Instance.worlds.Length * 2);
+
+                worldsFreeIndeces.Clear();
+
+                for (int i = 0; i < Instance.worlds.Length; i++)
+                {
+                    if (Worlds[i] == null)
+                        worldsFreeIndeces.Enqueue(i);
+                }
+            }
+        }
+
+        private static World AddWorld(int index)
+        {
+            lock (Instance.worlds)
+            {
+                var newWorld = new World(index);
+                Instance.worlds[index] = newWorld;
                 OnNewWorldAdded?.Invoke(newWorld);
                 return newWorld;
             }
         }
 
-        public static bool TryGetEntityByComponents<T>(out Entity entity, World world = null) where T: IComponent, new()
+        public static bool TryGetEntityByComponents<T>(out Entity entity, World world = null) where T : IComponent, new()
         {
             if (world == null)
                 world = Default;
@@ -69,24 +111,20 @@ namespace HECSFramework.Core
         {
             lock (Instance.worlds)
             {
-                var needWorld = Worlds.Data[index];
-                Worlds.RemoveAt(index);
+                var needWorld = Worlds[index];
+                Worlds[index] = null;
 
                 if (dispose)
                     needWorld.Dispose();
 
-                for (int i = 0; i < Worlds.Count; i++)
-                {
-                    Worlds.Data[i].UpdateIndex(i);
-                }
+                WorldRemoved?.Invoke(needWorld);
+                worldsFreeIndeces.Enqueue(index);
             }
         }
 
-        //todo переделать на массив и свободные индексы
         public static void RemoveWorld(World world)
         {
-            var index = Worlds.IndexOf(world);
-            RemoveWorld(index);
+            RemoveWorld(world.Index);
         }
 
         /// <summary>
@@ -112,33 +150,30 @@ namespace HECSFramework.Core
         {
             if (world == -1)
             {
-                var count = Worlds.Count;
+                var count = Worlds.Length;
 
                 for (int i = 0; i < count; i++)
-                    Worlds.Data[i].Command(command);
+                    Worlds[i]?.Command(command);
                 return;
             }
 
-            Instance.worlds.Data[world].Command(command);
+            Instance.worlds[world].Command(command);
         }
-       
+
         public static void RegisterEntity(Entity entity, bool add)
         {
             entity.World.RegisterEntity(entity, add);
         }
 
-        //todo filter
-        //public static HECSList<Entity> Filter(FilterMask include, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include);
-        //public static HECSList<Entity> Filter(FilterMask include, FilterMask exclude, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(include, exclude);
-        //public static HECSList<Entity> Filter(HECSMask mask, int worldIndex = 0) => Instance.worlds.Data[worldIndex].Filter(new FilterMask(mask));
-
-       
         public static bool TryGetEntityByComponent<T>(out Entity outEntity, int worldIndex = 0) where T : IComponent, new()
         {
             if (worldIndex == -1)
             {
                 foreach (var w in Worlds)
                 {
+                    if (w == null)
+                        continue;
+
                     if (w.TryGetEntityByComponent<T>(out outEntity))
                     {
                         return true;
@@ -149,7 +184,7 @@ namespace HECSFramework.Core
                 return false;
             }
 
-            var world = Instance.worlds.Data[worldIndex];
+            var world = Instance.worlds[worldIndex];
             return world.TryGetEntityByComponent<T>(out outEntity);
         }
 
@@ -159,7 +194,7 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="worldIndex"></param>
         /// <returns></returns>
-        public static T GetSingleSystem<T>(int worldIndex = 0) where T : ISystem => Instance.worlds.Data[worldIndex].GetSingleSystem<T>();
+        public static T GetSingleSystem<T>(int worldIndex = 0) where T : ISystem => Instance.worlds[worldIndex].GetSingleSystem<T>();
 
         /// <summary>
         /// in fact, we return the first one that came across / cached, the fact that it is the one and only - on your conscience
@@ -167,11 +202,11 @@ namespace HECSFramework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="worldIndex"></param>
         /// <returns></returns>
-        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent, IWorldSingleComponent, new() => Instance.worlds.Data[worldIndex].GetSingleComponent<T>();
+        public static T GetSingleComponent<T>(int worldIndex = 0) where T : IComponent, IWorldSingleComponent, new() => Instance.worlds[worldIndex].GetSingleComponent<T>();
 
-        public static bool TryGetSingleComponent<T>(int world, out T component) where T : IComponent, IWorldSingleComponent => Worlds.Data[world].TryGetSingleComponent<T>(out component);
+        public static bool TryGetSingleComponent<T>(int world, out T component) where T : IComponent, IWorldSingleComponent => Instance.worlds[world].TryGetSingleComponent<T>(out component);
 
-        public static bool TryGetWorld<T>(out World world) where T: IComponent, IWorldSingleComponent
+        public static bool TryGetWorld<T>(out World world) where T : IComponent, IWorldSingleComponent
         {
             foreach (var w in Worlds)
             {
@@ -216,12 +251,13 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-            for (int i = 0; i < worlds.Count; i++)
+            for (int i = 0; i < worlds.Length; i++)
             {
-                worlds.Data[i].Dispose();
+                worlds[i]?.Dispose();
             }
 
-            worlds.Clear();
+            Array.Clear(worlds, 0, worlds.Length);
+            worldsFreeIndeces.Clear();
             Instance = null;
         }
 
