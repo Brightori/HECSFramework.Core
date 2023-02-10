@@ -3,15 +3,18 @@ using System.Linq;
 using Commands;
 using Components;
 using HECSFramework.Core;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 namespace Systems
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Counters, "System for operating counters on this entity, process changes of values and add|remove modifiers to modifiable counters")]
-    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactComponentLocal
+    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactGenericLocalComponent<ICounter>
     {
         [Required]
         public CountersHolderComponent countersHolder;
+
+        public Guid ListenerGuid { get; }
 
         public override void InitSystem()
         {
@@ -37,17 +40,6 @@ namespace Systems
         public void CommandReact(ResetCountersCommand command)
         {
             countersHolder.ResetCounters();
-        }
-
-        public void ComponentReactLocal(IComponent component, bool isAdded)
-        {
-            if (component is ICounter counter)
-            {
-                if (isAdded)
-                    countersHolder.AddCounter(counter);
-                else
-                    countersHolder.RemoveCounter(counter);
-            }
         }
 
         public void CommandReact(AddCounterModifierBySubIDCommand<float> command)
@@ -82,6 +74,14 @@ namespace Systems
         {
             if (countersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
                 counter.RemoveModifier(command.Owner, command.Modifier);
+        }
+
+        public void ComponentReactLocal(ICounter component, bool isAdded)
+        {
+            if (isAdded)
+                countersHolder.AddCounter(component);
+            else
+                countersHolder.RemoveCounter(component);
         }
     }
 
