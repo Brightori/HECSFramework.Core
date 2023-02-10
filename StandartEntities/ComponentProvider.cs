@@ -158,6 +158,8 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void RegisterComponent(int entityIndex, bool add)
         {
+            Components[entityIndex].Owner = World.Entities[entityIndex];
+
             if (World.Entities[entityIndex].IsInited)
             {
                 if (Components[entityIndex] is IInitable initable)
