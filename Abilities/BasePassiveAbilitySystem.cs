@@ -21,8 +21,6 @@ namespace HECSFramework.Core
             }
 
             Execute(command.Owner, command.Target, command.Enabled);
-
-            Owner.Command(new AbilityWasExecutedCommand { Enabled = command.Enabled });
         }
 
         public abstract void Execute(Entity owner = null, Entity target = null, bool enable = true);
