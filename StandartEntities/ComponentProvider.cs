@@ -158,6 +158,15 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void RegisterComponent(int entityIndex, bool add)
         {
+            if (World.Entities[entityIndex].IsInited)
+            {
+                if (Components[entityIndex] is IInitable initable)
+                    initable.Init();
+
+                if (Components[entityIndex] is IAfterEntityInit afterInit)
+                    afterInit.AfterEntityInit();
+            }
+
             if (Components[entityIndex] is IWorldSingleComponent singleComponent)
                 World.AddSingleWorldComponent(singleComponent, add);
 
