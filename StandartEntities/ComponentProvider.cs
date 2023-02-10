@@ -158,9 +158,22 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void RegisterComponent(int entityIndex, bool add)
         {
-            Components[entityIndex].Owner = World.Entities[entityIndex];
+            var component = Components[entityIndex];
+            
+            if (add)
+            {
+                component.Owner = World.Entities[entityIndex];
+                component.IsAlive = true;
+            }
+            else
+            {
+                component.IsAlive = false;
+            }
 
-            if (World.Entities[entityIndex].IsInited)
+            if (add && !World.Entities[entityIndex].IsInited)
+                return;
+
+            if (add)
             {
                 if (Components[entityIndex] is IInitable initable)
                     initable.Init();
@@ -172,6 +185,12 @@ namespace HECSFramework.Core
             if (Components[entityIndex] is IWorldSingleComponent singleComponent)
                 World.AddSingleWorldComponent(singleComponent, add);
 
+            RegisterReactive(entityIndex, add);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void RegisterReactive(int entityIndex, bool add)
+        {
             if (!isReactive)
                 return;
 
@@ -223,6 +242,7 @@ namespace HECSFramework.Core
                 }
             }
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void AddComponent(int entityIndex, IComponent component)
@@ -345,7 +365,7 @@ namespace HECSFramework.Core
                 while (addedComponent.TryDequeue(out var component))
                 {
                     var reactComponentGlobalsCount = reactComponentGlobals.Count;
-                    
+
                     for (int i = 0; i < reactComponentGlobalsCount; i++)
                         reactComponentGlobals.Data[i].ComponentReactGlobal(component, true);
                 }
@@ -392,6 +412,13 @@ namespace HECSFramework.Core
         /// <param name="entityIndex"></param>
         /// <param name="add"></param>
         public abstract void RegisterComponent(int entityIndex, bool add);
+
+        /// <summary>
+        /// this is for Entity init puprose, do not use it manualy
+        /// </summary>
+        /// <param name="entityIndex"></param>
+        /// <param name="add"></param>
+        public abstract void RegisterReactive(int entityIndex, bool add);
         public abstract bool IsNeededType<Type>();
 
         public abstract void AddGlobalComponentListener<Component>(IReactComponentGlobal<Component> reactComponentGlobal, bool add) where Component : IComponent;

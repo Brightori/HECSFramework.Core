@@ -70,7 +70,7 @@ namespace HECSFramework.Core
             filter.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
         }
 
-        public void ForceComponentsReact<T>() where T: IComponent
+        public void ForceComponentsReact<T>() where T : IComponent
         {
             ComponentProvider<T>.ComponentsToWorld.Data[Index].ForceReact();
         }
@@ -119,7 +119,7 @@ namespace HECSFramework.Core
             if (freeIndices.TryDequeue(out var result))
             {
                 if (Entities[result] == null)
-                    Entities[result] = new Entity (result, this, id);
+                    Entities[result] = new Entity(result, this, id);
 
                 Entities[result].IsInited = false;
                 Entities[result].IsAlive = true;
@@ -155,13 +155,19 @@ namespace HECSFramework.Core
 
             foreach (var c in entity.Components)
             {
-                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
+                var componentProvider = componentProvidersByTypeIndex[c];
+                var icomponent = componentProvider.GetIComponent(entity.Index);
 
                 //here we add unity part
                 ComponentAdditionalProcessing(icomponent, entity);
 
                 if (icomponent is IInitable initable)
                     initable.Init();
+
+                if (icomponent is IWorldSingleComponent singleComponent)
+                    this.AddSingleWorldComponent(singleComponent, true);
+
+                componentProvider.RegisterReactive(entity.Index, true);
             }
 
             foreach (var s in entity.Systems)
@@ -309,7 +315,7 @@ namespace HECSFramework.Core
         {
             var componentProvider = toWorld.GetComponentProvider(indexComponent);
             var temp = componentProvider.GetIComponent(indexToEntity);
-            
+
             fromWorld.GetComponentProvider(indexComponent).RegisterComponent(indexFromEntity, false);
 
             toWorld.GetComponentProvider(indexComponent)
@@ -357,7 +363,7 @@ namespace HECSFramework.Core
             {
                 if (Entities[i] == null)
                 {
-                    Entities[i] = new Entity (i, this);
+                    Entities[i] = new Entity(i, this);
                     freeIndices.Enqueue(i);
                 }
             }

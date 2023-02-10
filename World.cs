@@ -273,7 +273,7 @@ namespace HECSFramework.Core
 
         public void AddSingleWorldComponent<T>(T component, bool add) where T : IComponent, IWorldSingleComponent
         {
-            var key = ComponentProvider<T>.TypeIndex;
+            var key = component.GetTypeHashCode;
 
             if (singleComponents.ContainsKey(key))
             {
