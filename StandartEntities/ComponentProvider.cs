@@ -119,6 +119,9 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Remove(int index)
         {
+            if (Components[index] == null)
+                return;
+
             RegisterComponent(index, false);
 
             ref var component = ref Components[index];
@@ -159,7 +162,8 @@ namespace HECSFramework.Core
         public override void RegisterComponent(int entityIndex, bool add)
         {
             var component = Components[entityIndex];
-            
+            World.AdditionalProcessing(component, World.Entities[entityIndex], add);
+
             if (add)
             {
                 component.Owner = World.Entities[entityIndex];

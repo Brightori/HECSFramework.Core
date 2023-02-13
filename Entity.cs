@@ -282,6 +282,7 @@ namespace HECSFramework.Core
 
             if (IsInited)
             {
+                World.AdditionalProcessing(system, this, true);
                 TypesMap.BindSystem(system);
                 system.InitSystem();
                 World.RegisterSystem(system);

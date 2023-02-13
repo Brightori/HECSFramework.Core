@@ -26,6 +26,8 @@ namespace HECSFramework.Core
                 system.Owner.World.AddEntityListener(enitiesChanges, false);
 
             UnRegisterAdditionalSystems(system);
+            system.Owner.World.AdditionalProcessing(system, system.Owner, false);
+
             TypesMap.UnBindSystem(system);
         }
         

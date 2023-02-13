@@ -123,6 +123,7 @@ namespace HECSFramework.Core
 
                 Entities[result].IsInited = false;
                 Entities[result].IsAlive = true;
+                Entities[result].ID = id;
 
                 return ref Entities[result];
             }
@@ -159,7 +160,7 @@ namespace HECSFramework.Core
                 var icomponent = componentProvider.GetIComponent(entity.Index);
 
                 //here we add unity part
-                ComponentAdditionalProcessing(icomponent, entity);
+                ComponentAdditionalProcessing(icomponent, entity, true);
 
                 if (icomponent is IInitable initable)
                     initable.Init();
@@ -175,7 +176,7 @@ namespace HECSFramework.Core
 
             foreach (var s in entity.Systems)
             {
-                SystemAdditionalProcessing(s, entity);
+                SystemAdditionalProcessing(s, entity, true);
                 s.InitSystem();
             }
 
@@ -189,8 +190,6 @@ namespace HECSFramework.Core
 
             foreach (var s in entity.Systems)
             {
-                SystemAdditionalProcessing(s, entity);
-
                 if (s is IAfterEntityInit initable)
                     initable.AfterEntityInit();
 
@@ -200,11 +199,21 @@ namespace HECSFramework.Core
             entity.IsInited = true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        partial void ComponentAdditionalProcessing(IComponent component, Entity owner);
+        public void AdditionalProcessing(IComponent component, Entity owner, bool add)
+        {
+            ComponentAdditionalProcessing(component, owner, add);
+        }
+
+        public void AdditionalProcessing(ISystem system, Entity owner, bool add)
+        {
+            SystemAdditionalProcessing(system, owner, add);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        partial void SystemAdditionalProcessing(ISystem system, Entity owner);
+        partial void ComponentAdditionalProcessing(IComponent component, Entity owner, bool add);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        partial void SystemAdditionalProcessing(ISystem system, Entity owner, bool add);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(Entity entity)

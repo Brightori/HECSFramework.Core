@@ -35,10 +35,8 @@ namespace Components
 
         public void Dispose()
         {
-            foreach (var a in abilities.ToArray())
-            {
-                a.HecsDestroy();
-            }
+            foreach (var a in abilities)
+                a.Dispose();
 
             abilities.Clear();
             IndexToAbility.Clear();

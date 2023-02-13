@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Commands;
 using Components;
 using HECSFramework.Core;
@@ -17,6 +16,10 @@ namespace Systems
 
         public override void InitSystem()
         {
+            foreach (var c in Owner.GetComponentsByType<ICounter>())
+            {
+                countersHolder.AddCounter(c);
+            }
         }
 
         public void CommandReact(AddCounterModifierCommand<float> command)
