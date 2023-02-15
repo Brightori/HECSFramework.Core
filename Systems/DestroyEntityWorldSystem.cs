@@ -1,4 +1,5 @@
 ﻿using Commands;
+using Components;
 using HECSFramework.Core;
 using System.Collections.Generic;
 
@@ -20,8 +21,19 @@ namespace Systems
             {
                 var entity = entitiesForDelete.Dequeue();
 
-                if (entity != null && entity.IsAlive)
+                if (entity.IsAlive())
+                {
+                    if (entity.TryGetComponent(out ActorProviderComponent actorProviderComponent))
+                    {
+                        if (entity.ContainsMask<PoolableTagComponent>())
+                            actorProviderComponent.Actor.RemoveActorToPool();
+                        else
+                            actorProviderComponent.Actor.HecsDestroy();
+
+                        continue;
+                    }
                     entity.Dispose();
+                }
             }
         }
 

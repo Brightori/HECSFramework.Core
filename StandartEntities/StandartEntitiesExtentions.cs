@@ -1,4 +1,6 @@
-﻿namespace HECSFramework.Core
+﻿using System.Runtime.CompilerServices;
+
+namespace HECSFramework.Core
 {
     public static partial class StandartEntitiesExtentions
     {
@@ -7,6 +9,7 @@
             world.MigrateEntityToWorld(entity);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAlive(this Entity entity)
         {
             return entity != null && entity.IsAlive;

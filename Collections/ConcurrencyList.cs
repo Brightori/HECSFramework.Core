@@ -186,6 +186,12 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool RemoveAtSwap(int index, out ResultSwap swap)
         {
+            if (index < 0)
+            {
+                swap = default;
+                return false;
+            }
+
             if (length-- > 1)
             {
                 swap.oldIndex = length;

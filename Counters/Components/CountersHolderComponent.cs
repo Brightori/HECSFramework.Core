@@ -8,7 +8,7 @@ namespace Components
     [Serializable]
     [RequiredAtContainer(typeof(CountersHolderSystem))]
     [Documentation(Doc.Counters, "This component holds counters from this entity, counters should have processing from CountersHolderSystem")]
-    public sealed partial class CountersHolderComponent : BaseComponent, IInitable
+    public sealed partial class CountersHolderComponent : BaseComponent, IInitable, IDisposable
     {
         //this collection holds all counters
         private readonly Dictionary<int, ICounter> counters = new Dictionary<int, ICounter>();
@@ -16,8 +16,7 @@ namespace Components
 
         public void AddCounter(ICounter counter)
         {
-            if (!counters.TryAdd(counter.Id, counter))
-                HECSDebug.LogWarning("we alrdy have this counter id" + counter.Id);
+            counters.TryAdd(counter.Id, counter);
         }
 
         public T GetCounter<T>(int id) where T : ICounter
@@ -108,6 +107,11 @@ namespace Components
         public void Init()
         {
             Counters = new ReadOnlyDictionary<int, ICounter>(counters);
+        }
+
+        public void Dispose()
+        {
+            counters.Clear();
         }
     }
 }
