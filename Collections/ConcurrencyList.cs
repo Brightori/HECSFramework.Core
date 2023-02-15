@@ -198,6 +198,7 @@ namespace HECSFramework.Core
                 swap.newIndex = index;
 
                 Data[swap.newIndex] = Data[swap.oldIndex];
+                Data[swap.oldIndex] = default;
                 return true;
             }
 
