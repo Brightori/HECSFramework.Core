@@ -21,6 +21,7 @@ namespace HECSFramework.Core
         public bool IsInited;
         public bool IsAlive = true;
         public bool IsPaused;
+        public bool IsDisposed;
 
         public int Index;
         public bool IsDirty;
@@ -95,6 +96,10 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            if (IsDisposed)
+                return;
+            
+            IsDisposed = true;
             Clean();
             World.RegisterEntity(this, false);
         }
@@ -302,14 +307,13 @@ namespace HECSFramework.Core
 
         public bool RemoveHecsSystem(ISystem system)
         {
-            if (IsInited)
-                World.UnRegisterSystem(system);
+            World.UnRegisterSystem(system);
 
             if (!system.IsDisposed)
                 system.Dispose();
 
             system.ReturnToPool();
-            return Systems.Remove(system);
+            return Systems.RemoveSwap(system);
         }
 
         public bool RemoveHecsSystem<T>() where T : ISystem

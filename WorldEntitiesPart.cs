@@ -14,7 +14,7 @@ namespace HECSFramework.Core
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(256);
 
         //here we have free entities for pooling|using
-        private Queue<int> freeIndices = new Queue<int>();
+        private Stack<int> freeIndices = new Stack<int>();
 
         //dirty entities should be processing 
         private HECSList<int> dirtyEntities = new HECSList<int>(32);
@@ -82,7 +82,7 @@ namespace HECSFramework.Core
             for (int i = 0; i < Entities.Length; i++)
             {
                 Entities[i] = new Entity(i, this);
-                freeIndices.Enqueue(i);
+                freeIndices.Push(i);
             }
 
             GlobalUpdateSystem.FinishUpdate += ProcessDirtyEntities;
@@ -116,12 +116,13 @@ namespace HECSFramework.Core
 
         public ref Entity GetEntityFromPool(string id = "empty")
         {
-            if (freeIndices.TryDequeue(out var result))
+            if (freeIndices.TryPop(out var result))
             {
                 if (Entities[result] == null)
                     Entities[result] = new Entity(result, this, id);
 
                 Entities[result].IsInited = false;
+                Entities[result].IsDisposed = false;
                 Entities[result].IsAlive = true;
                 Entities[result].ID = id;
 
@@ -196,6 +197,7 @@ namespace HECSFramework.Core
                 RegisterSystem(s);
             }
 
+            entity.IsDisposed = false;
             entity.IsInited = true;
         }
 
@@ -218,7 +220,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(Entity entity)
         {
-            freeIndices.Enqueue(entity.Index);
+            freeIndices.Push(entity.Index);
             entity.IsAlive = false;
             entity.IsInited = false;
             entity.IsPaused = false;
@@ -234,7 +236,10 @@ namespace HECSFramework.Core
             if (systemsPool.TryGetValue(index, out var systemStack))
             {
                 if (systemStack.TryPop(out var system))
+                {
+                    system.IsDisposed = false;
                     return system;
+                }
             }
 
             return TypesMap.GetSystemFromFactory(index);
@@ -255,6 +260,8 @@ namespace HECSFramework.Core
                 systemsPool.Add(index, new Stack<ISystem>(16));
                 systemsPool[index].Push(system);
             }
+
+            system.Owner = null;
         }
 
 
@@ -348,7 +355,7 @@ namespace HECSFramework.Core
 
         public int GetEntityFreeIndex()
         {
-            if (freeIndices.TryDequeue(out var result))
+            if (freeIndices.TryPop(out var result))
             {
                 return result;
             }
@@ -373,7 +380,7 @@ namespace HECSFramework.Core
                 if (Entities[i] == null)
                 {
                     Entities[i] = new Entity(i, this);
-                    freeIndices.Enqueue(i);
+                    freeIndices.Push(i);
                 }
             }
 
@@ -398,14 +405,6 @@ namespace HECSFramework.Core
                 reactEntities.Add(reactEntity);
             else
                 reactEntities.Remove(reactEntity);
-        }
-
-        public void ReleaseEntity(Entity entity)
-        {
-            if (entity.IsAlive)
-                entity.Dispose();
-
-            freeIndices.Enqueue(entity.Index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
