@@ -169,7 +169,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void RemoveSwap(T value, out ResultSwap swap) => RemoveAtSwap(IndexOf(value), out swap);
+        public bool RemoveSwap(T value) => RemoveAtSwap(IndexOf(value));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
@@ -184,25 +184,23 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool RemoveAtSwap(int index, out ResultSwap swap)
+        public bool RemoveAtSwap(int index)
         {
             if (index < 0)
             {
-                swap = default;
                 return false;
             }
 
             if (length-- > 1)
             {
-                swap.oldIndex = length;
-                swap.newIndex = index;
+                int oldIndex = length;
+                int newIndex = index;
 
-                Data[swap.newIndex] = Data[swap.oldIndex];
-                Data[swap.oldIndex] = default;
+                Data[newIndex] = Data[oldIndex];
+                Data[oldIndex] = default;
                 return true;
             }
 
-            swap = default;
             return false;
         }
 
