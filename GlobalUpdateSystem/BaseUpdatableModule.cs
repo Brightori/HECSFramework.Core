@@ -76,7 +76,7 @@ namespace HECSFramework.Core
 
                         if (update.Updatable.Equals(remove))
                         {
-                            updateOnEntities.RemoveAt(i);
+                            updateOnEntities.RemoveAtSwap(i);
                             break;
                         }
                     }

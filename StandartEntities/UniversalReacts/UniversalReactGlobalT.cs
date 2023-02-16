@@ -36,7 +36,7 @@ namespace HECSFramework.Core
             if (add)
                 reacts.Add(listener);
             else
-                reacts.RemoveSwap(listener, out _);
+                reacts.RemoveSwap(listener);
         }
 
         public override void Dispose()

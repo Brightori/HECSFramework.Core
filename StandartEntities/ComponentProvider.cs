@@ -282,7 +282,7 @@ namespace HECSFramework.Core
             if (add)
                 this.reactComponentGlobals.Add(reactComponentGlobal as IReactComponentGlobal<T>);
             else
-                this.reactComponentGlobals.RemoveSwap(reactComponentGlobal as IReactComponentGlobal<T>, out _);
+                this.reactComponentGlobals.RemoveSwap(reactComponentGlobal as IReactComponentGlobal<T>);
 
             isReactiveGlobal = true;
             isReactive = true;
@@ -295,7 +295,7 @@ namespace HECSFramework.Core
                 if (add)
                     listeners.Add(reactComponentLocal);
                 else
-                    listeners.RemoveSwap(reactComponentLocal, out _);
+                    listeners.RemoveSwap(reactComponentLocal);
             }
             else
             {

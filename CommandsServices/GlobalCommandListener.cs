@@ -102,7 +102,7 @@ namespace HECSFramework.Core
                 while (listenersToRemove.Count > 0)
                 {
                     var remove = listenersToRemove.Dequeue();
-                    listeners.RemoveSwap(remove, out _);
+                    listeners.RemoveSwap(remove);
                 }
 
                 isDirty = false;
