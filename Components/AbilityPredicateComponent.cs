@@ -16,6 +16,11 @@ namespace Components
             AbilityPredicates.Owner = Owner;
             TargetPredicates.Owner = Owner;
             AbilityOwnerPredicates.Owner = Owner;
+
+            //todo нужно обработать кейс когда надо инитить предикаты без бп
+            InitBP();
         }
+
+        partial void InitBP();
     }
 }
