@@ -21,7 +21,7 @@ namespace HECSFramework.Core
         }
     }
 
-    public class ReadonlyConcurrencyList<T> : IReadOnlyList<T>
+    public class ReadonlyHECSList<T> : IReadOnlyList<T>
     {
         private HECSList<T> list;
 
@@ -35,7 +35,7 @@ namespace HECSFramework.Core
 
         IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
 
-        public ReadonlyConcurrencyList(HECSList<T> list)
+        public ReadonlyHECSList(HECSList<T> list)
         {
             this.list = list;
         }
