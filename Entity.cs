@@ -210,7 +210,7 @@ namespace HECSFramework.Core
 
         public override bool Equals(object obj)
         {
-            return obj is Entity entity && entity.GUID == GUID;
+            return obj is Entity entity && entity.ID == ID;
         }
 
         #region Mask
