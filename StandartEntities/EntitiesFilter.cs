@@ -125,26 +125,33 @@ namespace HECSFramework.Core
             readonly int[] entities;
             readonly int count;
             private int currentStep;
-            private Entity[] fastEntities;
+            private Entity[] currentEntities;
 
             public Enumerator(EntitiesFilter filter)
             {
                 entities = filter.entities.Data;
                 count = filter.entities.Count;
                 currentStep = -1;
-                fastEntities = filter.world.Entities;
+                currentEntities = filter.world.Entities;
             }
 
-            public ref Entity Current
+            public Entity Current
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => ref fastEntities[entities[currentStep]];
+                get => currentEntities[entities[currentStep]];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                return ++currentStep < count;
+                if (++currentStep < count)
+                {
+                    if (currentEntities[entities[currentStep]].IsAlive)
+                        return true;
+                    else
+                        return MoveNext();
+                }
+                return false;
             }
         }
     }
