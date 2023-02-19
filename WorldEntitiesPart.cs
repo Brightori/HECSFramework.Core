@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using HECSFramework.Core.Helpers;
 using Helpers;
+using Sirenix.OdinInspector.Editor;
 
 namespace HECSFramework.Core
 {
@@ -169,7 +170,7 @@ namespace HECSFramework.Core
                 if (icomponent is IWorldSingleComponent singleComponent)
                     this.AddSingleWorldComponent(singleComponent, true);
 
-                componentProvider.RegisterReactive(entity.Index, true);
+                
             }
 
             foreach (var s in entity.Systems)
@@ -197,6 +198,12 @@ namespace HECSFramework.Core
                 RegisterSystem(s);
             }
 
+            foreach (var c in entity.Components)
+            {
+                var componentProvider = componentProvidersByTypeIndex[c];
+                componentProvider.RegisterReactive(entity.Index, true);
+            }
+            
             entity.IsDisposed = false;
             entity.IsInited = true;
         }
