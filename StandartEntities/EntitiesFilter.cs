@@ -21,7 +21,17 @@ namespace HECSFramework.Core
         public int ExcludeHash { get => excludeHash; }
 
         public int Count => entities.Count;
-        public ref int[] Entities => ref entities.Data;
+        public int[] Entities
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => entities.Data;
+        }
+
+        public Entity this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => world.Entities[entities.Data[index]];
+        }
 
         internal EntitiesFilter(World world, Filter include, Filter exclude)
         {
