@@ -119,7 +119,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Remove(int index)
         {
-            if (Components[index] == null)
+            if (Components[index] == null || !Components[index].IsAlive)
                 return;
 
             RegisterComponent(index, false);

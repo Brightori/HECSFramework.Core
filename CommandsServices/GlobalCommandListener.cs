@@ -73,12 +73,16 @@ namespace HECSFramework.Core
             listeners.Add(react);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Invoke(T data)
         {
             ProcessRemove();
+            var count = listeners.Count;
 
-            foreach (var listener in listeners)
+            for (int i = 0; i < count; i++)
             {
+                var listener = listeners.Data[i];
+
                 if (listener == null || !listener.Owner.IsAlive())
                 {
                     listenersToRemove.Enqueue(listener);

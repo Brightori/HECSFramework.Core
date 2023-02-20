@@ -71,9 +71,11 @@ namespace HECSFramework.Core
 
             if (this.listeners.TryGetValue(entity, out var listeners))
             {
-                foreach (var listener in listeners)
+                var count = listeners.Count;
+
+                for (int i = 0; i < count; i++)
                 {
-                    listener.CommandReact(data);
+                    listeners.Data[i].CommandReact(data);
                 }
             }
 
