@@ -9,18 +9,16 @@ namespace Components
     public sealed partial class AbilitiesHolderComponent : BaseComponent, IInitable, IDisposable
     {
         [HideInInspectorCrossPlatform]
-        private List<Entity> abilities = new List<Entity>(8);
-        public ReadonlyList<Entity> Abilities;
+        public List<Entity> Abilities = new List<Entity>(8);
         public Dictionary<int, Entity> IndexToAbility = new Dictionary<int, Entity>();
 
         public void Init()
         {
-            Abilities = new ReadonlyList<Entity>(abilities);
         }
 
         public void AddAbility(Entity ability, bool needInit = false)
         {
-            abilities.Add(ability);
+            Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
             if (needInit)
@@ -29,16 +27,17 @@ namespace Components
 
         public void RemoveAbility(Entity ability)
         {
-            abilities.Remove(ability);
+            Abilities.Remove(ability);
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
+            ability.Dispose();
         }
 
         public void Dispose()
         {
-            foreach (var a in abilities)
+            foreach (var a in Abilities)
                 a.Dispose();
 
-            abilities.Clear();
+            Abilities.Clear();
             IndexToAbility.Clear();
         }
     }
