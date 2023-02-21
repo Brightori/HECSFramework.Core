@@ -1,6 +1,7 @@
 ﻿using System;
 using HECSFramework.Core.Helpers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
@@ -48,6 +49,7 @@ namespace HECSFramework.Core
 
         public int this[int index]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (index == 0)

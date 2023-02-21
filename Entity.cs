@@ -221,6 +221,17 @@ namespace HECSFramework.Core
             return Components.Contains(index);
         }
 
+        public bool ContainsMask(Filter mask)
+        {
+            for (int i = 0; i < mask.Lenght; i++)
+            {
+                if (!Components.Contains(mask[0]))
+                    return false;
+            }
+
+            return true;
+        }
+
         public bool ContainsMask(HashSet<int> mask)
         {
             foreach (var m in mask)
@@ -235,6 +246,17 @@ namespace HECSFramework.Core
             return true;
         }
 
+        public bool ContainsAnyFromMask(Filter mask)
+        {
+            for (int i = 0; i < mask.Lenght; i++)
+            {
+                if (Components.Contains(mask[i]))
+                    return true;
+            }
+
+            return false;
+        } 
+        
         public bool ContainsAnyFromMask(HashSet<int> mask)
         {
             foreach (var m in mask)
