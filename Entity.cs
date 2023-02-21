@@ -329,10 +329,10 @@ namespace HECSFramework.Core
 
         public bool RemoveHecsSystem(ISystem system)
         {
-            World.UnRegisterSystem(system);
-
             if (!system.IsDisposed)
                 system.Dispose();
+
+            World.UnRegisterSystem(system);
 
             system.ReturnToPool();
             return Systems.RemoveSwap(system);

@@ -111,6 +111,14 @@ namespace HECSFramework.Core
                 Entities[dirtyEntities.Data[i]].IsDirty = false;
             }
 
+            for (int i = 0; i < registerCount; i++)
+            {
+                var register = registerEntity.Data[i];
+
+                if (!register.IsAdded)
+                    freeIndices.Push(register.Entity.Index);
+            }
+
             dirtyEntities.Clear();
             registerEntity.Clear();
         }
@@ -227,7 +235,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(Entity entity)
         {
-            freeIndices.Push(entity.Index);
+            
             entity.IsAlive = false;
             entity.IsInited = false;
             entity.IsPaused = false;
