@@ -205,6 +205,21 @@ namespace HECSFramework.Core
             return false;
         }
 
+        public bool TryGetSystemFromEntity<T>(int ComponentTypeIndex, out T system) where T: ISystem
+        {
+            foreach (var e in Entities)
+            {
+                if (e.Components.Contains(ComponentTypeIndex))
+                {
+                    if (e.TryGetSystem(out system))
+                        return true;
+                }
+            }
+
+            system = default;
+            return false;
+        }
+
         public bool TryGetEntityByID(Guid entityGuid, out Entity entity)
         {
             if (cacheTryGetbyGuid.TryGetValue(entityGuid, out entity))
