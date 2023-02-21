@@ -200,6 +200,10 @@ namespace HECSFramework.Core
                 Data[oldIndex] = default;
                 return true;
             }
+            else
+            {
+                Data[0] = default;
+            }
 
             return false;
         }

@@ -75,7 +75,12 @@ namespace HECSFramework.Core
 
                 for (int i = 0; i < count; i++)
                 {
-                    listeners.Data[i].CommandReact(data);
+                    var listener = listeners.Data[i];
+
+                    if (listener == null || !listener.Owner.IsAlive())
+                        continue;
+
+                    listener.CommandReact(data);
                 }
             }
 
