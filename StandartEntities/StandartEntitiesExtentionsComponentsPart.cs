@@ -11,6 +11,12 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IComponent GetComponent(this Entity entity, int typeIndex)
+        {
+            return entity.World.GetComponentProvider(typeIndex).GetIComponent(entity.Index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T GetOrAddComponent<T>(this Entity entity) where T : IComponent, new()
         {
             return ComponentProvider<T>.ComponentsToWorld.Data[entity.World.Index].GetOrAddComponent(entity.Index);
