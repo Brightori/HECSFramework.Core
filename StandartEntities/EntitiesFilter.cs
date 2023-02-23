@@ -130,6 +130,18 @@ namespace HECSFramework.Core
             return other.GetHashCode() == GetHashCode();
         }
 
+        public Entity[] ToArray()
+        {
+            var result = new Entity[entities.Count];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = this[i];
+            }
+
+            return result;
+        }
+
         public struct Enumerator
         {
             readonly int[] entities;
