@@ -124,7 +124,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Remove<T>(this IntHashMap<T> hashMap, in int key, [CanBeNull] out T lastValue) {
+        public static bool Remove<T>(this IntHashMap<T> hashMap, in int key, out T lastValue) {
             var rem = key & hashMap.CapacityMinusOne;
 
             int next;
@@ -183,7 +183,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGetValue<T>(this IntHashMap<T> hashMap, in int key, [CanBeNull] out T value) {
+        public static bool TryGetValue<T>(this IntHashMap<T> hashMap, in int key, out T value) {
             var rem = key & hashMap.CapacityMinusOne;
 
             int next;
