@@ -123,23 +123,23 @@ namespace HECSFramework.Core
             registerEntity.Clear();
         }
 
-        public ref Entity GetEntityFromPool(string id = "empty")
+        public Entity GetEntityFromPool(string id = "empty")
         {
             if (freeIndices.TryPop(out var result))
             {
                 if (Entities[result] == null)
                     Entities[result] = new Entity(result, this, id);
 
+                Entities[result].ID = id;
                 Entities[result].IsInited = false;
                 Entities[result].IsDisposed = false;
                 Entities[result].IsAlive = true;
-                Entities[result].ID = id;
 
-                return ref Entities[result];
+                return Entities[result];
             }
 
             else
-                return ref ResizeAndReturnEntity();
+                return ResizeAndReturnEntity();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -156,7 +156,7 @@ namespace HECSFramework.Core
         {
             if (entity.Index == -1)
             {
-                ref var getEntity = ref GetEntityFromPool();
+                var getEntity = GetEntityFromPool();
                 entity.SetID(getEntity.ID);
                 getEntity = entity;
             }
@@ -379,10 +379,10 @@ namespace HECSFramework.Core
             return GetEntityFreeIndex();
         }
 
-        private ref Entity ResizeAndReturnEntity()
+        private Entity ResizeAndReturnEntity()
         {
             ResizeEntitiesList();
-            return ref GetEntityFromPool();
+            return GetEntityFromPool();
         }
 
         private void ResizeEntitiesList()
