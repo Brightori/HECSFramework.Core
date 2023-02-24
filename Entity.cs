@@ -9,6 +9,8 @@ namespace HECSFramework.Core
     [Serializable]
     public sealed partial class Entity
     {
+        public const string ClearEntity = "CEntity";
+
         public readonly HECSList<ISystem> Systems = new HECSList<ISystem>();
         public readonly HashSet<int> Components = new HashSet<int>(8);
 
@@ -16,14 +18,14 @@ namespace HECSFramework.Core
         public World World;
 
         public Guid GUID;
-        public string ID;
+        public string ID = ClearEntity;
 
         public bool IsInited;
         public bool IsAlive = true;
         public bool IsPaused;
         public bool IsDisposed;
 
-        public int Index;
+        public int Index = -1;
         public bool IsDirty;
 
         /// <summary>

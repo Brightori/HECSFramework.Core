@@ -137,7 +137,7 @@ namespace HECSFramework.Core
             }
 
             else
-                return ResizeAndReturnEntity();
+                return ResizeAndReturnEntity(id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -377,10 +377,10 @@ namespace HECSFramework.Core
             return GetEntityFreeIndex();
         }
 
-        private Entity ResizeAndReturnEntity()
+        private Entity ResizeAndReturnEntity(string id)
         {
             ResizeEntitiesList();
-            return GetEntityFromPool();
+            return GetEntityFromPool(id);
         }
 
         private void ResizeEntitiesList()
