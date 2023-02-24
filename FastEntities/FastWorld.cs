@@ -8,14 +8,14 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
-        private HECSList<ushort> updatedEntities = new HECSList<ushort>(1024);
+        private HECSList<ushort> updatedEntities = new HECSList<ushort>(32);
         private Dictionary<int, FastComponentProvider> fastComponentProvidersByTypeIndex = new Dictionary<int, FastComponentProvider>(256);
         private HECSList<FastEntitiesFilter> filters = new HECSList<FastEntitiesFilter>(16);
 
         public bool FastEntitiesIsDirty;
 
-        public FastEntity[] FastEntities = new FastEntity[1024];
-        private Queue<ushort> freeEntities = new Queue<ushort>(1024);
+        public FastEntity[] FastEntities = new FastEntity[32];
+        private Queue<ushort> freeEntities = new Queue<ushort>(32);
 
         private TypeRegistrator[] typeRegistrators = new TypeRegistrator[0];
 
