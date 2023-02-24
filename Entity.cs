@@ -43,20 +43,18 @@ namespace HECSFramework.Core
             }
         }
 
-        public Entity(string id = "Empty")
+        public static Entity Get(string id)
         {
-            World = EntityManager.Default;
-            Index = EntityManager.Default.GetEntityFreeIndex();
-            World.Entities[Index] = this;
-            GenerateGuid();
+            var entity = EntityManager.Default.GetEntityFromPool(id);
+            entity.GenerateGuid();
+            return entity;
         }
 
-        public Entity(World world, string id = "Empty")
+        public static Entity Get(World world, string id)
         {
-            World = world;
-            Index = world.GetEntityFreeIndex();
-            World.Entities[Index] = this;
-            GenerateGuid();
+            var entity = world.GetEntityFromPool(id);
+            entity.GenerateGuid();
+            return entity;
         }
 
         /// <summary>
@@ -98,7 +96,7 @@ namespace HECSFramework.Core
         {
             if (IsDisposed)
                 return;
-            
+
             IsDisposed = true;
             Clean();
             World.RegisterEntity(this, false);
@@ -255,8 +253,8 @@ namespace HECSFramework.Core
             }
 
             return false;
-        } 
-        
+        }
+
         public bool ContainsAnyFromMask(HashSet<int> mask)
         {
             foreach (var m in mask)

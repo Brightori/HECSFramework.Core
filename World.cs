@@ -46,7 +46,7 @@ namespace HECSFramework.Core
             if (IsInited)
                 return;
 
-            var worldService = new Entity(this, "WorldService");
+            var worldService = Entity.Get(this, "WorldService");
             waitingCommandsSystems = new WaitingCommandsSystems();
             worldService.AddHecsSystem(waitingCommandsSystems);
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
