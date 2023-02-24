@@ -58,6 +58,9 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T AddComponent(int index, in T component)
         {
+            if (Components[index] != null && Components[index].IsAlive)
+                Remove(index);
+
             Components[index] = component;
             Add(index);
             return this.Components[index];
