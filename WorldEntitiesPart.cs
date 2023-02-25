@@ -13,7 +13,7 @@ namespace HECSFramework.Core
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(256);
 
         //here we have free entities for pooling|using
-        private Stack<int> freeIndices = new Stack<int>();
+        private Stack<int> freeIndicesForStandartEntities = new Stack<int>();
 
         //dirty entities should be processing 
         private HECSList<int> dirtyEntities = new HECSList<int>(32);
@@ -81,7 +81,8 @@ namespace HECSFramework.Core
             for (int i = 0; i < Entities.Length; i++)
             {
                 Entities[i] = new Entity(i, this);
-                freeIndices.Push(i);
+                Entities[i].IsRegistered = true;
+                freeIndicesForStandartEntities.Push(i);
             }
 
             GlobalUpdateSystem.FinishUpdate += ProcessDirtyEntities;
@@ -114,7 +115,7 @@ namespace HECSFramework.Core
                 var register = registerEntity.Data[i];
 
                 if (!register.IsAdded)
-                    freeIndices.Push(register.Entity.Index);
+                    freeIndicesForStandartEntities.Push(register.Entity.Index);
             }
 
             dirtyEntities.Clear();
@@ -123,7 +124,7 @@ namespace HECSFramework.Core
 
         public Entity GetEntityFromPool(string id = "empty")
         {
-            if (freeIndices.TryPop(out var result))
+            if (freeIndicesForStandartEntities.TryPop(out var result))
             {
                 if (Entities[result] == null)
                     Entities[result] = new Entity(result, this, id);
@@ -132,6 +133,7 @@ namespace HECSFramework.Core
                 Entities[result].IsInited = false;
                 Entities[result].IsDisposed = false;
                 Entities[result].IsAlive = true;
+                Entities[result].IsRegistered = true;
 
                 return Entities[result];
             }
@@ -152,13 +154,15 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessAddedEntity(Entity entity)
         {
-            if (entity.Index == -1)
+            if (!entity.IsRegistered)
             {
-                var getEntity = GetEntityFromPool();
-                entity.SetID(getEntity.ID);
-                getEntity = entity;
+                if (Entities[entity.Index] != null && Entities[entity.Index].IsAlive)
+                    entity.Index = GetEntityFreeIndex();
+             
+                Entities[entity.Index] = entity;
             }
 
+            entity.IsRegistered = true;
             registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
             RegisterDirtyEntity(entity.Index);
 
@@ -368,7 +372,7 @@ namespace HECSFramework.Core
 
         public int GetEntityFreeIndex()
         {
-            if (freeIndices.TryPop(out var result))
+            if (freeIndicesForStandartEntities.TryPop(out var result))
             {
                 return result;
             }
@@ -393,7 +397,7 @@ namespace HECSFramework.Core
                 if (Entities[i] == null)
                 {
                     Entities[i] = new Entity(i, this);
-                    freeIndices.Push(i);
+                    freeIndicesForStandartEntities.Push(i);
                 }
             }
 

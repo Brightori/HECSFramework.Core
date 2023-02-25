@@ -20,12 +20,13 @@ namespace HECSFramework.Core
         public Guid GUID;
         public string ID = ClearEntity;
 
+        public bool IsRegistered;
         public bool IsInited;
         public bool IsAlive = true;
         public bool IsPaused;
         public bool IsDisposed;
 
-        public int Index = -1;
+        public int Index;
         public bool IsDirty;
 
         /// <summary>
