@@ -97,7 +97,7 @@ namespace Components
             return false;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             modifiableIntCounter.Dispose();
         }
