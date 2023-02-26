@@ -21,8 +21,6 @@ namespace Systems
         {
             foreach (var a in abilitiesHolder.Abilities)
             {
-                if (a.ContainsMask<AbilityOwnerComponent>()) continue;
-
                 if (Owner.TryGetComponent(out AbilityOwnerComponent abilityOwnerComponent))
                     a.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = abilityOwnerComponent.AbilityOwner;
                 else
