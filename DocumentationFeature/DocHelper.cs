@@ -69,4 +69,6 @@ public static partial class Doc
     public const string Attributes = "Attributes";
     public const string Interfaces = "Interfaces";
     public const string UniversalNodes = "UniversalNodes";
+    public const string Enemy = "Enemy";
+    public const string Movement = "Movement";
 }
