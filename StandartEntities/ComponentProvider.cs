@@ -81,10 +81,8 @@ namespace HECSFramework.Core
 
             if (Components[index] != null)
             {
-                Components[index].IsAlive = true;
-                Components[index].Owner = World.Entities[index];
-
-                return AddComponent(index, Components[index]);
+                Add(index);
+                return Components[index];
             }
 
             return AddComponent(index);
