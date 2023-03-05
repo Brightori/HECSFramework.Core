@@ -219,7 +219,6 @@ namespace HECSFramework.Core
                     if (add)
                     {
                         addLocalComponent.Enqueue((entityIndex, add));
-                        isDirty = true;
                     }
                     else
                     {
@@ -236,7 +235,6 @@ namespace HECSFramework.Core
             {
                 if (add)
                 {
-                    isDirty = true;
                     addedComponent.Enqueue(Components[entityIndex]);
                 }
                 else
@@ -246,6 +244,9 @@ namespace HECSFramework.Core
                         reactComponentGlobals.Data[i].ComponentReactGlobal(Components[entityIndex], add);
                 }
             }
+
+            if (add)
+                isDirty = true;
         }
 
 
@@ -361,6 +362,10 @@ namespace HECSFramework.Core
 
             foreach (var ur in universalReactGlobals)
                 ur.Value.ForceReact();
+
+            foreach (var ulr in localGenericListeners.Values)
+                foreach (var u in ulr.Values)
+                    u.ForceReact();
         }
 
         public void PriorityUpdateLocal()
