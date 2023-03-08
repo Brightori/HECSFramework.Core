@@ -6,6 +6,5 @@ namespace HECSFramework.Core
     {
         public abstract void Dispose();
         public abstract void React(IComponent component, bool added);
-        public abstract void ForceReact();
     }
 }

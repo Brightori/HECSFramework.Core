@@ -85,7 +85,7 @@ namespace HECSFramework.Core
                 while (removeUpdatablesQueue.Count > 0)
                 {
                     var remove = removeUpdatablesQueue.Dequeue();
-                    updatables.Remove(remove);
+                    updatables.RemoveSwap(remove);
                 }
 
                 AfterAddOrRemove();

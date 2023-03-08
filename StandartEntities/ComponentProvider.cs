@@ -17,6 +17,9 @@ namespace HECSFramework.Core
 
         private Queue<T> addedComponent = new Queue<T>(4);
         private Queue<(int, bool)> addLocalComponent = new Queue<(int, bool)>(4);
+        
+        private HECSList<int> addedGenericLocal = new HECSList<int>(4);
+        private HECSList<int> addedGenericGlobal = new HECSList<int>(4);
 
         private bool isDirty;
 
@@ -201,18 +204,33 @@ namespace HECSFramework.Core
 
             if (isGenericReactive)
             {
-                foreach (var ul in universalReactGlobals)
-                    ul.Value.React(Components[entityIndex], add);
+                if (!add)
+                {
+                    foreach (var ul in universalReactGlobals)
+                        ul.Value.React(Components[entityIndex], add);
+
+                    addedGenericGlobal.Remove(entityIndex);
+                }
+
+                else
+                    addedGenericGlobal.Add(entityIndex);
             }
 
             if (isGenericReactiveLocal)
             {
-                if (localGenericListeners.TryGetValue(entityIndex, out var localListeners))
-                    foreach (var l in localListeners)
-                        l.Value.React(Components[entityIndex], add);
+                if (!add)
+                {
+                    if (localGenericListeners.TryGetValue(entityIndex, out var localListeners))
+                        foreach (var l in localListeners)
+                            l.Value.React(Components[entityIndex], add);
+                    
+                    addedGenericLocal.Remove(entityIndex);
+                }
+                else
+                    addedGenericLocal.Add(entityIndex);
             }
 
-            if (isReactiveLocal)
+            if (isReactiveLocal || isGenericReactiveLocal)
             {
                 if (localListeners.ContainsKey(entityIndex))
                 {
@@ -359,13 +377,6 @@ namespace HECSFramework.Core
         public void ForceReact()
         {
             PriorityUpdateLocal();
-
-            foreach (var ur in universalReactGlobals)
-                ur.Value.ForceReact();
-
-            foreach (var ulr in localGenericListeners.Values)
-                foreach (var u in ulr.Values)
-                    u.ForceReact();
         }
 
         public void PriorityUpdateLocal()
@@ -380,6 +391,14 @@ namespace HECSFramework.Core
                         reactComponentGlobals.Data[i].ComponentReactGlobal(component, true);
                 }
 
+
+                var countOfAddededGeneric = addedGenericGlobal.Count;
+                for (int i = 0; i < countOfAddededGeneric; i++)
+                {
+                        foreach (var ur in universalReactGlobals.Values)
+                        ur.React(Components[addedGenericGlobal.Data[i]], true);
+                }
+
                 while (addLocalComponent.TryDequeue(out var component))
                 {
                     if (localListeners.TryGetValue(component.Item1, out var listeners))
@@ -389,8 +408,31 @@ namespace HECSFramework.Core
                         for (int i = 0; i < listenersCount; i++)
                             listeners.Data[i].ComponentReact(Components[component.Item1], component.Item2);
                     }
+
+                    if (isGenericReactiveLocal)
+                        if (localGenericListeners.TryGetValue(component.Item1, out var universallisteners))
+                        {
+                            foreach (var ur in universallisteners.Values)
+                                ur.React(Components[component.Item1], true);
+                        }
                 }
 
+                var countOfAddededLocalGeneric = addedGenericLocal.Count;
+                for (int i = 0; i < countOfAddededLocalGeneric; i++)
+                {
+                    if (localGenericListeners.TryGetValue(addedGenericLocal.Data[i], out var universallisteners))
+                    {
+                        foreach (var ur in universallisteners.Values)
+                            ur.React(Components[addedGenericLocal.Data[i]], true);
+                    }
+                }
+
+                if (countOfAddededGeneric != 0)
+                    addedGenericGlobal.Clear();
+                
+                if (countOfAddededLocalGeneric != 0)
+                    addedGenericLocal.Clear();
+                
                 isDirty = false;
             }
         }
