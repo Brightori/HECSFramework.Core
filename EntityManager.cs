@@ -157,7 +157,8 @@ namespace HECSFramework.Core
                 return;
             }
 
-            Instance.worlds[world].Command(command);
+            if (world < Worlds.Length)
+                Instance.worlds[world].Command(command);
         }
 
         public static void RegisterEntity(Entity entity, bool add)

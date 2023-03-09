@@ -25,17 +25,15 @@ namespace Systems
                 {
                     if (entity.TryGetComponent(out ActorProviderComponent actorProviderComponent))
                     {
-                        if (entity.ContainsMask<PoolableTagComponent>())
-                            actorProviderComponent.Actor.RemoveActorToPool();
-                        else
-                            actorProviderComponent.Actor.HecsDestroy();
-
+                        ProcessActor(entity);
                         continue;
                     }
                     entity.Dispose();
                 }
             }
         }
+
+        partial void ProcessActor(Entity entity);
 
         public override void Dispose()
         {
