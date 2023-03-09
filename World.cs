@@ -79,7 +79,8 @@ namespace HECSFramework.Core
         /// <param name="isGlobalOnly"></param>
         public void Command<T>(T command) where T : struct, ICommand, IGlobalCommand
         {
-            GlobalCommandListener<T>.ListenersToWorld.Data[index]?.Invoke(command);
+            if (index < GlobalCommandListener<T>.ListenersToWorld.Count)
+                GlobalCommandListener<T>.ListenersToWorld.Data[index]?.Invoke(command);
         }
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
