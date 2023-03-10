@@ -10,16 +10,16 @@ namespace HECSFramework.Core
         public T[] Components = new T[World.StartEntitiesCount];
         public World World;
         public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
-        private HECSList<IReactComponentGlobal<T>> reactComponentGlobals = new HECSList<IReactComponentGlobal<T>>(256);
-        private Dictionary<Type, UniversalReact> universalReactGlobals = new Dictionary<Type, UniversalReact>(256);
-        private Dictionary<int, HECSList<IReactComponentLocal<T>>> localListeners = new Dictionary<int, HECSList<IReactComponentLocal<T>>>(256);
-        private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(128);
+        private HECSList<IReactComponentGlobal<T>> reactComponentGlobals = new HECSList<IReactComponentGlobal<T>>(2);
+        private Dictionary<Type, UniversalReact> universalReactGlobals = new Dictionary<Type, UniversalReact>(0);
+        private Dictionary<int, HECSList<IReactComponentLocal<T>>> localListeners = new Dictionary<int, HECSList<IReactComponentLocal<T>>>(0);
+        private Dictionary<int, Dictionary<Type, UniversalReact>> localGenericListeners = new Dictionary<int, Dictionary<Type, UniversalReact>>(0);
 
         private Queue<T> addedComponent = new Queue<T>(4);
-        private Queue<(int, bool)> addLocalComponent = new Queue<(int, bool)>(4);
+        private Queue<(int, bool)> addLocalComponent = new Queue<(int, bool)>(1);
         
-        private HECSList<int> addedGenericLocal = new HECSList<int>(4);
-        private HECSList<int> addedGenericGlobal = new HECSList<int>(4);
+        private HECSList<int> addedGenericLocal = new HECSList<int>(1);
+        private HECSList<int> addedGenericGlobal = new HECSList<int>(1);
 
         private bool isDirty;
 
