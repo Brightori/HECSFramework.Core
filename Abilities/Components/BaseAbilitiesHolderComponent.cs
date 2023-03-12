@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HECSFramework.Core;
+using HECSFramework.Core.Helpers;
 
 namespace Components
 {
@@ -21,6 +22,12 @@ namespace Components
             Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
+            if (ability.TryGetComponent(out Components.AdditionalAbilityIndexComponent component))
+            {
+                foreach (var i in component.AdditionalIndeces)
+                    IndexToAbility.AddOrReplace(i, ability);
+            }
+
             if (needInit)
                 ability.Init();
         }
@@ -29,6 +36,13 @@ namespace Components
         {
             Abilities.Remove(ability);
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
+
+            if (ability.TryGetComponent(out Components.AdditionalAbilityIndexComponent component))
+            {
+                foreach (var i in component.AdditionalIndeces)
+                    IndexToAbility.Remove(i);
+            }
+
             ability.Dispose();
         }
 
