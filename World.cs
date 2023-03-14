@@ -53,12 +53,14 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());
             worldService.Init();
-
+            AddStrategiesPart();
             while (waintingForInit.Count > 0)
                 waintingForInit.Dequeue().Init();
 
             IsInited = true;
         }
+
+        partial void AddStrategiesPart();
 
         public void AddToInit(Entity entity)
         {
