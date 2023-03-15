@@ -39,6 +39,11 @@ namespace HECSFramework.Core
             systemsSetters[key].BindSystem(system);
         }
 
+        public static bool ContainsComponent(int index)
+        {
+            return componentHashToType.ContainsKey(index);
+        }
+
         public static void UnBindSystem<T>(T system) where T : ISystem
         {
             var key = system.GetType();
