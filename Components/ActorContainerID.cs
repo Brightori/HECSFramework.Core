@@ -8,6 +8,7 @@ namespace Components
     ///if u need new functionality like add InetworkComponent interface - add them to part class
 
     [Serializable]
+    [Documentation(Doc.HECS, Doc.GameLogic, "this component contains string and int id of container for entity, we can take container by this id from holders on client" )]
     public partial class ActorContainerID : BaseComponent, IDisposable
     {
         private string id;
