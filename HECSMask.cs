@@ -34,7 +34,7 @@ namespace HECSFramework.Core
         }
     }
 
-
+    [Serializable]
     public struct Filter 
     {
         public int Mask01;
@@ -69,6 +69,25 @@ namespace HECSFramework.Core
 
                 return 0;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                if (index == 0)
+                    Mask01 = value;
+                if (index == 1)
+                    Mask02 = value;
+                if (index == 2)
+                    Mask03 = value;
+                if (index == 3)
+                    Mask04 = value;
+                if (index == 4)
+                    Mask05 = value;
+                if (index == 5)
+                    Mask06 = value;
+                if (index == 6)
+                    Mask07 = value;
+            }
         }
 
         #region Constructors
@@ -79,7 +98,7 @@ namespace HECSFramework.Core
             Lenght = 1;
             GetHashCode();
         }
-        
+
         public Filter(int mask01, int mask02) : this()
         {
             Mask01 = mask01;
@@ -142,6 +161,18 @@ namespace HECSFramework.Core
             GetHashCode();
         }
         #endregion
+
+        public void Add(int typeIndex)
+        {
+            var currentIndex = Lenght;
+
+            if (++Lenght <= 7)
+            {
+                this[currentIndex] = typeIndex;
+            }
+            else
+                Lenght = currentIndex;
+        }
 
         public void AddToHashSet(HashSet<int> typesHashes)
         {
