@@ -255,7 +255,11 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
-         
+            for (int i = 0; i < Entities.Length; i++)
+            {
+                if (Entities[i].IsAlive)
+                    Entities[i].Dispose();
+            }
 
             componentsService.Dispose();
             GlobalUpdateSystem.Dispose();
