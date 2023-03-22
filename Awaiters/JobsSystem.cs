@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -62,6 +63,11 @@ namespace HECSFramework.Core
         }
         
         public static async Awaiter Execute(Task task)
+        {
+            await task;
+        }
+
+        public static async Awaiter Execute(YieldAwaitable task)
         {
             await task;
         }
