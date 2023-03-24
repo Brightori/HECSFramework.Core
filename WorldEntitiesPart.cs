@@ -10,7 +10,7 @@ namespace HECSFramework.Core
         public const int StartEntitiesCount = 32;
 
         public Entity[] Entities;
-        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(256);
+        private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(32);
 
         //here we have free entities for pooling|using
         private Stack<int> freeIndicesForStandartEntities = new Stack<int>();
@@ -19,8 +19,8 @@ namespace HECSFramework.Core
         private HECSList<int> dirtyEntities = new HECSList<int>(32);
         private HECSList<RegisterEntity> registerEntity = new HECSList<RegisterEntity>(32);
 
-        private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(256);
-        private Dictionary<int, EntitiesFilter> entitiesFilters = new Dictionary<int, EntitiesFilter>(8);
+        private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(128);
+        private Dictionary<int, List<EntitiesFilter>> entitiesFilters = new Dictionary<int, List<EntitiesFilter>>(8);
 
         private ComponentProviderRegistrator[] componentProviderRegistrators;
 
@@ -35,10 +35,21 @@ namespace HECSFramework.Core
 
         private EntitiesFilter GetFilterFromCache(Filter include, Filter exclude)
         {
-            var key = include.GetHashCode() + exclude.GetHashCode();
+            var includeHash = include.GetHashCode();
+            var excludeHash = exclude.GetHashCode();
+            var key = includeHash + excludeHash;
 
-            if (entitiesFilters.TryGetValue(key, out var filter))
-                return filter;
+            if (entitiesFilters.TryGetValue(key, out var listFilters))
+            {
+                for (int i = 0; i < listFilters.Count; i++)
+                {
+                    var filter = listFilters[i];
+                    if (filter.IncludeHash.Equals(includeHash) && filter.ExcludeHash.Equals(excludeHash))
+                    {
+                        return filter;
+                    }
+                }
+            }
 
             return new EntitiesFilter(this, include, exclude);
         }
@@ -48,10 +59,22 @@ namespace HECSFramework.Core
         public void RegisterEntityFilter(EntitiesFilter filter)
         {
             var key = filter.GetHashCode();
-            if (entitiesFilters.ContainsKey(key))
-                throw new Exception("we alrdy have filter with this key, probably u should use getfilter on the world, instead of manualy creating");
+            if (!entitiesFilters.ContainsKey(key))
+            {
+                entitiesFilters.Add(key, new List<EntitiesFilter>(2));
+            }
+            else
+            {
+                foreach (var f in entitiesFilters[key])
+                {
+                    if (f.IncludeHash.Equals(filter.IncludeHash) && f.ExcludeHash.Equals(filter.ExcludeHash))
+                    {
+                        throw new Exception("we alrdy have filter with this key, probably u should use getfilter on the world, instead of manualy creating");
+                    }
+                }
+            }
 
-            entitiesFilters.Add(key, filter);
+            entitiesFilters[key].Add(filter);
 
             var pool = HECSPooledArray<int>.GetArray(Entities.Length);
 
@@ -78,7 +101,7 @@ namespace HECSFramework.Core
         {
             Entities = new Entity[StartEntitiesCount];
 
-            for (int i = 0; i < Entities.Length; i++)
+            for (int i = 1; i < Entities.Length; i++)
             {
                 Entities[i] = new Entity(i, this);
                 Entities[i].IsRegistered = true;
@@ -102,8 +125,11 @@ namespace HECSFramework.Core
                 }
             }
 
-            foreach (var f in entitiesFilters)
-                f.Value.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+            foreach (var list in entitiesFilters)
+                foreach (var f in list.Value)
+                {
+                    f.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+                }
 
             for (int i = 0; i < dirtyEntities.Count; i++)
             {
@@ -158,7 +184,7 @@ namespace HECSFramework.Core
             {
                 if (Entities[entity.Index] != null && Entities[entity.Index].IsAlive)
                     entity.Index = GetEntityFreeIndex();
-             
+
                 Entities[entity.Index] = entity;
             }
 
@@ -180,7 +206,7 @@ namespace HECSFramework.Core
                 if (icomponent is IWorldSingleComponent singleComponent)
                     this.AddSingleWorldComponent(singleComponent, true);
 
-                
+
             }
 
             foreach (var s in entity.Systems)
@@ -213,7 +239,7 @@ namespace HECSFramework.Core
                 var componentProvider = componentProvidersByTypeIndex[c];
                 componentProvider.RegisterReactive(entity.Index, true);
             }
-            
+
             entity.IsDisposed = false;
             entity.IsInited = true;
         }
@@ -237,7 +263,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ProcessRemovedEntity(Entity entity)
         {
-            
+
             entity.IsAlive = false;
             entity.IsInited = false;
             entity.IsPaused = false;
