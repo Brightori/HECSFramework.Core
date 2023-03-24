@@ -265,20 +265,22 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReturnSystemToPool(int index, ISystem system)
         {
-            if (systemsPool.ContainsKey(index))
-            {
-                if (systemsPool[index].Count > Entities.Length)
-                    return;
+            //this functionality not done yet
 
-                systemsPool[index].Push(system);
-            }
-            else
-            {
-                systemsPool.Add(index, new Stack<ISystem>(16));
-                systemsPool[index].Push(system);
-            }
+            //if (systemsPool.ContainsKey(index))
+            //{
+            //    if (systemsPool[index].Count > Entities.Length)
+            //        return;
 
-            system.Owner = null;
+            //    systemsPool[index].Push(system);
+            //}
+            //else
+            //{
+            //    systemsPool.Add(index, new Stack<ISystem>(16));
+            //    systemsPool[index].Push(system);
+            //}
+
+            //system.Owner = null;
         }
 
 
