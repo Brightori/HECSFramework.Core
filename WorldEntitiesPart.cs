@@ -101,10 +101,14 @@ namespace HECSFramework.Core
         {
             Entities = new Entity[StartEntitiesCount];
 
-            for (int i = 1; i < Entities.Length; i++)
+            for (int i = 0; i < Entities.Length; i++)
             {
                 Entities[i] = new Entity(i, this);
                 Entities[i].IsRegistered = true;
+
+                if (i == 0)
+                    continue;
+
                 freeIndicesForStandartEntities.Push(i);
             }
 
