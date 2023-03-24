@@ -137,6 +137,9 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < Entities.Length; i++)
             {
+                if (!Entities[i].IsAlive)
+                    continue;
+
                 if (Entities[i].TryGetSystem(out T needed))
                 {
                     if (needed.Owner.IsAlive)
