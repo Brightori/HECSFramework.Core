@@ -131,7 +131,7 @@ namespace HECSFramework.Core
 
             if (singleSystems.TryGetValue(key, out var system))
             {
-                if (system.Owner.IsAlive)
+                if (system != null && system.Owner != null && system.Owner.IsAlive)
                     return (T)system;
             }
 
