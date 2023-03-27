@@ -305,6 +305,7 @@ namespace HECSFramework.Core
                 if (add)
                 {
                     HECSDebug.LogError("We alrdy have this key|component at singles " + key);
+                    HECSDebug.LogError($"We add duplicate to singles from entity: {component.Owner.ID} container: {component.Owner.ContainerID}"); 
                     return;
                 }
                 else
