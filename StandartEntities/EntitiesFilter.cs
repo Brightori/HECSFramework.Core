@@ -110,6 +110,14 @@ namespace HECSFramework.Core
             return null;
         }
 
+        public Entity FirstOrDefault()
+        {
+            if (entities.Count > 0)
+                return this[0];
+
+            return null;
+        }
+
         public void ForceUpdateFilter()
         {
             world.ForceUpdateFilter(this);
