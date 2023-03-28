@@ -395,7 +395,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterDirtyEntity(int index)
         {
-            if (Entities[index].IsDirty)
+            if (Entities[index].IsDirty || !Entities[index].IsInited)
                 return;
 
             Entities[index].IsDirty = true;
