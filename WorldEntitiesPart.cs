@@ -194,7 +194,6 @@ namespace HECSFramework.Core
 
             entity.IsRegistered = true;
             registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
-            RegisterDirtyEntity(entity.Index);
 
             foreach (var c in entity.Components)
             {
@@ -209,8 +208,6 @@ namespace HECSFramework.Core
 
                 if (icomponent is IWorldSingleComponent singleComponent)
                     this.AddSingleWorldComponent(singleComponent, true);
-
-
             }
 
             foreach (var s in entity.Systems)
@@ -246,6 +243,7 @@ namespace HECSFramework.Core
 
             entity.IsDisposed = false;
             entity.IsInited = true;
+            RegisterDirtyEntity(entity.Index);
         }
 
         public void AdditionalProcessing(IComponent component, Entity owner, bool add)
