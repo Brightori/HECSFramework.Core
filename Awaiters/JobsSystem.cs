@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-​
 namespace HECSFramework.Core
 {
     public class Job
@@ -13,15 +12,14 @@ namespace HECSFramework.Core
         private int threadID;
         private HECSList<IAwaiter> awaiters = new();
         private Queue<IAwaiter> removeQueue = new();
-​
+
         public Job(int thId)
         {
             threadID = thId;
         }
-​
         public void Update()
         {
-​
+
             Debug.Assert(threadID == Thread.CurrentThread.ManagedThreadId,
                 "Was called by a thread that does not own this data");
             for (int i = 0; i < awaiters.Count; i++)
@@ -29,19 +27,18 @@ namespace HECSFramework.Core
                 if (awaiters.Data[i].TryFinalize())
                     removeQueue.Enqueue(awaiters.Data[i]);
             }
-​
+
             while (removeQueue.TryDequeue(out var awaiter))
             {
                 awaiters.RemoveSwap(awaiter);
             }
         }
-​
         internal void AddAwaiter(IAwaiter awaiter)
         {
             awaiters.Add(awaiter);
         }
     }
-​
+
     public static class JobsSystem
     {
         private static ConcurrentDictionary<int, Job> jobs = new ConcurrentDictionary<int, Job>();
@@ -54,7 +51,7 @@ namespace HECSFramework.Core
             }
             throw new Exception("JobsSystem: Attempt to re-register a handler thread");
         }
-​
+
         internal static void RegisterAwaiter(IAwaiter awaiter)
         {
             int thID = Thread.CurrentThread.ManagedThreadId;
@@ -64,7 +61,7 @@ namespace HECSFramework.Core
             }
             else throw new Exception("JobsSystem: this thread is not registered for awaiter processing");
         }
-​
+
         public static async Awaiter<T> Execute<T>(Task<T> task)
         {
             await task;
@@ -75,7 +72,7 @@ namespace HECSFramework.Core
         {
             await task;
         }
-​
+
         public static async Awaiter Execute(YieldAwaitable task)
         {
             await task;
