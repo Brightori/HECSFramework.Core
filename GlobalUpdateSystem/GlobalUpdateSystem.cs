@@ -17,6 +17,7 @@ namespace HECSFramework.Core
 
         public bool IsGlobalStarted => startModule.IsStarted;
         public bool IsLateStarted => startModule.IsLateStarted;
+        public Action PreFinishUpdate { get; set; }
         public Action FinishUpdate { get; set; }
 
         public GlobalUpdateSystem()
