@@ -335,7 +335,7 @@ namespace HECSFramework.Core
 
             World.UnRegisterSystem(system);
 
-            system.ReturnToPool();
+            //system.ReturnToPool();
             return Systems.RemoveSwap(system);
         }
 
