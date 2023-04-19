@@ -6,4 +6,9 @@ namespace HECSFramework.Core
     public class HideInInspectorCrossPlatform : Attribute
     {
     }
+    
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    public class ReadOnlyCrossPlatform : Attribute
+    {
+    }
 }
