@@ -72,4 +72,5 @@ public static partial class Doc
     public const string Enemy = "Enemy";
     public const string Movement = "Movement";
     public const string Action = "Action";
+    public const string Damage = "Damage";
 }
