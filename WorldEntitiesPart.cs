@@ -390,6 +390,24 @@ namespace HECSFramework.Core
             toWorld.GetComponentProvider(indexComponent).RegisterComponent(indexToEntity, true);
         }
 
+        /// <summary>
+        /// we should use this api when we dont need updatable filter
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public IEnumerable<Entity> GetEntitiesByComponent<T>() where T : IComponent, new()
+        {
+            foreach (var e in Entities)
+            {
+                if (!e.IsAlive || !e.IsInited)
+                    continue;
+
+                if (e.ContainsMask<T>())
+                    yield return e;
+            }
+        }
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RegisterDirtyEntity(int index)
         {
