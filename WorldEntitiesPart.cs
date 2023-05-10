@@ -464,6 +464,12 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ComponentProvider GetComponentProvider(int index) => componentProvidersByTypeIndex[index];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[] GetComponents<T>() where T: IComponent
+        {
+            return ComponentProvider<T>.ComponentsToWorld.Data[index].Components;
+        }
+
         public void AddEntityListener(IReactEntity reactEntity, bool add)
         {
             if (add)
