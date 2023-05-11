@@ -70,9 +70,9 @@ namespace HECSFramework.Core
         public ValueTask ExecuteInUpdate(Action action) => executeInUpdate.ExecuteAction(action);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<T> RunJob<T>(T job) where T: struct, IHecsJob
+        public HECSJobRun<T> RunJob<T>(T job) where T: struct, IHecsJob
         {
-            return await executeInUpdate.RunJob(job);
+            return executeInUpdate.ExecuteJob(job);
         }
 
         public void FixedUpdate()

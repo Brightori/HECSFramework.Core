@@ -32,14 +32,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<T> RunJob<T>(T job) where T : struct, IHecsJob
-        {
-            var result = await ExecuteJob(job);
-            return result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HECSJobRun<T> ExecuteJob<T>(T job) where T: struct, IHecsJob
+        public HECSJobRun<T> ExecuteJob<T>(T job) where T: struct, IHecsJob
         {
             var key = typeof(T);
 
