@@ -22,7 +22,7 @@ namespace HECSFramework.Core
         {
             Debug.Assert(threadID == Thread.CurrentThread.ManagedThreadId,
                 "Was called by a thread that does not own this data");
-            
+
             for (int i = 0; i < awaiters.Count; i++)
             {
                 if (awaiters.Data[i].TryFinalize())
@@ -47,21 +47,17 @@ namespace HECSFramework.Core
         public static Job RegisterThreadHandler()
         {
             int thID = Thread.CurrentThread.ManagedThreadId;
-            
-            if (jobs.TryAdd(thID, new Job(thID)))
-                return jobs[thID];
-            
-            throw new Exception("JobsSystem: Attempt to re-register a handler thread");
+            return jobs.GetOrAdd(thID, new Job(thID));
         }
 
         internal static void RegisterAwaiter(IAwaiter awaiter)
         {
             int thID = Thread.CurrentThread.ManagedThreadId;
-            
+
             if (jobs.TryGetValue(thID, out Job job))
                 job.AddAwaiter(awaiter);
-            else 
-                throw new Exception("JobsSystem: this thread is not registered for awaiter processing");
+            else
+                RegisterThreadHandler().AddAwaiter(awaiter);
         }
 
         public static async Awaiter<T> Execute<T>(Task<T> task)
