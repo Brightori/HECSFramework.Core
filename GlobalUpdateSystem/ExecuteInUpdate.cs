@@ -10,7 +10,7 @@ namespace HECSFramework.Core
     public class ExecuteInUpdate : IUpdatable, IHECSJobRunPooler
     {
         private ConcurrentQueue<ActionInUpdate> actions = new();
-        private Dictionary<Type, Stack<IJobProcessor>> pooling = new Dictionary<Type, Stack<IJobProcessor>>(32);
+        private ConcurrentDictionary<Type, Stack<IJobProcessor>> pooling = new ConcurrentDictionary<Type, Stack<IJobProcessor>>();
 
         private HECSList<IJobProcessor> jobProcessors = new HECSList<IJobProcessor>(16);
         private AddAndRemoveHelper<IJobProcessor> addAndRemoveHelper;
@@ -61,7 +61,7 @@ namespace HECSFramework.Core
             {
                 var newStack = new Stack<IJobProcessor>();
                 newStack.Push(jobProcessor);
-                pooling.Add(jobProcessor.Key, newStack);
+                pooling.TryAdd(jobProcessor.Key, newStack);
             }
 
             addAndRemoveHelper.Remove(jobProcessor);
