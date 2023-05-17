@@ -3,9 +3,11 @@
 namespace Systems
 {
     [Documentation(Doc.Server, Doc.GameLogic, "This system for update awaiters, she should be only on server world, and init from main server thread")]
-    public class JobUpdateSystem : BaseSystem, IUpdatable, IOnThreadStartInit
+    public class AwaitersUpdateSystem : BaseSystem, IUpdatable, IOnThreadStartInit
     {
-        private Job job;
+        private AwaiterProcessor awaiterProcessor;
+
+        private bool isOnline;
 
         public override void InitSystem()
         {
@@ -14,12 +16,14 @@ namespace Systems
 
         public void OnThreadStartInit()
         {
-            job = JobsSystem.RegisterThreadHandler();
+            awaiterProcessor = AwaitersService.RegisterThreadHandler();
+            isOnline = true;
         }
 
         public void UpdateLocal()
         {
-            job.Update();
+            if (isOnline)
+                awaiterProcessor.Update();
         }
     }
 }

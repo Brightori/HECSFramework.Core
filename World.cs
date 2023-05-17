@@ -49,6 +49,7 @@ namespace HECSFramework.Core
             var worldService = Entity.Get(this, "WorldService");
             waitingCommandsSystems = new WaitingCommandsSystems();
             worldService.AddHecsSystem(waitingCommandsSystems);
+            worldService.AddHecsSystem(new AwaitersUpdateSystem());
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());

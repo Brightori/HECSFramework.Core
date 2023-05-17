@@ -18,7 +18,7 @@ namespace HECSFramework.Core
 
         public Awaiter()
         {
-            JobsSystem.RegisterAwaiter(this);
+            AwaitersService.RegisterAwaiter(this);
         }
 
         public void OnCompleted(Action continuation)
@@ -65,7 +65,7 @@ namespace HECSFramework.Core
 
         public Awaiter()
         {
-            JobsSystem.RegisterAwaiter(this);
+            AwaitersService.RegisterAwaiter(this);
         }
 
         public T GetResult()

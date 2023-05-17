@@ -7,13 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 namespace HECSFramework.Core
 {
-    public class Job
+    public class AwaiterProcessor
     {
         private int threadID;
         private HECSList<IAwaiter> awaiters = new();
         private Queue<IAwaiter> removeQueue = new();
 
-        public Job(int thId)
+        public AwaiterProcessor(int thId)
         {
             threadID = thId;
         }
@@ -41,23 +41,24 @@ namespace HECSFramework.Core
         }
     }
 
-    public static class JobsSystem
+    public static class AwaitersService
     {
-        private static ConcurrentDictionary<int, Job> jobs = new ConcurrentDictionary<int, Job>();
-        public static Job RegisterThreadHandler()
+        private static ConcurrentDictionary<int, AwaiterProcessor> jobs = new ConcurrentDictionary<int, AwaiterProcessor>();
+        
+        public static AwaiterProcessor RegisterThreadHandler()
         {
             int thID = Thread.CurrentThread.ManagedThreadId;
-            return jobs.GetOrAdd(thID, new Job(thID));
+            return jobs.GetOrAdd(thID, new AwaiterProcessor(thID));
         }
 
         internal static void RegisterAwaiter(IAwaiter awaiter)
         {
             int thID = Thread.CurrentThread.ManagedThreadId;
 
-            if (jobs.TryGetValue(thID, out Job job))
+            if (jobs.TryGetValue(thID, out AwaiterProcessor job))
                 job.AddAwaiter(awaiter);
             else
-                RegisterThreadHandler().AddAwaiter(awaiter);
+                throw new InvalidOperationException("we dont have awaiter processor for this thread" + thID);
         }
 
         public static async Awaiter<T> Execute<T>(Task<T> task)
