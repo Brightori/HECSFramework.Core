@@ -129,11 +129,16 @@ namespace HECSFramework.Core
                 }
             }
 
-            foreach (var list in entitiesFilters)
-                foreach (var f in list.Value)
+            if (dirtyEntities.Count > 0)
+            {
+                foreach (var list in entitiesFilters)
                 {
-                    f.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+                    foreach (var f in list.Value)
+                    {
+                        f.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
+                    }
                 }
+            }
 
             for (int i = 0; i < dirtyEntities.Count; i++)
             {

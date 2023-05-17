@@ -94,9 +94,7 @@ namespace HECSFramework.Core
             entities.ClearFast();
 
             foreach (var entity in check)
-            {
                 entities.Add(entity);
-            }
         }
 
         public Entity FirstOrDefault(Func<Entity, bool> func)
