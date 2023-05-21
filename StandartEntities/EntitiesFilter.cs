@@ -27,6 +27,8 @@ namespace HECSFramework.Core
             get => entities.Data;
         }
 
+      
+
         public Entity this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,6 +56,16 @@ namespace HECSFramework.Core
         public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
+        }
+
+        public bool ExcludeMaskContains<T>() where T: IComponent
+        {
+            return exclude.Contains(ComponentProvider<T>.TypeIndex);
+        }
+
+        public bool IncludeMaskContains<T>() where T : IComponent
+        {
+            return include.Contains(ComponentProvider<T>.TypeIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
