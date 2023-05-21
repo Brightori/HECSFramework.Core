@@ -73,4 +73,5 @@ public static partial class Doc
     public const string Movement = "Movement";
     public const string Action = "Action";
     public const string Damage = "Damage";
+    public const string Monobehaviour = "Monobehaviour";
 }
