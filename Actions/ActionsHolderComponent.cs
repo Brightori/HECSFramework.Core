@@ -6,7 +6,7 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Abilities, "this component holds actions with identifier, we can call visual actions or execite composite actions by this component")]
-    public sealed partial class ActionsHolderComponent : BaseComponent
+    public sealed partial class ActionsHolderComponent : BaseComponent, IDisposable
     {
         private List<ActionsToIdentifier> Actions = new List<ActionsToIdentifier>(4);
 
@@ -21,6 +21,18 @@ namespace Components
                 {
                     foreach (var action in a.Actions)
                         action.Action(entity);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (var a in Actions)
+            {
+                foreach (var action in a.Actions)
+                {
+                    if (action is IDisposable disposable)
+                        disposable.Dispose();
                 }
             }
         }
