@@ -136,10 +136,17 @@ namespace HECSFramework.Core
 
         public void Update()
         {
-            if (Job.IsComplete() || abortOperation)
+            if (Job.IsComplete())
             {
                 onComplete?.Invoke();
                 Release();
+                return;
+            }
+
+            if (abortOperation)
+            {
+                Release();
+                return;
             }
 
             Job.Run();
