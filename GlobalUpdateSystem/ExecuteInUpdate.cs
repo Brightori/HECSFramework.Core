@@ -145,6 +145,7 @@ namespace HECSFramework.Core
 
             if (abortOperation)
             {
+                HECSDebug.Log("we cancel job");
                 Release();
                 return;
             }
