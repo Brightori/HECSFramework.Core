@@ -43,6 +43,7 @@ namespace HECSFramework.Core
                     var jobRun = (processor as HECSJobRun<T>);
                     jobRun.Job = job;
                     addAndRemoveHelper.Add(processor);
+                    jobRun.Reset();
                     return jobRun;
                 }
             }
@@ -175,6 +176,11 @@ namespace HECSFramework.Core
                 throw new Exception("we dont complete job");
 
             return Job;
+        }
+
+        public void Reset()
+        {
+            abortOperation = false;
         }
     }
 
