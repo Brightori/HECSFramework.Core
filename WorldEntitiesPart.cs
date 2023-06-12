@@ -197,6 +197,7 @@ namespace HECSFramework.Core
                 Entities[entity.Index] = entity;
             }
 
+            entity.IsDisposed = false;
             entity.IsRegistered = true;
             registerEntity.Add(new Core.RegisterEntity { Entity = entity, IsAdded = true });
 
@@ -226,6 +227,15 @@ namespace HECSFramework.Core
 
             foreach (var c in entity.Components)
             {
+                var componentProvider = componentProvidersByTypeIndex[c];
+                componentProvider.RegisterReactive(entity.Index, true);
+            }
+
+            
+            entity.IsInited = true;
+
+            foreach (var c in entity.Components)
+            {
                 var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
 
                 if (icomponent is IAfterEntityInit initable)
@@ -240,14 +250,6 @@ namespace HECSFramework.Core
                 RegisterSystem(s);
             }
 
-            foreach (var c in entity.Components)
-            {
-                var componentProvider = componentProvidersByTypeIndex[c];
-                componentProvider.RegisterReactive(entity.Index, true);
-            }
-
-            entity.IsDisposed = false;
-            entity.IsInited = true;
             RegisterDirtyEntity(entity.Index);
         }
 
