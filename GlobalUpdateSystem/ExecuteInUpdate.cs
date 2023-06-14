@@ -124,6 +124,8 @@ namespace HECSFramework.Core
         private IHECSJobRunPooler jobRunPooler;
         private event Action onComplete;
 
+        public bool IsAborted => abortOperation;
+
         public HECSJobRun(IHECSJobRunPooler jobRunPooler)
         {
             this.jobRunPooler = jobRunPooler;
@@ -137,20 +139,13 @@ namespace HECSFramework.Core
 
         public void Update()
         {
-            if (Job.IsComplete())
+            if (Job.IsComplete() || abortOperation)
             {
                 onComplete?.Invoke();
                 Release();
                 return;
             }
-
-            if (abortOperation)
-            {
-                HECSDebug.Log("we cancel job");
-                Release();
-                return;
-            }
-
+           
             Job.Run();
         }
 
