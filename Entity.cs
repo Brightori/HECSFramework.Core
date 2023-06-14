@@ -100,6 +100,18 @@ namespace HECSFramework.Core
             if (IsDisposed)
                 return;
 
+            foreach (var s in Systems)
+            {
+                if (s is IBeforeEntityDispose beforeDispose)
+                    beforeDispose.BeforeDispose();
+            }
+
+            foreach (var c in Components)
+            {
+                if (this.GetComponent(c) is IBeforeEntityDispose beforeEntityDispose)
+                    beforeEntityDispose.BeforeDispose();
+            }
+
             IsDisposed = true;
             Clean();
             World.RegisterEntity(this, false);

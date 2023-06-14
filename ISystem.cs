@@ -33,6 +33,14 @@ namespace HECSFramework.Core
         public abstract void InitSystem();
     }
 
+    /// <summary>
+    /// this interface works only when we dispose entity 
+    /// </summary>
+    public interface IBeforeEntityDispose
+    {
+        void BeforeDispose();
+    }
+
     public interface ISystem : IDisposable, IHaveOwner
     {
         Guid SystemGuid { get; }
