@@ -22,6 +22,10 @@ namespace HECSFramework.Core
             }
         }
 
+        public virtual void BeforeDispose()
+        {
+        }
+
         public virtual void Dispose()
         {
             if (IsDisposed)
@@ -41,7 +45,7 @@ namespace HECSFramework.Core
         void BeforeDispose();
     }
 
-    public interface ISystem : IDisposable, IHaveOwner
+    public interface ISystem : IDisposable, IHaveOwner, IBeforeEntityDispose 
     {
         Guid SystemGuid { get; }
         void InitSystem();

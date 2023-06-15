@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public interface IComponent  : IHaveOwner
+    public interface IComponent  : IHaveOwner, IBeforeEntityDispose
     {
         bool IsAlive { get; set; }
         int GetTypeHashCode { get; }

@@ -101,16 +101,10 @@ namespace HECSFramework.Core
                 return;
 
             foreach (var s in Systems)
-            {
-                if (s is IBeforeEntityDispose beforeDispose)
-                    beforeDispose.BeforeDispose();
-            }
+                s.BeforeDispose();
 
             foreach (var c in Components)
-            {
-                if (this.GetComponent(c) is IBeforeEntityDispose beforeEntityDispose)
-                    beforeEntityDispose.BeforeDispose();
-            }
+                this.GetComponent(c).BeforeDispose();
 
             IsDisposed = true;
             Clean();

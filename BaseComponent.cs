@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public abstract class BaseComponent : IComponent
+    public abstract class BaseComponent : IComponent 
     {
         private int getTypeHashCode;
 
@@ -24,6 +24,10 @@
         }
 
         protected virtual void ConstructorCall()
+        {
+        }
+
+        public virtual void BeforeDispose()
         {
         }
     }
