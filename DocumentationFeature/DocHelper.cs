@@ -75,4 +75,5 @@ public static partial class Doc
     public const string Damage = "Damage";
     public const string Monobehaviour = "Monobehaviour";
     public const string Feature = "Feature";
+    public const string Reset = "Reset";
 }
