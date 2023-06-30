@@ -76,4 +76,5 @@ public static partial class Doc
     public const string Monobehaviour = "Monobehaviour";
     public const string Feature = "Feature";
     public const string Reset = "Reset";
+    public const string Job = "Job";
 }
