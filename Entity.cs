@@ -28,6 +28,7 @@ namespace HECSFramework.Core
 
         public int Index;
         public bool IsDirty;
+        public int Generation;
 
         /// <summary>
         /// this is slow method, purpose - using at Editor or for debugging
@@ -371,6 +372,19 @@ namespace HECSFramework.Core
 
             Init();
         }
+    }
 
+    public readonly struct AliveEntity
+    {
+        public readonly Entity Entity;
+        public readonly int Generation;
+
+        public AliveEntity(Entity entity) 
+        {
+            Entity = entity;
+            Generation = entity.Generation;
+        }
+
+        public bool IsAlive => Entity.IsAlive(Generation);
     }
 }

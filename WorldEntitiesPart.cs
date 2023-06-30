@@ -169,6 +169,7 @@ namespace HECSFramework.Core
                 Entities[result].IsDisposed = false;
                 Entities[result].IsAlive = true;
                 Entities[result].IsRegistered = true;
+                Entities[result].Generation++;
 
                 return Entities[result];
             }
