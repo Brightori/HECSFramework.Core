@@ -49,6 +49,7 @@ namespace HECSFramework.Core
     public interface IBaseValue<T> : ICounter<T>
     {
         T GetBaseValue { get; }
+        void SetupBaseValue(T newBaseValue);
     }
 
     public interface IMaxValue<T>
