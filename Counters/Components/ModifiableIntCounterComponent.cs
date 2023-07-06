@@ -109,5 +109,10 @@ namespace Components
         }
 
         public IEnumerable<IModifier<int>> GetModifiers() => modifiableIntCounter.GetModifiers();
+
+        public void SetupBaseValue(int newBaseValue)
+        {
+            modifiableIntCounter.Setup(Id, newBaseValue);
+        }
     }
 }

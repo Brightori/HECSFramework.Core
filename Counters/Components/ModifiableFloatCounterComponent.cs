@@ -8,25 +8,25 @@ namespace Components
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
     public abstract partial class ModifiableFloatCounterComponent : BaseComponent, ICounterModifiable<float>, IInitable, IDisposable
     {
-        public float Value => modifiableIntCounter.Value;
-        public float CalculatedMaxValue => modifiableIntCounter.CalculatedMaxValue;
+        public float Value => modifiableFloatCounter.Value;
+        public float CalculatedMaxValue => modifiableFloatCounter.CalculatedMaxValue;
         public abstract int Id { get; }
         public abstract float SetupValue { get; }
 
-        protected ModifiableFloatCounter modifiableIntCounter = new ModifiableFloatCounter();
+        protected ModifiableFloatCounter modifiableFloatCounter = new ModifiableFloatCounter();
         protected bool isReactive;
 
         public bool IsReactive { get => isReactive; protected set => isReactive = value; }
 
         public void Init()
         {
-            modifiableIntCounter.Setup(Id, SetupValue);
+            modifiableFloatCounter.Setup(Id, SetupValue);
         }
 
         public void AddModifier(Guid owner, IModifier<float> modifier) 
         {
             var oldValue = Value;
-            modifiableIntCounter.AddModifier(owner, modifier);
+            modifiableFloatCounter.AddModifier(owner, modifier);
 
             if (isReactive)
                 Owner.Command(GetDiffCommand(oldValue));
@@ -35,7 +35,7 @@ namespace Components
         public void RemoveModifier(Guid owner, IModifier<float> modifier) 
         {
             var oldValue = Value;
-            modifiableIntCounter.RemoveModifier(owner, modifier);
+            modifiableFloatCounter.RemoveModifier(owner, modifier);
 
             if (isReactive)
                 Owner.Command(GetDiffCommand(oldValue));
@@ -44,7 +44,7 @@ namespace Components
         public void AddUniqueModifier(Guid owner, IModifier<float> modifier)
         {
             var oldValue = Value;
-            modifiableIntCounter.AddUniqueModifier(owner, modifier);
+            modifiableFloatCounter.AddUniqueModifier(owner, modifier);
 
             if (isReactive)
                 Owner.Command(GetDiffCommand(oldValue));
@@ -55,9 +55,9 @@ namespace Components
             return new DiffCounterCommand<float>
             {
                 Id = this.Id,
-                Value = modifiableIntCounter.Value,
+                Value = modifiableFloatCounter.Value,
                 PreviousValue = oldValue,
-                MaxValue = modifiableIntCounter.CalculatedMaxValue
+                MaxValue = modifiableFloatCounter.CalculatedMaxValue
             };
         }
 
@@ -69,7 +69,7 @@ namespace Components
         public void SetValue(float value)
         {
             var oldValue = Value;
-            modifiableIntCounter.SetValue(value);
+            modifiableFloatCounter.SetValue(value);
 
             if (IsReactive && CheckModifiedDiff(oldValue, out var command))
                 Owner.Command(command);
@@ -79,7 +79,7 @@ namespace Components
         {
             var oldValue = Value;
 
-            modifiableIntCounter.ChangeValue(value);
+            modifiableFloatCounter.ChangeValue(value);
 
             if (IsReactive && CheckModifiedDiff(oldValue, out var command))
                 Owner.Command(command);
@@ -89,7 +89,7 @@ namespace Components
         {
             if (oldValue != Value)
             {
-                result = new DiffCounterCommand<float> { Id = this.Id, Value = modifiableIntCounter.Value, PreviousValue = oldValue, MaxValue = modifiableIntCounter.CalculatedMaxValue };
+                result = new DiffCounterCommand<float> { Id = this.Id, Value = modifiableFloatCounter.Value, PreviousValue = oldValue, MaxValue = modifiableFloatCounter.CalculatedMaxValue };
                 return true;
             }
 
@@ -99,12 +99,12 @@ namespace Components
 
         public virtual void Dispose()
         {
-            modifiableIntCounter.Dispose();
+            modifiableFloatCounter.Dispose();
         }
 
         public void Reset()
         {
-            modifiableIntCounter.Reset();
+            modifiableFloatCounter.Reset();
         }
 
         public IEnumerable<IModifier<float>> GetModifiers()

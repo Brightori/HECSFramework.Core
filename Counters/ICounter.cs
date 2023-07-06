@@ -1,4 +1,6 @@
-﻿namespace HECSFramework.Core
+﻿using HECSFramework.Core.Helpers;
+
+namespace HECSFramework.Core
 {
     public partial interface ICounter
     {
@@ -10,6 +12,11 @@
         T Value { get; }
         void SetValue(T value);
         void ChangeValue(T value);
+    }
+
+    public partial interface IReactiveCounter<T> : ICounter<T>
+    {
+        ReactiveValue<T> ReactiveValue { get; }
     }
 
     public interface ISubCounter : ICounter
@@ -42,6 +49,7 @@
     public interface IBaseValue<T> : ICounter<T>
     {
         T GetBaseValue { get; }
+        void SetupBaseValue(T newBaseValue);
     }
 
     public interface IMaxValue<T>

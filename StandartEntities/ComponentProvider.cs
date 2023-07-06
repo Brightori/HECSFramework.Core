@@ -123,18 +123,21 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Remove(int index)
         {
+            if (!Has(index)) 
+                return;
+
+            if (World.Entities[index].Components.Remove(TypeIndex))
+                World.RegisterDirtyEntity(index);
+
             if (Components[index] == null || !Components[index].IsAlive)
                 return;
 
             RegisterComponent(index, false);
 
-            ref var component = ref Components[index];
+            var component = Components[index];
 
             if (component is IDisposable disposable)
                 disposable.Dispose();
-
-            if (World.Entities[index].Components.Remove(TypeIndex))
-                World.RegisterDirtyEntity(index);
 
             Components[index].IsAlive = false;
         }
