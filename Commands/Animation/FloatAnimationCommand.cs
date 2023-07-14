@@ -8,5 +8,6 @@ namespace Commands
     {
         public int Index;
         public float Value;
+        public bool ForceSet;
     }
 }

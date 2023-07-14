@@ -7,5 +7,6 @@ namespace Commands
     {
         public int Index;
         public bool Value;
+        public bool ForceSet;
     }
 }
