@@ -122,6 +122,7 @@ namespace HECSFramework.Core
 
         private IHECSJobRunPooler jobRunPooler;
         private event Action onComplete;
+        public event Action<JobResult<T>> OnComplete;
 
         public bool IsAborted => abortOperation;
 
@@ -141,6 +142,7 @@ namespace HECSFramework.Core
             if (Job.IsComplete() || abortOperation)
             {
                 onComplete?.Invoke();
+                OnComplete?.Invoke(new JobResult<T> (abortOperation, Job));
                 Release();
                 return;
             }
@@ -151,6 +153,7 @@ namespace HECSFramework.Core
         public void Release()
         {
             onComplete = null;
+            OnComplete = null;
             jobRunPooler.Release(this);
         }
 
@@ -172,6 +175,18 @@ namespace HECSFramework.Core
         public void Reset()
         {
             abortOperation = false;
+        }
+    }
+
+    public struct JobResult<T>
+    {
+        public bool IsAborted;
+        public T Result;
+
+        public JobResult(bool isAborted, T result)
+        {
+            IsAborted = isAborted;
+            Result = result;
         }
     }
 
