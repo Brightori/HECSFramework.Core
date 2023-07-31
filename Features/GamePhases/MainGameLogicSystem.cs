@@ -22,5 +22,11 @@ namespace Systems
             GameStateComponent.SetState(to);
             Owner.World.Command(new TransitionGameStateCommand { From = from, To = to });
         }
+
+        protected void ChangeGameState(int to)
+        {
+            var from = GameStateComponent.CurrentState;
+            ChangeGameState(from, to);
+        }
     }
 }
