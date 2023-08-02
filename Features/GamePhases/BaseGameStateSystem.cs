@@ -7,8 +7,10 @@ namespace Systems
     /// its just helper system for fast integration to game states systems
     /// </summary>
     [Documentation(Doc.GameState, Doc.GameLogic, "this system participate at the game loop with TransitionGameStateCommand")]
-    public abstract class BaseGameStateSystem : BaseSystem, IReactGlobalCommand<TransitionGameStateCommand>
+    public abstract class BaseGameStateSystem : BaseSystem, IReactGlobalCommand<TransitionGameStateCommand>, IReactGlobalCommand<StopGameState>
     {
+        protected abstract int State { get; }
+
         public void CommandGlobalReact(TransitionGameStateCommand command)
         {
             ProcessState(command.From, command.To);
@@ -16,9 +18,12 @@ namespace Systems
 
         protected abstract void ProcessState(int from, int to);
 
+        /// <summary>
+        /// shortcut for end a state
+        /// </summary>
         protected void EndState()
         {
-            Owner.World.Command(new EndGameStateCommand());
+            Owner.World.Command(new EndGameStateCommand(State));
         }
 
         /// <summary>
@@ -32,6 +37,19 @@ namespace Systems
         protected bool IsNeededStates(int from, int fromCheck, int to, int toCheck)
         {
             return from == fromCheck && to == toCheck;
+        }
+
+        public void CommandGlobalReact(StopGameState command)
+        {
+            if (command.GameState == State)
+                StopState();
+        }
+
+        /// <summary>
+        /// u should override at child this method, for implementation of stoping state
+        /// </summary>
+        protected virtual void StopState()
+        {
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Components
     public sealed class GameStateComponent : BaseComponent, IWorldSingleComponent
     {
         public int CurrentState { get; private set; }
+        public int PreviousState { get; private set; }
 
         /// <summary>
         /// here we provide game state identifier
@@ -15,6 +16,7 @@ namespace Components
         /// <param name="index">game state identifier</param>
         public void SetState(int index)
         {
+            PreviousState = CurrentState;
             CurrentState = index;
         }
     }
