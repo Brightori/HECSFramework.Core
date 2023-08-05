@@ -1,6 +1,6 @@
 ﻿namespace HECSFramework.Core
 {
-    public abstract class BaseComponent : IComponent 
+    public abstract partial class BaseComponent : IComponent 
     {
         private int getTypeHashCode;
 

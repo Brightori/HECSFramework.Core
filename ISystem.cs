@@ -2,7 +2,7 @@
 
 namespace HECSFramework.Core 
 {
-    public abstract class BaseSystem : ISystem
+    public abstract partial class BaseSystem : ISystem
     {
         private int typeHashCode = -1;
         public Entity Owner { get; set; }
