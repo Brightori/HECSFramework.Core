@@ -7,7 +7,7 @@ namespace Systems
     /// its just helper system for fast integration to game states systems
     /// </summary>
     [Documentation(Doc.GameState, Doc.GameLogic, "this system participate at the game loop with TransitionGameStateCommand")]
-    public abstract class BaseGameStateSystem : BaseSystem, IReactGlobalCommand<TransitionGameStateCommand>, IReactGlobalCommand<StopGameState>
+    public abstract class BaseGameStateSystem : BaseSystem, IReactGlobalCommand<TransitionGameStateCommand>, IReactGlobalCommand<StopGameStateGlobalCommand>
     {
         protected abstract int State { get; }
 
@@ -39,7 +39,7 @@ namespace Systems
             return from == fromCheck && to == toCheck;
         }
 
-        public void CommandGlobalReact(StopGameState command)
+        public void CommandGlobalReact(StopGameStateGlobalCommand command)
         {
             if (command.GameState == State)
                 StopState();
