@@ -26,6 +26,16 @@ namespace HECSFramework.Core
 
         public int Count => length;
 
+        
+        public ref T this[int index] 
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return ref Data[index];
+            }
+        }
+
         public EqualityComparer<T> Comparer;
         private SortComparer sortComparer;
 
@@ -295,7 +305,7 @@ namespace HECSFramework.Core
                 this.current = default;
             }
 
-            public T Current => this.current;
+            public  T Current => this.current;
             object IEnumerator.Current => this.current;
 
             public void Dispose()
