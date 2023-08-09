@@ -78,4 +78,5 @@ public static partial class Doc
     public const string Reset = "Reset";
     public const string Job = "Job";
     public const string GameState = "GameState";
+    public const string Encounter = "Encounter";
 }
