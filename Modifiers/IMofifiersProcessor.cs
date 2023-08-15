@@ -7,7 +7,9 @@ namespace HECSFramework.Core
     {
         void AddModifier(Guid owner, IModifier<T> modifier);
         void AddUniqueModifier(Guid owner, IModifier<T> modifier);
-        void RemoveModifier(Guid owner, IModifier<T> modifier);
+        void RemoveModifier(Guid owner, IModifier<T> modifier, bool unique = false);
+        void RemoveModifier(Guid modifierGUID, bool unique = false);
+        void RemoveModifier(int modifierID, bool unique = false);
         IEnumerable<IModifier<T>> GetModifiers();
     }
 

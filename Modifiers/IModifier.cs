@@ -4,6 +4,14 @@ namespace HECSFramework.Core
 {
     public interface IModifier
     {
+        /// <summary>
+        /// we should take it from identifier
+        /// </summary>
+        int ModifierID { get; }
+        
+        /// <summary>
+        /// we can separate instances of modifiers by guid
+        /// </summary>
         Guid ModifierGuid { get; }
         ModifierCalculationType GetCalculationType { get; }
         ModifierValueType GetModifierType { get; }

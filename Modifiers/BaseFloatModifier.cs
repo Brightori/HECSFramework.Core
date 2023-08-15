@@ -5,10 +5,12 @@ namespace HECSFramework.Core
     [Serializable]
     public sealed partial class DefaultFloatModifier : BaseModifier<float>
     {
+        public int ID;
         public override float GetValue { get; set; }
         public override ModifierCalculationType GetCalculationType { get; set; }
         public override ModifierValueType GetModifierType { get; set; }
         public override Guid ModifierGuid { get; set; }
+        public override int ModifierID => ID;
 
         public override void Modify(ref float currentMod)
         {
@@ -19,10 +21,13 @@ namespace HECSFramework.Core
     [Serializable]
     public sealed class DefaultIntModifier : BaseModifier<int>
     {
+        public int ID;
+
         public override int GetValue { get; set; }
         public override ModifierCalculationType GetCalculationType { get; set; }
         public override ModifierValueType GetModifierType { get; set; }
         public override Guid ModifierGuid { get; set; }
+        public override int ModifierID => ID;
 
         public override void Modify(ref int currentMod)
         {
@@ -36,6 +41,7 @@ namespace HECSFramework.Core
         public abstract ModifierCalculationType GetCalculationType { get; set; }
         public abstract ModifierValueType GetModifierType { get; set; }
         public abstract Guid ModifierGuid { get; set; }
+        public abstract int ModifierID { get; }
 
         public override bool Equals(object obj)
         {

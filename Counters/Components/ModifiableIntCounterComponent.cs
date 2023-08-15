@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Commands;
 using HECSFramework.Core;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Components
 {
@@ -33,10 +34,28 @@ namespace Components
                 Owner.Command(GetDiffCommand(oldValue));
         }
 
-        public void RemoveModifier(Guid owner, IModifier<int> modifier)
+        public void RemoveModifier(Guid owner, IModifier<int> modifier, bool unique = false)
         {
             var oldValue = Value;
             modifiableIntCounter.RemoveModifier(owner, modifier);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        }
+
+        public void RemoveModifier(Guid modifierGUID, bool unique = false)
+        {
+            var oldValue = Value;
+            modifiableIntCounter.RemoveModifier(modifierGUID, unique);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        }
+
+        public void RemoveModifier(int modifierID, bool unique = false)
+        {
+            var oldValue = Value;
+            modifiableIntCounter.RemoveModifier(modifierID, unique);
 
             if (isReactive)
                 Owner.Command(GetDiffCommand(oldValue));
@@ -114,5 +133,7 @@ namespace Components
         {
             modifiableIntCounter.Setup(Id, newBaseValue);
         }
+
+     
     }
 }

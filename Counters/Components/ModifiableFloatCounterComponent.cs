@@ -32,14 +32,32 @@ namespace Components
                 Owner.Command(GetDiffCommand(oldValue));
         } 
 
-        public void RemoveModifier(Guid owner, IModifier<float> modifier) 
+        public void RemoveModifier(Guid owner, IModifier<float> modifier, bool unique = false) 
         {
             var oldValue = Value;
-            modifiableFloatCounter.RemoveModifier(owner, modifier);
+            modifiableFloatCounter.RemoveModifier(owner, modifier, unique);
 
             if (isReactive)
                 Owner.Command(GetDiffCommand(oldValue));
-        } 
+        }
+
+        public void RemoveModifier(Guid modifierGUID, bool unique = false)
+        {
+            var oldValue = Value;
+            modifiableFloatCounter.RemoveModifier(modifierGUID, unique);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        }
+
+        public void RemoveModifier(int modifierID, bool unique = false)
+        {
+            var oldValue = Value;
+            modifiableFloatCounter.RemoveModifier(modifierID, unique);
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
+        }
 
         public void AddUniqueModifier(Guid owner, IModifier<float> modifier)
         {
@@ -109,7 +127,7 @@ namespace Components
 
         public IEnumerable<IModifier<float>> GetModifiers()
         {
-            throw new NotImplementedException();
+            return modifiableFloatCounter.GetModifiers();
         }
     }
 }

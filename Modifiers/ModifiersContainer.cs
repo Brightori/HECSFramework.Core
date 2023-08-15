@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace HECSFramework.Core
 {
@@ -98,7 +99,7 @@ namespace HECSFramework.Core
             isDirty = true;
         }
 
-        public void RemoveModifier(Guid owner, IModifier<Data> modifier)
+        public void RemoveModifier(Guid owner, IModifier<Data> modifier, bool unique = false)
         {
             foreach (var currentmodifier in modifiers[(int)modifier.GetCalculationType])
             {
@@ -109,6 +110,57 @@ namespace HECSFramework.Core
                         OwnerModifier = currentmodifier,
                         TypeOfModifier = (int)modifier.GetCalculationType,
                     });
+
+                    if (unique)
+                        break;
+                }
+            }
+
+            CleanUpRemovedModifiers();
+            isDirty = true;
+        }
+
+        public void RemoveModifier(Guid modifierGUID, bool unique = false)
+        {
+            foreach (var collection in modifiers)
+            {
+                foreach (var currentmodifier in collection.Value)
+                {
+                    if (currentmodifier.Modifier.ModifierGuid == modifierGUID)
+                    {
+                        removedModifiers.Enqueue(new CleanModifier
+                        {
+                            OwnerModifier = currentmodifier,
+                            TypeOfModifier = (int)currentmodifier.Modifier.GetModifierType,
+                        });
+
+                        if (unique)
+                            break;
+                    }
+                }
+            }
+
+            CleanUpRemovedModifiers();
+            isDirty = true;
+        }
+
+        public void RemoveModifier(int modifierID, bool unique = false)
+        {
+            foreach (var collection in modifiers)
+            {
+                foreach (var currentmodifier in collection.Value)
+                {
+                    if (currentmodifier.Modifier.ModifierID == modifierID)
+                    {
+                        removedModifiers.Enqueue(new CleanModifier
+                        {
+                            OwnerModifier = currentmodifier,
+                            TypeOfModifier = (int)currentmodifier.Modifier.GetModifierType,
+                        });
+
+                        if (unique)
+                            break;
+                    }
                 }
             }
 
@@ -120,6 +172,7 @@ namespace HECSFramework.Core
         {
             Clear();
             isDirty = true;
+            calculatedValue = baseValue;
         }
 
         public void RemoveModifier(Guid modifierOwner)

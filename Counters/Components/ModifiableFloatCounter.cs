@@ -32,13 +32,31 @@ namespace Components
             UpdatValueWithModifiers(oldValue, oldCalculated);
         }
 
-        public void RemoveModifier(Guid owner, IModifier<float> modifier)
+        public void RemoveModifier(Guid owner, IModifier<float> modifier, bool unique = false)
         {
             var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
-            modifiersContainer.RemoveModifier(owner, modifier);
+            modifiersContainer.RemoveModifier(owner, modifier, unique);
 
+            UpdatValueWithModifiers(oldValue, oldCalculated);
+        }
+
+        public void RemoveModifier(Guid modifier, bool unique = false)
+        {
+            var oldValue = currentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
+
+            modifiersContainer.RemoveModifier(modifier, unique);
+            UpdatValueWithModifiers(oldValue, oldCalculated);
+        }
+
+        public void RemoveModifier(int modifierID, bool unique = false)
+        {
+            var oldValue = currentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
+
+            modifiersContainer.RemoveModifier(modifierID, unique);
             UpdatValueWithModifiers(oldValue, oldCalculated);
         }
 

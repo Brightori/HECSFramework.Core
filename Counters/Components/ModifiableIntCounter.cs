@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HECSFramework.Core;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Components
 {
@@ -31,12 +32,32 @@ namespace Components
             UpdatValueWithModifiers(oldValue, oldCalculated);
         }
 
-        public void RemoveModifier(Guid owner, IModifier<int> modifier)
+        public void RemoveModifier(Guid owner, IModifier<int> modifier, bool unique = false)
         {
             var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
-            modifiersContainer.RemoveModifier(owner, modifier);
+            modifiersContainer.RemoveModifier(owner, modifier, unique);
+
+            UpdatValueWithModifiers(oldValue, oldCalculated);
+        }
+
+        public void RemoveModifier(Guid modifierGUID, bool unique = false)
+        {
+            var oldValue = currentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
+
+            modifiersContainer.RemoveModifier(modifierGUID, unique);
+
+            UpdatValueWithModifiers(oldValue, oldCalculated);
+        }
+
+        public void RemoveModifier(int modifierID, bool unique = false)
+        {
+            var oldValue = currentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
+
+            modifiersContainer.RemoveModifier(modifierID, unique);
 
             UpdatValueWithModifiers(oldValue, oldCalculated);
         }
@@ -84,5 +105,7 @@ namespace Components
         }
 
         public IEnumerable<IModifier<int>> GetModifiers() => modifiersContainer.GetModifiers();
+
+     
     }
 }
