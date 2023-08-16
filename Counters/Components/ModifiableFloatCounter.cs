@@ -100,6 +100,7 @@ namespace Components
         public void Reset()
         {
             modifiersContainer.Reset();
+            currentValue = modifiersContainer.GetCalculatedValue();
         }
 
         public IEnumerable<IModifier<float>> GetModifiers() => modifiersContainer.GetModifiers();
