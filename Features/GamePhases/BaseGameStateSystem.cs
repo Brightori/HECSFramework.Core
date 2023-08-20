@@ -1,4 +1,5 @@
 ﻿using Commands;
+using Components;
 using HECSFramework.Core;
 
 namespace Systems
@@ -37,6 +38,13 @@ namespace Systems
         protected bool IsNeededStates(int from, int fromCheck, int to, int toCheck)
         {
             return from == fromCheck && to == toCheck;
+        }
+
+        protected bool IsNeededStates(int from, int to)
+        {
+            var state = Owner.World.GetSingleComponent<GameStateComponent>();
+
+            return from == state.PreviousState && to == state.CurrentState;
         }
 
         public void CommandGlobalReact(StopGameStateGlobalCommand command)
