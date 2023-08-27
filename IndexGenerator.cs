@@ -31,7 +31,7 @@ namespace HECSFramework.Core
             for (int i = 0; i < lenght; i++)
             {
                 int charC = typeName[i].GetHashCode()*i;
-                index += (charC + (101161*(i+3)) + (hash ^ (charC*i))) + (hash ^ lenght);
+                index += (charC + (101161*(i+3)) + (hash ^ (charC*i)));
             }
 
             return index;
