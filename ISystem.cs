@@ -34,6 +34,30 @@ namespace HECSFramework.Core
             IsDisposed = true;
         }
 
+        public T AsSingle<T>(ref T component) where T: IComponent, IWorldSingleComponent, new()
+        {
+            component = Owner.World.GetSingleComponent<T>();
+            return component;
+        }
+
+        public T AsSingleSystem<T>(ref T system) where T : ISystem
+        {
+            system = Owner.World.GetSingleSystem<T>();
+            return system;
+        }
+
+        public T AsSingleSystem<T>(ref T system, World world) where T : ISystem
+        {
+            system = world.GetSingleSystem<T>();
+            return system;
+        }
+
+        public T AsSingle<T>(ref T component, World world) where T : IComponent, IWorldSingleComponent, new()
+        {
+            component = world.GetSingleComponent<T>();
+            return component;
+        }
+
         public abstract void InitSystem();
     }
 
