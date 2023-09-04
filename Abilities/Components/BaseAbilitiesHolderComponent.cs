@@ -22,7 +22,7 @@ namespace Components
             Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
-            if (ability.TryGetComponent(out Components.AdditionalAbilityIndexComponent component))
+            if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {
                 foreach (var i in component.AdditionalIndeces)
                     IndexToAbility.AddOrReplace(i, ability);
@@ -37,7 +37,7 @@ namespace Components
             Abilities.Remove(ability);
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
 
-            if (ability.TryGetComponent(out Components.AdditionalAbilityIndexComponent component))
+            if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {
                 foreach (var i in component.AdditionalIndeces)
                     IndexToAbility.Remove(i);
