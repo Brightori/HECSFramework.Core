@@ -19,6 +19,7 @@ namespace Components
 
         public void AddAbility(Entity ability, bool needInit = false)
         {
+            ability.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner;
             Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
