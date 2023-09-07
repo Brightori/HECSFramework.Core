@@ -6,9 +6,13 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Abilities, "this component holds actions with identifier, we can call visual actions or execite composite actions by this component")]
-    public sealed partial class ActionsHolderComponent : BaseComponent, IDisposable
+    public sealed partial class ActionsHolderComponent : BaseActionsHolderComponent
     {
-        private List<ActionsToIdentifier> Actions = new List<ActionsToIdentifier>(4);
+    }
+
+    public abstract partial class BaseActionsHolderComponent : BaseComponent, IDisposable, IActionsHolderComponent
+    {
+        protected List<ActionsToIdentifier> Actions = new List<ActionsToIdentifier>(4);
 
         public void ExecuteAction(int Index, Entity entity = null)
         {
@@ -36,6 +40,11 @@ namespace Components
                 }
             }
         }
+    }
+
+    public interface IActionsHolderComponent
+    {
+        void ExecuteAction(int Index, Entity entity = null);
     }
 
     public struct ActionsToIdentifier
