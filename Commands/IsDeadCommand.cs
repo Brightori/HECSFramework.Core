@@ -2,7 +2,7 @@
 
 namespace Commands
 {
-	[Documentation(Doc.Character, "Команда которую мы отправляем локально у актора, что он мертв")]
+	[Documentation(Doc.Character, "we send this command from actor|entity, from health system when they die, have death event")]
 	public struct IsDeadCommand : ICommand
 	{
 	}
