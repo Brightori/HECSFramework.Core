@@ -80,4 +80,5 @@ public static partial class Doc
     public const string GameState = "GameState";
     public const string Encounter = "Encounter";
     public const string Upgrade = "Upgrade";
+    public const string Containers = "Containers";
 }
