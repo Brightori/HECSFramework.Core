@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Systems;
 
 namespace HECSFramework.Core
@@ -193,6 +194,18 @@ namespace HECSFramework.Core
         public bool IsHaveSingleComponent(int index)
         {
             return singleComponents.ContainsKey(index);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Entity GetEntityBySingleComponent(int index)
+        {
+            return singleComponents[index].Owner;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Entity GetEntityBySingleComponent<T>() where T: IComponent, IWorldSingleComponent
+        {
+            return singleComponents[ComponentProvider<T>.TypeIndex].Owner;
         }
 
         public bool TryGetEntityByComponent<T>(out Entity outEntity) where T : IComponent, new()
