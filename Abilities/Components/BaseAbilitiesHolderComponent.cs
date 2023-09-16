@@ -23,6 +23,9 @@ namespace Components
             Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
 
+            if (ability.ContainsMask<InitOnAddAbilityTagComponent>())
+                ability.Init();
+
             if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {
                 foreach (var i in component.AdditionalIndeces)
