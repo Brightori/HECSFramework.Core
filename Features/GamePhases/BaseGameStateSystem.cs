@@ -1,6 +1,8 @@
-﻿using Commands;
+﻿using System.Collections.Generic;
+using Commands;
 using Components;
 using HECSFramework.Core;
+using static UnityEditor.VersionControl.Asset;
 
 namespace Systems
 {
@@ -12,9 +14,35 @@ namespace Systems
     {
         protected abstract int State { get; }
 
+        //we lock transition to this state only by this states, if this count > 0,
+        //from should be contained in this hashset for valid transition
+        private HashSet<int> lockedStates = new HashSet<int>(0);
+
+        //we can have various force transitions from this state
+        private HECSList<IForceTransition> forceTransitions = new HECSList<IForceTransition>(2);
+
         public void CommandGlobalReact(TransitionGameStateCommand command)
         {
+            if (command.To != State)
+                return;
+
+            if (lockedStates.Count > 0 && !lockedStates.Contains(command.From))
+            {
+                HECSDebug.LogWarning($"we try to enter this state {IdentifierToStringMap.IntToString[State]}, from not valid state {IdentifierToStringMap.IntToString[command.From]}");
+                return;
+            }
+
             ProcessState(command.From, command.To);
+        }
+
+        protected void AddLockFromState(int stateIndex)
+        {
+            lockedStates.Add(stateIndex);
+        }
+
+        protected void AddForceTransitions(IForceTransition forceTransition)
+        {
+            forceTransitions.Add(forceTransition);
         }
 
         protected abstract void ProcessState(int from, int to);
@@ -24,7 +52,19 @@ namespace Systems
         /// </summary>
         protected void EndState()
         {
+            OnExitState();
+
+            foreach (var transition in forceTransitions) 
+            {
+                if (transition.ForceTransitionComplete(Owner, State))
+                    return;
+            }
+
             Owner.World.Command(new EndGameStateCommand(State));
+        }
+
+        protected virtual void OnExitState()
+        {
         }
 
         /// <summary>
@@ -59,5 +99,10 @@ namespace Systems
         protected virtual void StopState()
         {
         }
+    }
+
+    public interface IForceTransition
+    {
+        bool ForceTransitionComplete(Entity owner, int CurrentState);
     }
 }

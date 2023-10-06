@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Commands;
 using Components;
 using HECSFramework.Core;
@@ -9,12 +10,25 @@ namespace Systems
     /// this is abstract base system u should make child of this system for ur project
     /// </summary>
     [Serializable][Documentation(Doc.GameLogic, Doc.GameState, Doc.Global, "this base system what operates states of the game")]
-    public abstract class BaseMainGameLogicSystem : BaseSystem, IReactGlobalCommand<EndGameStateCommand>, IReactGlobalCommand<ForceGameStateTransitionGlobalCommand>, IGlobalStart 
+    public abstract class BaseMainGameLogicSystem : BaseSystem, IReactGlobalCommand<EndGameStateCommand>, IReactGlobalCommand<ForceGameStateTransitionGlobalCommand>, IGlobalStart, IPriorityUpdatable 
     {
         [Required]
         public GameStateComponent GameStateComponent;
 
-        public abstract void CommandGlobalReact(EndGameStateCommand command);
+        private Queue<EndGameStateCommand> endGameStateCommands = new Queue<EndGameStateCommand>(2);
+
+        public int Priority { get; } = -1;
+
+        protected abstract void ProcessEndState(EndGameStateCommand endGameStateCommand);
+
+        public void CommandGlobalReact(EndGameStateCommand command)
+        {
+            if (command.GameState != GameStateComponent.CurrentState)
+                return;
+
+            endGameStateCommands.Enqueue(command);
+        }
+
         public abstract void GlobalStart();
 
         protected void ChangeGameState(int from, int to)
@@ -33,6 +47,14 @@ namespace Systems
         {
             Owner.World.Command(new StopGameStateGlobalCommand(GameStateComponent.CurrentState));
             ChangeGameState(GameStateComponent.CurrentState, command.GameState);
+        }
+
+        public void PriorityUpdateLocal()
+        {
+            if (endGameStateCommands.TryDequeue(out EndGameStateCommand command))
+            {
+                ProcessEndState(command);
+            }
         }
     }
 }
