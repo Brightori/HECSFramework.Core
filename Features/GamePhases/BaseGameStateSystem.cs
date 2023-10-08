@@ -90,7 +90,10 @@ namespace Systems
         public void CommandGlobalReact(StopGameStateGlobalCommand command)
         {
             if (command.GameState == State)
+            {
+                OnExitState();
                 StopState();
+            }
         }
 
         /// <summary>
