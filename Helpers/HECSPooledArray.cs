@@ -69,5 +69,10 @@ namespace Helpers
 
             return hecspool;
         }
+
+        public void Dispose()
+        {
+            Release();
+        }
     }
 }
