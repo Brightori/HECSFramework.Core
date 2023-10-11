@@ -16,6 +16,7 @@ namespace Systems
         public GameStateComponent GameStateComponent;
 
         private Queue<EndGameStateCommand> endGameStateCommands = new Queue<EndGameStateCommand>(2);
+        private Queue<ForceGameStateTransitionGlobalCommand> forceStateCommands = new Queue<ForceGameStateTransitionGlobalCommand>(2);
 
         public int Priority { get; } = -1;
 
@@ -45,6 +46,11 @@ namespace Systems
 
         public void CommandGlobalReact(ForceGameStateTransitionGlobalCommand command)
         {
+            forceStateCommands.Enqueue(command);
+        }
+
+        private void ProcessForceState(ForceGameStateTransitionGlobalCommand command)
+        {
             Owner.World.Command(new StopGameStateGlobalCommand(GameStateComponent.CurrentState));
             ChangeGameState(GameStateComponent.CurrentState, command.GameState);
         }
@@ -52,9 +58,10 @@ namespace Systems
         public void PriorityUpdateLocal()
         {
             if (endGameStateCommands.TryDequeue(out EndGameStateCommand command))
-            {
                 ProcessEndState(command);
-            }
+
+            if (forceStateCommands.TryDequeue(out ForceGameStateTransitionGlobalCommand forceCommand))
+                ProcessForceState(forceCommand);
         }
     }
 }
