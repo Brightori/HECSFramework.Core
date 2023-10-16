@@ -379,10 +379,10 @@ namespace HECSFramework.Core
         public readonly Entity Entity;
         public readonly int Generation;
 
-        public AliveEntity(Entity entity) 
+        public AliveEntity(Entity entity)
         {
             Entity = entity;
-            Generation = entity.Generation;
+            Generation = entity.IsAlive() ? entity.Generation : 0;
         }
 
         public bool IsAlive => Entity.IsAlive(Generation);
