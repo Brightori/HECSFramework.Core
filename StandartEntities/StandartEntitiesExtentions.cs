@@ -12,7 +12,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAlive(this Entity entity)
         {
-            return entity != null && entity.IsAlive;
+            return entity != null && entity.IsAlive && !entity.IsDisposed;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

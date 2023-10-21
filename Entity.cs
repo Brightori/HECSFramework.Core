@@ -233,7 +233,7 @@ namespace HECSFramework.Core
         {
             for (int i = 0; i < mask.Lenght; i++)
             {
-                if (!Components.Contains(mask[0]))
+                if (!Components.Contains(mask[i]))
                     return false;
             }
 
