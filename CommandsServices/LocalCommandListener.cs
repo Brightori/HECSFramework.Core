@@ -8,7 +8,7 @@ namespace HECSFramework.Core
     {
         public static HECSList<LocalCommandListener<T>> ListenersToWorld = new HECSList<LocalCommandListener<T>>(4);
 
-        public Dictionary<int, HECSList<IReactCommand<T>>> listeners = new Dictionary<int, HECSList<IReactCommand<T>>>(256);
+        public Dictionary<int, HECSList<IReactCommand<T>>> listeners = new Dictionary<int, HECSList<IReactCommand<T>>>(16);
         private Queue<(int entityIndex, IReactCommand<T>)> listenersToRemove = new Queue<(int entityIndex, IReactCommand<T>)>(8);
 
         private bool isDirty;
@@ -94,7 +94,9 @@ namespace HECSFramework.Core
                 while (listenersToRemove.Count > 0)
                 {
                     var remove = listenersToRemove.Dequeue();
-                    listeners[remove.entityIndex].RemoveSwap(remove.Item2);
+
+                    if (remove.Item2 != null)
+                        listeners[remove.entityIndex].RemoveSwap(remove.Item2);
                 }
 
                 isDirty = false;

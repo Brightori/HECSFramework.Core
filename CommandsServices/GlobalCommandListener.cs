@@ -7,7 +7,7 @@ namespace HECSFramework.Core
     public sealed partial class GlobalCommandListener<T> : IDisposable  where T : struct, IGlobalCommand
     {
         public static HECSList<GlobalCommandListener<T>> ListenersToWorld = new HECSList<GlobalCommandListener<T>>(4);
-        public HECSList<IReactGlobalCommand<T>> listeners = new HECSList<IReactGlobalCommand<T>>(256);
+        public HECSList<IReactGlobalCommand<T>> listeners = new HECSList<IReactGlobalCommand<T>>(16);
 
         private Queue<IReactGlobalCommand<T>> listenersToRemove = new Queue<IReactGlobalCommand<T>>(8);
 
@@ -106,7 +106,9 @@ namespace HECSFramework.Core
                 while (listenersToRemove.Count > 0)
                 {
                     var remove = listenersToRemove.Dequeue();
-                    listeners.RemoveSwap(remove);
+
+                    if (remove != null)
+                        listeners.RemoveSwap(remove);
                 }
 
                 isDirty = false;
