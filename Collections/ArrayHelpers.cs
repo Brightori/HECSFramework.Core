@@ -15,9 +15,9 @@
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int IndexOf<T>(T[] array, T value, EqualityComparer<T> comparer)
+        public static int IndexOf<T>(T[] array, T value, EqualityComparer<T> comparer, int calculatedLenght)
         {
-            for (int i = 0, length = array.Length; i < length; ++i)
+            for (int i = 0, length = calculatedLenght; i < length; ++i)
             {
                 if (comparer.Equals(array[i], value))
                 {

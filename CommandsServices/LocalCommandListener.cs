@@ -94,9 +94,7 @@ namespace HECSFramework.Core
                 while (listenersToRemove.Count > 0)
                 {
                     var remove = listenersToRemove.Dequeue();
-
-                    if (remove.Item2 != null)
-                        listeners[remove.entityIndex].RemoveSwap(remove.Item2);
+                    listeners[remove.entityIndex].RemoveSwap(remove.Item2);
                 }
 
                 isDirty = false;

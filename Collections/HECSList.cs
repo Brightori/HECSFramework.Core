@@ -162,7 +162,7 @@ namespace HECSFramework.Core
         public void Swap(int source, int destination) => Data[destination] = Data[source];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int IndexOf(T value) => ArrayHelpers.IndexOf(Data, value, Comparer);
+        public int IndexOf(T value) => ArrayHelpers.IndexOf(Data, value, Comparer, length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Remove(T value)

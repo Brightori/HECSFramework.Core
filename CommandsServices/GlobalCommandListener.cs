@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    public sealed partial class GlobalCommandListener<T> : IDisposable  where T : struct, IGlobalCommand
+    public sealed partial class GlobalCommandListener<T> : IDisposable where T : struct, IGlobalCommand
     {
         public static HECSList<GlobalCommandListener<T>> ListenersToWorld = new HECSList<GlobalCommandListener<T>>(4);
         public HECSList<IReactGlobalCommand<T>> listeners = new HECSList<IReactGlobalCommand<T>>(16);
@@ -106,9 +106,7 @@ namespace HECSFramework.Core
                 while (listenersToRemove.Count > 0)
                 {
                     var remove = listenersToRemove.Dequeue();
-
-                    if (remove != null)
-                        listeners.RemoveSwap(remove);
+                    listeners.RemoveSwap(remove);
                 }
 
                 isDirty = false;
@@ -139,7 +137,7 @@ namespace HECSFramework.Core
             ProcessRemove();
         }
 
-        public void RemoveListener(IReactGlobalCommand<T> listener) 
+        public void RemoveListener(IReactGlobalCommand<T> listener)
         {
             foreach (var react in listeners)
             {
@@ -150,7 +148,7 @@ namespace HECSFramework.Core
             isDirty = true;
             ProcessRemove();
         }
-       
+
         public void Dispose()
         {
             listeners.Clear();
