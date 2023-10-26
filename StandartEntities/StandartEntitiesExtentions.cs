@@ -20,5 +20,11 @@ namespace HECSFramework.Core
         {
             return entity != null && entity.IsAlive && generation == entity.Generation;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAlive(this IComponent component)
+        {
+            return component != null && component.IsAlive && component.Owner.IsAlive();
+        }
     }
 }

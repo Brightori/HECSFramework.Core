@@ -42,15 +42,15 @@ namespace HECSFramework.Core
         protected Data calculatedValue;
         protected bool isDirty;
 
-        protected readonly Dictionary<int, List<OwnerModifier>> modifiers = new Dictionary<int, List<OwnerModifier>>()
+        protected readonly Dictionary<int, List<OwnerModifier>> modifiers = new Dictionary<int, List<OwnerModifier>>(4)
         {
-            {(int)ModifierCalculationType.Add, new List<OwnerModifier>()},
-            {(int)ModifierCalculationType.Subtract, new List<OwnerModifier>()},
-            {(int)ModifierCalculationType.Multiply, new List<OwnerModifier>()},
-            {(int)ModifierCalculationType.Divide, new List<OwnerModifier>()},
+            {(int)ModifierCalculationType.Add, new List<OwnerModifier>(4)},
+            {(int)ModifierCalculationType.Subtract, new List<OwnerModifier>(4)},
+            {(int)ModifierCalculationType.Multiply, new List<OwnerModifier>(4)},
+            {(int)ModifierCalculationType.Divide, new List<OwnerModifier>(4)},
         };
 
-        private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>();
+        private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>(2);
         private Queue<CleanModifier> removedModifiers = new Queue<CleanModifier>(4);
 
         public void SetBaseValue(Data data)
@@ -199,6 +199,8 @@ namespace HECSFramework.Core
         public void Clear()
         {
             foreach (var kvp in modifiers) kvp.Value.Clear();
+            removedModifiers.Clear();
+            cleanQueue.Clear();
         }
 
         private void CleanUpRemovedModifiers()
