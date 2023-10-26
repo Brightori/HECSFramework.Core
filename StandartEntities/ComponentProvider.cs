@@ -388,6 +388,9 @@ namespace HECSFramework.Core
             {
                 while (addedComponent.TryDequeue(out var component))
                 {
+                    if (!component.IsAlive())
+                        continue;
+
                     var reactComponentGlobalsCount = reactComponentGlobals.Count;
 
                     for (int i = 0; i < reactComponentGlobalsCount; i++)
@@ -404,6 +407,9 @@ namespace HECSFramework.Core
 
                 while (addLocalComponent.TryDequeue(out var component))
                 {
+                    if (!Components[component.Item1].IsAlive())
+                        continue;
+
                     if (localListeners.TryGetValue(component.Item1, out var listeners))
                     {
                         var listenersCount = listeners.Count;
