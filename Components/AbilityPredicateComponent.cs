@@ -5,7 +5,7 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.Abilities, "Компонент в котором хранятся предикаты для абилки, цели абилки, и для владельца абилки")]
-    public partial class AbilityPredicateComponent : BaseComponent, IInitable
+    public partial class AbilityPredicateComponent : BaseComponent, IInitable, IPoolableComponent
     {
         public PredicatesComponent AbilityPredicates = new PredicatesComponent();
         public PredicatesComponent TargetPredicates = new PredicatesComponent();

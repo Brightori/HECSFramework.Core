@@ -6,7 +6,7 @@ using HECSFramework.Core;
 namespace Components
 {
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
-    public abstract partial class ModifiableFloatCounterComponent : BaseComponent, ICounterModifiable<float>, IInitable, IDisposable
+    public abstract partial class ModifiableFloatCounterComponent : BaseComponent, IPoolableComponent, ICounterModifiable<float>, IInitable, IDisposable
     {
         public float Value => modifiableFloatCounter.Value;
         public float CalculatedMaxValue => modifiableFloatCounter.CalculatedMaxValue;
