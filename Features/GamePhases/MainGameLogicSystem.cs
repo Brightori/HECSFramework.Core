@@ -49,7 +49,7 @@ namespace Systems
             forceStateCommands.Enqueue(command);
         }
 
-        private void ProcessForceState(ForceGameStateTransitionGlobalCommand command)
+        protected virtual void ProcessForceState(ForceGameStateTransitionGlobalCommand command)
         {
             Owner.World.Command(new StopGameStateGlobalCommand(GameStateComponent.CurrentState));
             ChangeGameState(GameStateComponent.CurrentState, command.GameState);
