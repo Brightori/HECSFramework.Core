@@ -22,6 +22,7 @@ public static partial class Doc
     public const string AI = "AI";
     public const string NONE = "NONE";
     public const string State = "State";
+    public const string DataState = "DataState";
     public const string Predicates = "Predicates";
     public const string Animation = "Animation";
     public const string Perks = "Perks";
