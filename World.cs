@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Components;
 using Systems;
 
 namespace HECSFramework.Core
@@ -48,6 +49,8 @@ namespace HECSFramework.Core
                 return;
 
             var worldService = Entity.Get(this, "WorldService");
+            worldService.AddComponent<CachedEntitiesGlobalHolderComponent>();
+
             waitingCommandsSystems = new WaitingCommandsSystems();
             worldService.AddHecsSystem(waitingCommandsSystems);
             worldService.AddHecsSystem(new AwaitersUpdateSystem());
@@ -91,7 +94,7 @@ namespace HECSFramework.Core
         {
             GlobalCommandListener<T>.AddListener(Index, react);
         }
-      
+
         public void RemoveGlobalReactCommand<T>(ISystem system) where T : struct, IGlobalCommand
         {
             GlobalCommandListener<T>.RemoveListener(Index, system);
@@ -203,7 +206,7 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Entity GetEntityBySingleComponent<T>() where T: IComponent, IWorldSingleComponent
+        public Entity GetEntityBySingleComponent<T>() where T : IComponent, IWorldSingleComponent
         {
             return singleComponents[ComponentProvider<T>.TypeIndex].Owner;
         }
@@ -225,7 +228,7 @@ namespace HECSFramework.Core
             return false;
         }
 
-        public bool TryGetSystemFromEntity<T>(int ComponentTypeIndex, out T system) where T: ISystem
+        public bool TryGetSystemFromEntity<T>(int ComponentTypeIndex, out T system) where T : ISystem
         {
             foreach (var e in Entities)
             {
@@ -290,8 +293,8 @@ namespace HECSFramework.Core
             foreach (var c in componentProvidersByTypeIndex.Values)
                 c.Dispose();
             componentProvidersByTypeIndex.Clear();
-            
-            
+
+
             reactEntities.Clear();
             entitiesFilters.Clear();
 
@@ -319,7 +322,7 @@ namespace HECSFramework.Core
                 if (add)
                 {
                     HECSDebug.LogError("We alrdy have this key|component at singles " + key);
-                    HECSDebug.LogError($"We add duplicate to singles from entity: {component.Owner.ID} container: {component.Owner.ContainerID}"); 
+                    HECSDebug.LogError($"We add duplicate to singles from entity: {component.Owner.ID} container: {component.Owner.ContainerID}");
                     return;
                 }
                 else
