@@ -50,6 +50,29 @@ namespace Components
                 AddCounter(counter);
         }
 
+        public ICounter<float> GetOrAddFloatCounter(int index)  
+        {
+            if (TryGetCounter<ICounter<float>>( index, out var counter))
+                return counter;
+
+            var newCounter = new DefaultFloatCounter { Id = index };
+
+            AddCounter(newCounter);
+            return newCounter;
+        }
+
+        public ICounter<int> GetOrAddIntCounter(int index)
+        {
+            if (TryGetCounter<ICounter<int>>(index, out var counter))
+                return counter;
+
+            var newCounter = new DefaultIntCounter { Id = index };
+
+            AddCounter(newCounter);
+            return newCounter;
+        }
+
+
         public void SetOrAddCounter(ICounter counter)
         {
             if (counters.ContainsKey(counter.Id))
