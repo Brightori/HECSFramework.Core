@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Components;
 
 namespace HECSFramework.Core
 {
@@ -13,6 +14,12 @@ namespace HECSFramework.Core
         public static bool IsAlive(this Entity entity)
         {
             return entity != null && entity.IsAlive && !entity.IsDisposed;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAliveAndNotDead(this Entity entity)
+        {
+            return entity != null && entity.IsAlive && !entity.IsDisposed && !entity.ContainsMask<IsDeadTagComponent>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
