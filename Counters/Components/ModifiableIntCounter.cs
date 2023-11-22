@@ -106,6 +106,9 @@ namespace Components
 
         public IEnumerable<IModifier<int>> GetModifiers() => modifiersContainer.GetModifiers();
 
-     
+        public void SetIsDirty()
+        {
+            modifiersContainer.SetDirty();
+        }
     }
 }

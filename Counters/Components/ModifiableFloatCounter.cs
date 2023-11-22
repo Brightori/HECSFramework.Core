@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Commands;
 using HECSFramework.Core;
 
 namespace Components
@@ -104,5 +103,10 @@ namespace Components
         }
 
         public IEnumerable<IModifier<float>> GetModifiers() => modifiersContainer.GetModifiers();
+
+        public void SetIsDirty()
+        {
+            modifiersContainer.SetDirty();
+        }
     }
 }

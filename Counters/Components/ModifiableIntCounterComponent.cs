@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Commands;
 using HECSFramework.Core;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Components
 {
@@ -134,6 +133,9 @@ namespace Components
             modifiableIntCounter.Setup(Id, newBaseValue);
         }
 
-     
+        public void SetIsDirty()
+        {
+            modifiableIntCounter.SetIsDirty();
+        }
     }
 }

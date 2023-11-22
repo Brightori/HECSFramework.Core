@@ -129,5 +129,10 @@ namespace Components
         {
             return modifiableFloatCounter.GetModifiers();
         }
+
+        public void SetIsDirty()
+        {
+            this.modifiableFloatCounter.SetIsDirty();
+        }
     }
 }

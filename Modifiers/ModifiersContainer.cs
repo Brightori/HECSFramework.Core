@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace HECSFramework.Core
 {
@@ -117,6 +116,11 @@ namespace HECSFramework.Core
             }
 
             CleanUpRemovedModifiers();
+            isDirty = true;
+        }
+
+        public void SetDirty()
+        {
             isDirty = true;
         }
 
