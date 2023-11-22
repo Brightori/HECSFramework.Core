@@ -1,8 +1,6 @@
-using HECSFramework.Core;
-using HECSFramework.Unity;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using HECSFramework.Core;
 
 namespace Components
 {
