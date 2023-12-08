@@ -21,13 +21,8 @@ namespace HECSFramework.Core
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Add])
             {
-                var calc = baseForCalculation;
-                valueMod.Modifier.Modify(ref calc);
-                currentMod += calc;
+                valueMod.Modifier.Modify(ref baseForCalculation);
             }
-
-            baseForCalculation = Math.Abs(currentMod - baseForCalculation);
-            currentMod = 0;
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Subtract])
             {
