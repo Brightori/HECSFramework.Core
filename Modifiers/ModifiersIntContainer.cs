@@ -17,7 +17,6 @@ namespace HECSFramework.Core
         public override int GetCalculatedValue(int value)
         {
             var baseForCalculation = value;
-            var currentMod = 0;
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Add])
             {
@@ -29,15 +28,10 @@ namespace HECSFramework.Core
                 valueMod.Modifier.Modify(ref baseForCalculation);
             }
 
-            baseForCalculation += currentMod;
-            currentMod = baseForCalculation;
-
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Multiply])
             {
-                valueMod.Modifier.Modify(ref currentMod);
+                valueMod.Modifier.Modify(ref baseForCalculation);
             }
-
-            baseForCalculation = currentMod;
 
             foreach (var valueMod in modifiers[(int)ModifierCalculationType.Divide])
             {
