@@ -52,6 +52,13 @@ namespace HECSFramework.Core
         private Queue<OwnerModifier> cleanQueue = new Queue<OwnerModifier>(2);
         private Queue<CleanModifier> removedModifiers = new Queue<CleanModifier>(4);
 
+        public Data GetForceCalculatedValue()
+        {
+            isDirty = true;
+            GetCalculatedValue();
+            return calculatedValue;
+        }
+
         public void SetBaseValue(Data data)
         {
             baseValue = data;
@@ -123,6 +130,7 @@ namespace HECSFramework.Core
         {
             isDirty = true;
         }
+        
 
         public void RemoveModifier(Guid modifierGUID, bool unique = false)
         {

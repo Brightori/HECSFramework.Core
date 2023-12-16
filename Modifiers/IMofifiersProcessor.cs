@@ -12,6 +12,7 @@ namespace HECSFramework.Core
         void RemoveModifier(int modifierID, bool unique = false);
         IEnumerable<IModifier<T>> GetModifiers();
         public void SetIsDirty();
+        public T GetForceCalculatedValue { get; }
     }
 
     public interface IMofifiersCompositeProcessor<T> : IResetModifiers where T : struct

@@ -10,6 +10,7 @@ namespace Components
         public float Value { get => currentValue; private set => currentValue = value; }
         public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
+        public float GetForceCalculatedValue => modifiersContainer.GetForceCalculatedValue();
 
         protected ModifiersFloatContainer modifiersContainer = new ModifiersFloatContainer();
 

@@ -11,6 +11,7 @@ namespace Components
         public int Value => currentValue;
         public int CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
+        public int GetForceCalculatedValue => modifiersContainer.GetCalculatedValue();
 
         protected ModifiersIntContainer modifiersContainer = new ModifiersIntContainer();
 

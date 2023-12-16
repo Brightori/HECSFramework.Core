@@ -18,6 +18,7 @@ namespace Components
         protected bool isReactive;
 
         public bool IsReactive { get => isReactive; protected set => isReactive = value; }
+        public int GetForceCalculatedValue => modifiableIntCounter.GetForceCalculatedValue;
 
         public void Init()
         {
