@@ -123,6 +123,7 @@ namespace HECSFramework.Core
         private IHECSJobRunPooler jobRunPooler;
         private event Action onComplete;
         public event Action<JobResult<T>> OnComplete;
+        public int Generation;
 
         public bool IsAborted => abortOperation;
 
@@ -155,6 +156,7 @@ namespace HECSFramework.Core
             onComplete = null;
             OnComplete = null;
             jobRunPooler.Release(this);
+            Generation++;
         }
 
         public void OnCompleted(Action continuation)
@@ -188,6 +190,24 @@ namespace HECSFramework.Core
             IsAborted = isAborted;
             Result = result;
         }
+    }
+
+    public struct JobAlive<T> where T : struct, IHecsJob
+    {
+        public HECSJobRun<T> CurrentJob;
+        public int Generation;
+
+        public JobAlive(HECSJobRun<T> currentJob) 
+        {
+            CurrentJob = currentJob;
+
+            if (currentJob != null) 
+                Generation = currentJob.Generation;
+            else 
+                Generation = 0;
+        }
+
+        public bool IsAlive => CurrentJob != null && Generation == CurrentJob.Generation;
     }
 
     public interface IJobProcessor
