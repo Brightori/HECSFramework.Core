@@ -199,6 +199,11 @@ namespace HECSFramework.Core
             return singleComponents.ContainsKey(index);
         }
 
+        public bool IsHaveSingleComponent<T>() where T: IComponent, IWorldSingleComponent
+        {
+            return singleComponents.ContainsKey(ComponentProvider<T>.TypeIndex);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entity GetEntityBySingleComponent(int index)
         {
