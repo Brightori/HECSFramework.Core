@@ -137,8 +137,16 @@ namespace HECSFramework.Core
             poolComponents.Release();
         }
 
-
         public T GetSystem<T>() where T : ISystem
+        {
+            foreach (var s in Systems)
+                if (s is T needed)
+                    return needed;
+
+            return default;
+        }
+
+        public T GetSystemTypeOf<T>()
         {
             foreach (var s in Systems)
                 if (s is T needed)
@@ -194,6 +202,29 @@ namespace HECSFramework.Core
             }
         }
 
+        public HECSPooledArray<T> GetComponentsOfTypePooled<T>()
+        {
+            var pool = HECSPooledArray<T>.GetArray(Components.Count);
+
+            foreach (var c in Components)
+            {
+                if (World.GetComponentProvider(c).GetIComponent(Index) is T needed)
+                    pool.Add(needed);
+            }
+
+            return pool;
+        }
+
+        public T GetComponentTypeOf<T>() where T : class
+        {
+            foreach (var c in Components)
+            {
+                if (World.GetComponentProvider(c).GetIComponent(Index) is T needed)
+                    return needed;
+            }
+
+            return default;
+        }
 
         /// <summary>
         /// this is for editor only, do not use it runtime logic

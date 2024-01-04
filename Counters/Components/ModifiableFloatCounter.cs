@@ -12,6 +12,8 @@ namespace Components
         public int Id { get; private set; }
         public float GetForceCalculatedValue => modifiersContainer.GetForceCalculatedValue();
 
+        public float SetupValue => currentValue;
+
         protected ModifiersFloatContainer modifiersContainer = new ModifiersFloatContainer();
 
         public void Setup (int key, float baseValue)

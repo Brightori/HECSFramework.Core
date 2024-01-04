@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using HECSFramework.Core;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Components
 {
@@ -12,6 +11,8 @@ namespace Components
         public int CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
         public int GetForceCalculatedValue => modifiersContainer.GetCalculatedValue();
+
+        public int SetupValue => currentValue;
 
         protected ModifiersIntContainer modifiersContainer = new ModifiersIntContainer();
 
