@@ -10,7 +10,7 @@ namespace HECSFramework.Core
         public override ModifierCalculationType GetCalculationType { get; set; }
         public override ModifierValueType GetModifierType { get; set; }
         public override Guid ModifierGuid { get; set; }
-        public override int ModifierID => ID;
+        public override int ModifierID { get; set; }
 
         public override void Modify(ref float currentMod)
         {
@@ -27,7 +27,7 @@ namespace HECSFramework.Core
         public override ModifierCalculationType GetCalculationType { get; set; }
         public override ModifierValueType GetModifierType { get; set; }
         public override Guid ModifierGuid { get; set; }
-        public override int ModifierID => ID;
+        public override int ModifierID { get; set; }
 
         public override void Modify(ref int currentMod)
         {
@@ -41,7 +41,7 @@ namespace HECSFramework.Core
         public abstract ModifierCalculationType GetCalculationType { get; set; }
         public abstract ModifierValueType GetModifierType { get; set; }
         public abstract Guid ModifierGuid { get; set; }
-        public abstract int ModifierID { get; }
+        public abstract int ModifierID { get; set; }
 
         public override bool Equals(object obj)
         {

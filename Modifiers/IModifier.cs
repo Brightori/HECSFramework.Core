@@ -7,7 +7,7 @@ namespace HECSFramework.Core
         /// <summary>
         /// we should take it from identifier
         /// </summary>
-        int ModifierID { get; }
+        int ModifierID { get; set; }
         
         /// <summary>
         /// we can separate instances of modifiers by guid
