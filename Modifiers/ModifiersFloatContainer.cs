@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HECSFramework.Core
+﻿namespace HECSFramework.Core
 {
     public sealed partial class ModifiersFloatContainer : ModifiersContainer<float>
     {
