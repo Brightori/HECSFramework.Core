@@ -57,6 +57,7 @@ namespace HECSFramework.Core
             worldService.AddHecsSystem(new DestroyEntityWorldSystem());
             worldService.AddHecsSystem(new RemoveComponentWorldSystem());
             worldService.AddHecsSystem(new PoolingSystem());
+            AddUnityWorldPart(worldService);
             worldService.Init();
             AddStrategiesPart();
             while (waintingForInit.Count > 0)
@@ -65,6 +66,7 @@ namespace HECSFramework.Core
             IsInited = true;
         }
 
+        partial void AddUnityWorldPart(Entity worldService);
         partial void AddStrategiesPart();
 
         public void AddToInit(Entity entity)
