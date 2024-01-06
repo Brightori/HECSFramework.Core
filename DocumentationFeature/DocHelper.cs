@@ -82,4 +82,5 @@ public static partial class Doc
     public const string Encounter = "Encounter";
     public const string Upgrade = "Upgrade";
     public const string Containers = "Containers";
+    public const string FSM = "FSM";
 }

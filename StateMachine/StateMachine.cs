@@ -4,6 +4,7 @@ using HECSFramework.Core.Helpers;
 
 namespace HECSFramework.Core
 {
+    [Documentation(Doc.HECS, Doc.FSM, "Simple realisation for fsm pattern")]
     public partial class StateMachine : IUpdatable, IDisposable
     {
         private Dictionary<int, BaseFSMState> states = new Dictionary<int, BaseFSMState>(8);
@@ -68,6 +69,7 @@ namespace HECSFramework.Core
             if (currentState == 0)
                 return;
 
+            //we look into transitions, if we have special one we try to proceed by transition
             if (this.transitions.TryGetValue(currentState, out var transitionsOfState))
             {
                 foreach (var t in transitionsOfState)
@@ -80,6 +82,7 @@ namespace HECSFramework.Core
                 }
             }
          
+            //if we dont have valid transition we proceed by default scenario of current state
             ChangeState(states[currentState].NextStateID);
         }
 
@@ -104,6 +107,7 @@ namespace HECSFramework.Core
         }
     }
 
+    [Documentation(Doc.FSM, Doc.HECS, "its parent class for hecs fsm realisation")]
     public abstract class BaseFSMState : IDisposable
     {
         public abstract int StateID { get; }
