@@ -5,7 +5,7 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.Abilities, "Компонент в котором хранятся предикаты для абилки, цели абилки, и для владельца абилки")]
-    public partial class AbilityPredicateComponent : BaseComponent, IInitable, IPoolableComponent
+    public partial class AbilityPredicateComponent : BaseComponent, IInitable, IPoolableComponent, IDisposable
     {
         public PredicatesComponent AbilityPredicates = new PredicatesComponent();
         public PredicatesComponent TargetPredicates = new PredicatesComponent();
@@ -22,5 +22,12 @@ namespace Components
         }
 
         partial void InitBP();
+
+        public void Dispose()
+        {
+            AbilityPredicates.Dispose();
+            TargetPredicates.Dispose();
+            AbilityOwnerPredicates.Dispose();
+        }
     }
 }

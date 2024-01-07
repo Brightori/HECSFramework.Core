@@ -1,12 +1,18 @@
 ﻿using HECSFramework.Core;
+using System;
 using System.Collections.Generic;
 
 namespace Components
 {
     [Documentation(Doc.Abilities, Doc.Predicates, "predicates for abilities")]
-    public partial class PredicatesComponent : BaseComponent
+    public partial class PredicatesComponent : BaseComponent, IDisposable
     {
         public List<IPredicate> Predicates = new List<IPredicate>(4);
+
+        public void Dispose()
+        {
+            Predicates.Clear();
+        }
 
         /// <summary>
         /// сюда сначала передаём цель, потом владельца предиката, 
