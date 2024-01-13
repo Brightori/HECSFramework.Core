@@ -3,6 +3,10 @@ using System.Buffers;
 
 namespace Helpers
 {
+    /// <summary>
+    /// u should return it on pool by calling release, or use it through using scope(auto disposable)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public ref struct HECSPooledArray<T>
     {
         public T[] Items;
@@ -22,6 +26,17 @@ namespace Helpers
             hecsPool.Items = ArrayPool<T>.Shared.Rent(lenght);
             hecsPool.count = 0;
             return hecsPool;
+        }
+
+        public bool Contains(T element)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (Items[i].Equals(element))
+                    return true;
+            } 
+
+            return false;
         }
 
         private int CalculateLenght(ref int currentCount, in int desiredCount)

@@ -135,5 +135,10 @@ namespace Components
         {
             this.modifiableFloatCounter.SetIsDirty();
         }
+
+        public void Setup(int key, float baseValue)
+        {
+            modifiableFloatCounter.Setup(key, baseValue);
+        }
     }
 }

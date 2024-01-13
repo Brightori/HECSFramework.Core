@@ -138,5 +138,7 @@ namespace Components
         {
             modifiableIntCounter.SetIsDirty();
         }
+
+        public void Setup(int key, int baseValue) => modifiableIntCounter.Setup(key, baseValue);
     }
 }

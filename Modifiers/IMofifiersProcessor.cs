@@ -10,9 +10,10 @@ namespace HECSFramework.Core
         void RemoveModifier(Guid owner, IModifier<T> modifier, bool unique = false);
         void RemoveModifier(Guid modifierGUID, bool unique = false);
         void RemoveModifier(int modifierID, bool unique = false);
+        void Setup(int key, T baseValue);
         IEnumerable<IModifier<T>> GetModifiers();
-        public void SetIsDirty();
-        public T GetForceCalculatedValue { get; }
+        void SetIsDirty();
+        T GetForceCalculatedValue { get; }
     }
 
     public interface IMofifiersCompositeProcessor<T> : IResetModifiers where T : struct
