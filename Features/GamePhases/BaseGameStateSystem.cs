@@ -27,7 +27,9 @@ namespace Systems
 
             if (lockedStates.Count > 0 && !lockedStates.Contains(command.From))
             {
+#if IdentifiersGenerated
                 HECSDebug.LogWarning($"we try to enter this state {IdentifierToStringMap.IntToString[State]}, from not valid state {IdentifierToStringMap.IntToString[command.From]}");
+#endif
                 return;
             }
 
