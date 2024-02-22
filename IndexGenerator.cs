@@ -25,7 +25,7 @@ namespace HECSFramework.Core
 
             var lenght = typeName.Length;
 
-            int index = lenght + typeName[0].GetHashCode();
+            int index = lenght + typeName[0].GetHashCode() + typeName[^1].GetHashCode();
             int hash = 10070531;
 
             for (int i = 0; i < lenght; i++)
