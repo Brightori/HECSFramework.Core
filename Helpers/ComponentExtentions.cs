@@ -15,7 +15,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddComponentReactGlobal<T>(this T component) where T : IComponent
         {
-            component.Owner.Command(new AddComponentReactGlobalCommand<T>(component));
+            component.Owner.World.Command(new AddComponentReactGlobalCommand<T>(component));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -27,7 +27,7 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveComponentReactGlobal<T>(this T component) where T : IComponent
         {
-            component.Owner.Command(new RemoveComponentReactGlobalCommand<T>(component));
+            component.Owner.World.Command(new RemoveComponentReactGlobalCommand<T>(component));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,7 +41,7 @@ namespace HECSFramework.Core
         public static void ComponentReactByTypeGlobal<T>(this IComponent component)
         {
             if (component is T needed)
-                component.Owner.Command(new ComponentReactByTypeGlobalCommand<T>(needed));
+                component.Owner.World.Command(new ComponentReactByTypeGlobalCommand<T>(needed));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +55,7 @@ namespace HECSFramework.Core
         public static void RemoveComponentReactByTypeGlobal<T>(this IComponent component)
         {
             if (component is T needed)
-                component.Owner.Command(new RemoveComponentReactByTypeGlobalCommand<T>(needed));
+                component.Owner.World.Command(new RemoveComponentReactByTypeGlobalCommand<T>(needed));
         }
     }
 }
