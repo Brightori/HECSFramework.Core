@@ -7,7 +7,7 @@ namespace Systems
 {
     [Serializable]
     [Documentation(Doc.HECS, Doc.Counters, "System for operating counters on this entity, process changes of values and add|remove modifiers to modifiable counters")]
-    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem, IReactGenericLocalComponent<ICounter>
+    public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem 
     {
         [Required]
         public CountersHolderComponent countersHolder;
@@ -83,6 +83,16 @@ namespace Systems
             else
                 countersHolder.RemoveCounter(component);
         }
+
+        public void CommandReact(ComponentReactByTypeCommand<ICounter> command)
+        {
+            ComponentReactLocal(command.Value, true);
+        }
+
+        public void CommandReact(RemoveComponentReactByTypeCommand<ICounter> command)
+        {
+            ComponentReactLocal(command.Value, false);
+        }
     }
 
     public interface ICountersHolderSystem : ISystem,
@@ -91,6 +101,8 @@ namespace Systems
         IReactCommand<AddCounterModifierBySubIDCommand<float>>,
         IReactCommand<RemoveCounterModifierCommand<float>>,
         IReactCommand<RemoveCounterModifierCommand<int>>,
+        IReactCommand<ComponentReactByTypeCommand<ICounter>>,
+        IReactCommand<RemoveComponentReactByTypeCommand<ICounter>>,
         IReactCommand<ResetCountersCommand>
     {
     }

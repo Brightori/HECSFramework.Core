@@ -30,5 +30,13 @@
         public virtual void BeforeDispose()
         {
         }
+
+        public virtual void Init()
+        {
+        }
+
+        public virtual void AfterInit()
+        {
+        }
     }
 }

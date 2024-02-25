@@ -6,7 +6,7 @@ using HECSFramework.Core;
 namespace Components
 {
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
-    public abstract partial class ModifiableFloatOnBaseValueCounterComponent : BaseComponent, IPoolableComponent, ICounterModifiable<float>, IInitable, IDisposable
+    public abstract partial class ModifiableFloatOnBaseValueCounterComponent : BaseComponent, IPoolableComponent, ICounterModifiable<float>, IDisposable
     {
         public float Value => modifiableFloatCounter.Value;
         public float CalculatedMaxValue => modifiableFloatCounter.CalculatedMaxValue;
@@ -19,7 +19,7 @@ namespace Components
         public bool IsReactive { get => isReactive; protected set => isReactive = value; }
         public float GetForceCalculatedValue { get; }
 
-        public void Init()
+        public override void Init()
         {
             modifiableFloatCounter.Setup(Id, SetupValue);
         }

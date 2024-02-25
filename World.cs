@@ -13,7 +13,6 @@ namespace HECSFramework.Core
         public int Index { get => index; private set => index = value; }
 
         public GlobalUpdateSystem GlobalUpdateSystem { get; private set; } = new GlobalUpdateSystem();
-        private ComponentsService componentsService;
 
         private ConcurrentDictionary<Guid, Entity> cacheTryGetbyGuid = new ConcurrentDictionary<Guid, Entity>();
 
@@ -36,7 +35,6 @@ namespace HECSFramework.Core
             foreach (var tr in componentProviderRegistrators)
                 tr.RegisterWorld(this);
 
-            componentsService = new ComponentsService(this);
             InitStandartEntities();
             InitFastWorld();
         }
@@ -100,26 +98,6 @@ namespace HECSFramework.Core
         public void RemoveGlobalReactCommand<T>(ISystem system) where T : struct, IGlobalCommand
         {
             GlobalCommandListener<T>.RemoveListener(Index, system);
-        }
-
-        public void AddGlobalGenericReactComponent<T>(IReactGenericGlobalComponent<T> reactComponent, bool added)
-        {
-            componentsService.AddGenericListener(reactComponent, added);
-        }
-
-        public void AddLocalGenericReactComponent<T>(int index, IReactGenericLocalComponent<T> reactComponent, bool added)
-        {
-            componentsService.AddLocalGenericListener(index, reactComponent, added);
-        }
-
-        public void AddGlobalReactComponent<T>(IReactComponentGlobal<T> action, bool added) where T : IComponent
-        {
-            componentsService.AddListener(action, added);
-        }
-
-        public void AddLocalReactComponent<T>(int entity, IReactComponentLocal<T> action, bool add) where T : IComponent
-        {
-            componentsService.AddLocalListener(entity, action, add);
         }
 
         public Entity GetEntity(Func<Entity, bool> func)
@@ -288,7 +266,6 @@ namespace HECSFramework.Core
                     Entities[i].Dispose();
             }
 
-            componentsService.Dispose();
             GlobalUpdateSystem.Dispose();
             FastWorldDispose();
 

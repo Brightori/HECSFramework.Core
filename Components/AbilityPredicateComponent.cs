@@ -5,13 +5,13 @@ namespace Components
 {
     [Serializable]
     [Documentation(Doc.Abilities, "Компонент в котором хранятся предикаты для абилки, цели абилки, и для владельца абилки")]
-    public partial class AbilityPredicateComponent : BaseComponent, IInitable, IPoolableComponent, IDisposable
+    public partial class AbilityPredicateComponent : BaseComponent, IPoolableComponent, IDisposable
     {
         public PredicatesComponent AbilityPredicates = new PredicatesComponent();
         public PredicatesComponent TargetPredicates = new PredicatesComponent();
         public PredicatesComponent AbilityOwnerPredicates = new PredicatesComponent();
 
-        public void Init()
+        public override void Init()
         {
             AbilityPredicates.Owner = Owner;
             TargetPredicates.Owner = Owner;

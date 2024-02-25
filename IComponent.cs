@@ -4,6 +4,9 @@
     {
         bool IsAlive { get; set; }
         int GetTypeHashCode { get; }
+
+        void Init();
+        void AfterInit();
     }
 
     [Documentation(Doc.HECS, "Interface tag for singleton components at the world")]

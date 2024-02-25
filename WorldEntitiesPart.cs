@@ -92,11 +92,6 @@ namespace HECSFramework.Core
             filter.UpdateFilter(dirtyEntities.Data, dirtyEntities.Count);
         }
 
-        public void ForceComponentsReact<T>() where T : IComponent
-        {
-            ComponentProvider<T>.ComponentsToWorld.Data[Index].ForceReact();
-        }
-
         private void InitStandartEntities()
         {
             Entities = new Entity[StartEntitiesCount];
@@ -210,8 +205,7 @@ namespace HECSFramework.Core
                 //here we add unity part
                 ComponentAdditionalProcessing(icomponent, entity, true);
 
-                if (icomponent is IInitable initable)
-                    initable.Init();
+                icomponent.Init();
 
                 if (icomponent is IWorldSingleComponent singleComponent)
                     this.AddSingleWorldComponent(singleComponent, true);
@@ -226,21 +220,13 @@ namespace HECSFramework.Core
                 s.InitSystem();
             }
 
-            foreach (var c in entity.Components)
-            {
-                var componentProvider = componentProvidersByTypeIndex[c];
-                componentProvider.RegisterReactive(entity.Index, true);
-            }
-
-            
             entity.IsInited = true;
 
             foreach (var c in entity.Components)
             {
-                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
 
-                if (icomponent is IAfterEntityInit initable)
-                    initable.AfterEntityInit();
+                var icomponent = componentProvidersByTypeIndex[c].GetIComponent(entity.Index);
+                icomponent.AfterInit();
             }
 
             foreach (var s in entity.Systems)
@@ -473,7 +459,7 @@ namespace HECSFramework.Core
         public ComponentProvider GetComponentProvider(int index) => componentProvidersByTypeIndex[index];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] GetComponents<T>() where T: IComponent
+        public T[] GetComponents<T>() where T : IComponent
         {
             return ComponentProvider<T>.ComponentsToWorld.Data[index].Components;
         }
