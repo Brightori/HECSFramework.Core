@@ -23,6 +23,12 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsAliveAndNotDead(this AliveEntity entity)
+        {
+            return  entity.IsAlive && !entity.Entity.ContainsMask<IsDeadTagComponent>();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAlive(this Entity entity, int generation)
         {
             return entity != null && entity.IsAlive && generation == entity.Generation;
