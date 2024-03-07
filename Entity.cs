@@ -410,6 +410,8 @@ namespace HECSFramework.Core
         public readonly Entity Entity;
         public readonly int Generation;
 
+        public static implicit operator Entity(AliveEntity aliveEntity) => aliveEntity.Entity;
+
         public AliveEntity(Entity entity)
         {
             Entity = entity;
