@@ -403,6 +403,11 @@ namespace HECSFramework.Core
 
             Init();
         }
+
+        public AliveEntity GetAliveEntity()
+        {
+            return new AliveEntity(this);
+        }
     }
 
     public readonly struct AliveEntity
