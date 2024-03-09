@@ -64,6 +64,14 @@ namespace HECSFramework.Core
             }
         }
 
+        public void AddTransition(int state, ITransition transition)
+        {
+            if (transitions.ContainsKey(state))
+                transitions[state].Add(transition);
+            else
+                transitions.Add(state, new HECSList<ITransition> { transition });
+        }
+
         public void NextState()
         {
             if (currentState == 0)
