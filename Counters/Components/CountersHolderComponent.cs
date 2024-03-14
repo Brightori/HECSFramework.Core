@@ -19,6 +19,16 @@ namespace Components
             counters.TryAdd(counter.Id, counter);
         }
 
+        public float GetFloatValue(int counterID)
+        {
+            return (counters[counterID] as ICounter<float>).Value;
+        }
+
+        public int GetIntValue(int counterID)
+        {
+            return (counters[counterID] as ICounter<int>).Value;
+        }
+
         public T GetCounter<T>(int id) where T : ICounter
         {
             if (counters.TryGetValue(id, out var counter))

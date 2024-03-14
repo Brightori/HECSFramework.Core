@@ -84,4 +84,5 @@ public static partial class Doc
     public const string Containers = "Containers";
     public const string FSM = "FSM";
     public const string Death = "Death";
+    public const string Proxy = "Proxy";
 }
