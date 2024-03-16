@@ -3,9 +3,12 @@ using Components;
 
 namespace HECSFramework.Core
 {
+    [RequiredAtContainer(typeof(AbilityOwnerComponent))]
     [Documentation(Doc.Abilities, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
     public abstract class BaseAbilitySystem : BaseSystem, IActiveAbilitySystem
     {
+        protected Entity AbilityOwner => Owner.GetComponent<AbilityOwnerComponent>().AbilityOwner;
+
         public void CommandReact(ExecuteAbilityCommand command)
         {
             if (command.Enabled && !command.IgnorePredicates && Owner.TryGetComponent(out AbilityPredicateComponent predicatesComponent))

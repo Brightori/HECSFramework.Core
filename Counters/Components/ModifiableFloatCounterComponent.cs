@@ -140,5 +140,10 @@ namespace Components
         {
             modifiableFloatCounter.Setup(key, baseValue);
         }
+
+        public void Setup(float baseValue)
+        {
+            modifiableFloatCounter.Setup(Id, baseValue);
+        }
     }
 }
