@@ -4,6 +4,7 @@ using HECSFramework.Core;
 
 namespace Systems
 {
+    [Feature("BaseAbilities")]
     [Documentation(Doc.Abilities, Doc.HECS, "Main system for operating abilities")]
     public sealed partial class AbilitiesSystem : BaseSystem, IAfterEntityInit, IReactCommand<ExecuteAbilityByIDCommand>
     {
