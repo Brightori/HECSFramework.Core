@@ -111,6 +111,18 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            foreach (var state in states)
+                state.Value.Dispose();
+
+            foreach (var tList in transitions)
+            {
+                foreach (var transition in tList.Value)
+                {
+                    if (transition is IDisposable disposable) 
+                        disposable.Dispose();
+                }
+            }
+
             owner.World.GlobalUpdateSystem.Register(this, false);
         }
     }
