@@ -58,7 +58,7 @@ namespace HECSFramework.Core
             }
         }
 
-        private static void ResizeWorlds() 
+        private static void ResizeWorlds()
         {
             lock (Instance.worlds)
             {
@@ -240,11 +240,8 @@ namespace HECSFramework.Core
 
         public static bool TryGetEntityByID(Guid entityGuid, out Entity entity, int worldIndex = 0)
         {
-            foreach (var w in Worlds)
-            {
-                if (w.TryGetEntityByID(entityGuid, out entity))
-                    return true;
-            }
+            if (Worlds[worldIndex].TryGetEntityByID(entityGuid, out entity))
+                return true;
 
             entity = default;
             return false;
