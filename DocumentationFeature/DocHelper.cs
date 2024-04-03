@@ -85,4 +85,5 @@ public static partial class Doc
     public const string FSM = "FSM";
     public const string Death = "Death";
     public const string Proxy = "Proxy";
+    public const string VisualQueue = "VisualQueue";
 }
