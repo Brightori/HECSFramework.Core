@@ -80,12 +80,14 @@ namespace HECSFramework.Core
             ID = id;
         }
 
-        public void Init()
+        public Entity Init()
         {
             if (IsInited)
-                return;
+                return this;
 
             World.RegisterEntity(this, true);
+
+            return this;
         }
 
         public void Command<T>(T command) where T : struct, ICommand
