@@ -26,7 +26,7 @@ namespace HECSFramework.Core
 
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
         public EntitiesFilter GetFilter(Filter include) => GetFilterFromCache(include, new Filter());
-        public EntitiesFilter GetFilter(Filter inclide, Filter exclude) => GetFilterFromCache(inclide, exclude);
+        public EntitiesFilter GetFilter(Filter include, Filter exclude) => GetFilterFromCache(include, exclude);
 
         public IEnumerable<ComponentProvider> ComponentProviders => componentProvidersByTypeIndex.Values;
 
