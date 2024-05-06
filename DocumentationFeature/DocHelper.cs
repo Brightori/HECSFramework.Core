@@ -25,6 +25,7 @@ public static partial class Doc
     public const string DataState = "DataState";
     public const string Predicates = "Predicates";
     public const string Animation = "Animation";
+    public const string OnAnimatorMoveUpdate = "OnAnimatorMoveUpdate";
     public const string Perks = "Perks";
     public const string Resources = "Resources";
     public const string Goods = "Goods";

@@ -78,8 +78,7 @@ namespace HECSFramework.Core
         }
 
         /// <summary>
-        /// Рассылает команды по дефолту только  тем ентити у которых зарегестрированы глобальные системы, 
-        /// можно рассылать всем подряд.
+        /// we send command to all global command listeners in this world
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="command"></param>
@@ -179,7 +178,7 @@ namespace HECSFramework.Core
             return singleComponents.ContainsKey(index);
         }
 
-        public bool IsHaveSingleComponent<T>() where T: IComponent, IWorldSingleComponent
+        public bool IsHaveSingleComponent<T>() where T : IComponent, IWorldSingleComponent
         {
             return singleComponents.ContainsKey(ComponentProvider<T>.TypeIndex);
         }
@@ -194,6 +193,11 @@ namespace HECSFramework.Core
         public Entity GetEntityBySingleComponent<T>() where T : IComponent, IWorldSingleComponent
         {
             return singleComponents[ComponentProvider<T>.TypeIndex].Owner;
+        }
+
+        public U GetComponentFromSingleTag<T, U>() where T : IComponent, IWorldSingleComponent where U : IComponent, new()
+        {
+            return singleComponents[ComponentProvider<T>.TypeIndex].Owner.GetComponent<U>();
         }
 
         public bool TryGetEntityByComponent<T>(out Entity outEntity) where T : IComponent, new()
