@@ -131,7 +131,7 @@ namespace HECSFramework.Core
     public abstract class BaseFSMState : IDisposable
     {
         public abstract int StateID { get; }
-        public abstract int NextStateID { get; }
+        public int NextStateID { get; }
 
         protected StateMachine stateMachine;
 
@@ -153,9 +153,10 @@ namespace HECSFramework.Core
         {
         }
 
-        public BaseFSMState(StateMachine stateMachine)
+        public BaseFSMState(StateMachine stateMachine, int nextDefaultState)
         {
             this.stateMachine = stateMachine;
+            NextStateID = nextDefaultState;
         }
     }
 
