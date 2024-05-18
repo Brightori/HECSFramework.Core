@@ -17,10 +17,12 @@ namespace HECSFramework.Core
         private int currentState;
         private int previousState;
 
-        public StateMachine(Entity owner)
+        public StateMachine(Entity owner, bool manualUpdate = false)
         {
             this.owner = owner;
-            this.owner.World.RegisterUpdatable(this, true);
+
+            if (!manualUpdate) 
+                this.owner.World.RegisterUpdatable(this, true);
         }
 
         public int CurrentState { get => currentState; }
