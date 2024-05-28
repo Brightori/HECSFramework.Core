@@ -12,21 +12,21 @@ namespace HECSFramework.Core
             Dispatcher = debugDispatcher;
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("HECSDEBUG")]
         public static void AssertNotNull(object check, string message = "")
         {
             if (check == null)
                 throw new AssertionException(message);
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("HECSDEBUG")]
         public static void AssertIsTrue(bool predicate, string message = "")
         {
             if (!predicate)
                 throw new AssertionException(message);
         }
 
-        [Conditional("DEBUG")]
+        [Conditional("HECSDEBUG")]
         public static void LogDebug(object info, object context = null)
         {
             Dispatcher.LogDebug(info.ToString(), context);

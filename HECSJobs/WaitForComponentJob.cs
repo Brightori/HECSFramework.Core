@@ -18,6 +18,10 @@ public readonly struct WaitFor<T> : IHecsJob where T : IComponent, new()
 	}
 }
 
+/// <summary>
+/// dont forget provide entity to constructor
+/// </summary>
+/// <typeparam name="T"></typeparam>
 [Documentation(Doc.GameLogic, Doc.HECS, Doc.Job, "this job wait until needed component will be removed at actor|entity")]
 public readonly struct WaitRemove<T> : IHecsJob where T : IComponent, new()
 {
