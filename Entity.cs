@@ -412,7 +412,7 @@ namespace HECSFramework.Core
         }
     }
 
-    public readonly struct AliveEntity
+    public readonly struct AliveEntity : IEquatable<AliveEntity>
     {
         public readonly Entity Entity;
         public readonly int Generation;
@@ -426,5 +426,15 @@ namespace HECSFramework.Core
         }
 
         public bool IsAlive => Entity.IsAlive(Generation);
+
+        public bool Equals(AliveEntity other)
+        {
+            return other.Entity == Entity;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Entity, Generation);
+        }
     }
 }
