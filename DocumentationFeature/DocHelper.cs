@@ -88,4 +88,5 @@ public static partial class Doc
     public const string Proxy = "Proxy";
     public const string VisualQueue = "VisualQueue";
     public const string Rig = "Rig";
+    public const string Faction = "Faction";
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
@@ -10,6 +11,9 @@ namespace HECSFramework.Core
         public World World;
         public static int TypeIndex = IndexGenerator.GetIndexForType(typeof(T));
         private T check;
+        
+        private Queue<T> pooledComponents = new Queue<T>(4);
+        private int poolLimit = 4;
 
         static ComponentProvider()
         {
@@ -26,6 +30,11 @@ namespace HECSFramework.Core
         internal override int TypeIndexProvider => TypeIndex;
 
         public int Priority { get; } = -2;
+
+        public void ChangePoolLimit(int limit)
+        {
+            poolLimit = limit;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T AddComponent(int entityIndex)
@@ -59,10 +68,9 @@ namespace HECSFramework.Core
             if (Has(index))
                 return Components[index];
 
-            if (Components[index] != null)
+            if (pooledComponents.TryDequeue(out var component))
             {
-                Add(index);
-                return Components[index];
+                return AddComponent(index, component);
             }
 
             return AddComponent(index);
@@ -116,7 +124,11 @@ namespace HECSFramework.Core
             if (component is IDisposable disposable)
                 disposable.Dispose();
 
+            if (pooledComponents.Count < poolLimit)
+                pooledComponents.Enqueue(component);
+
             Components[index].IsAlive = false;
+            Components[index] = default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
