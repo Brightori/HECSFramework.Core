@@ -4,6 +4,7 @@ public static partial class Doc
     public const string Character = "Character";
     public const string Camera = "Camera";
     public const string Quests = "Quests";
+    public const string DailyQuests = "DailyQuests";
     public const string NPC = "NPC";
     public const string Tag = "Tag";
     public const string GameLogic = "GameLogic";
@@ -89,4 +90,6 @@ public static partial class Doc
     public const string VisualQueue = "VisualQueue";
     public const string Rig = "Rig";
     public const string Faction = "Faction";
+    public const string Text = "Text";
+    public const string Name = "Name";
 }
