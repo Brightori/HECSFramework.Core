@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Systems
 {
-    [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
+    [Documentation(Doc.GameLogic, "this system provides functionality for destroying entities in the end of frame")]
     public sealed partial class DestroyEntityWorldSystem : BaseSystem, IReactGlobalCommand<DestroyEntityWorldCommand>
     {
         private Queue<Entity> entitiesForDelete = new Queue<Entity>(8);
@@ -44,6 +44,14 @@ namespace Systems
         public void CommandGlobalReact(DestroyEntityWorldCommand command)
         {
             entitiesForDelete.Enqueue(command.Entity);
+        }
+    }
+
+    public static class EntityDestroyHelper
+    {
+        public static void HECSDestroyEndOfFrame(this Entity entity)
+        {
+            entity.World.Command(new DestroyEntityWorldCommand { Entity = entity });
         }
     }
 }
