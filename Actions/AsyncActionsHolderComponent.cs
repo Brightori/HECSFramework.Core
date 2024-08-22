@@ -69,6 +69,7 @@ namespace Components
                 {
                     pool.Add(kp);
                     readyForPool.Push(kp.uniTasks);
+                    kp.uniTasks.ClearFast();
                 }
             }
 
