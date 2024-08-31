@@ -93,4 +93,5 @@ public static partial class Doc
     public const string Text = "Text";
     public const string Name = "Name";
     public const string Interactable = "Interactable";
+    public const string Time = "Time";
 }

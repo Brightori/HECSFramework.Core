@@ -1,5 +1,6 @@
 ﻿namespace HECSFramework.Core.Helpers
 {
+    [Documentation(Doc.Helpers, Doc.HECS, "this component provide helpers to reflection functionality like set private member or call method")]
     public static class ReflectionHelpers
     {
         public static void CallPrivateMethod(object invokeMethodObject, string methodName, params object[] args)
