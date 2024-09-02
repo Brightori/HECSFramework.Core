@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Cysharp.Threading.Tasks;
 using HECSFramework.Core;
-using Helpers;
 
 namespace Components
 {
@@ -16,9 +15,6 @@ namespace Components
     public abstract partial class AsyncBaseActionsHolderComponent : BaseComponent, IDisposable, IAsyncActionsHolderComponent
     {
         protected HECSList<AsyncActionsToIdentifier> Actions = new HECSList<AsyncActionsToIdentifier>(4);
-        private Stack<HECSList<UniTask>> readyForPool = new Stack<HECSList<UniTask>>();
-        private HECSList<(int index, HECSList<UniTask> uniTasks)> inProgress = new HECSList<(int index, HECSList<UniTask> uniTasks)>(2);
-        private int index;
 
         public void Dispose()
         {
@@ -32,65 +28,30 @@ namespace Components
             }
         }
 
+        /// <summary>
+        /// if different action have same id, we wait all for each action, and run them sequentialy
+        /// </summary>
+        /// <param name="Index"></param>
+        /// <param name="to"></param>
+        /// <param name="from"></param>
+        /// <returns></returns>
         public async UniTask ExecuteAction(int Index, Entity to, Entity from = null)
         {
-            index++;
-
-            var pool = GetList(index);
-
             for (int i = 0; i < Actions.Count; i++)
             {
                 if (Actions[i].ID == Index)
                 {
-                    var subPool = GetList(index);
+                    var subPool = ArrayPool<UniTask>.Shared.Rent(Actions[i].Actions.Count);
 
-                    foreach (var a in Actions[i].Actions)
+                    for (int x = 0; x < Actions[i].Actions.Count; x++)
                     {
-                        subPool.Add(a.ActionAsync(to, from));
+                        subPool[x] =  Actions[i].Actions[x].ActionAsync(to, from);
                     }
 
-                    pool.Add(UniTask.WhenAll(subPool));
+                    await UniTask.WhenAll(subPool);
+                    ArrayPool<UniTask>.Shared.Return(subPool);
                 }
             }
-
-            if (pool.Count > 0)
-                await UniTask.WhenAll(pool);
-
-            Release(index);
-        }
-
-        public void Release(int index)
-        {
-            var pool = HECSPooledArray<(int index, HECSList<UniTask> uniTasks)>.GetArray(inProgress.Count);
-
-            foreach (var kp in inProgress)
-            {
-                if (kp.index == index)
-                {
-                    pool.Add(kp);
-                    readyForPool.Push(kp.uniTasks);
-                    kp.uniTasks.ClearFast();
-                }
-            }
-
-            for (int i = 0; i < pool.Count; i++)
-            {
-                inProgress.RemoveSwap(pool.Items[i]);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private HECSList<UniTask> GetList(int currentIndex)
-        {
-            if (readyForPool.TryPop(out var list))
-            {
-                inProgress.Add((currentIndex, list));
-                return list;
-            }
-
-            var newList = new HECSList<UniTask>(2);
-            inProgress.Add((currentIndex, newList));
-            return newList;
         }
     }
 
