@@ -13,7 +13,8 @@ namespace HECSFramework.Core
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(32);
 
         //here we have free entities for pooling|using
-        private Stack<int> freeIndicesForStandartEntities = new Stack<int>();
+        private Stack<int> freeIndicesForStandartEntities = new Stack<int>(32);
+        private Stack<int> tofreeIndicesForStandartEntities = new Stack<int>(32);
 
         //dirty entities should be processing 
         private HECSList<int> dirtyEntities = new HECSList<int>(32);
@@ -112,6 +113,9 @@ namespace HECSFramework.Core
 
         private void ProcessDirtyEntities()
         {
+            while (tofreeIndicesForStandartEntities.TryPop(out var i))
+                freeIndicesForStandartEntities.Push(i);
+
             var registerCount = registerEntity.Count;
             var reactEntityCount = reactEntities.Count;
 
@@ -145,7 +149,7 @@ namespace HECSFramework.Core
                 var register = registerEntity.Data[i];
 
                 if (!register.IsAdded)
-                    freeIndicesForStandartEntities.Push(register.Entity.Index);
+                    tofreeIndicesForStandartEntities.Push(register.Entity.Index);
             }
 
             dirtyEntities.Clear();
