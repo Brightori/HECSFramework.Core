@@ -1,11 +1,21 @@
 ﻿using System.Runtime.CompilerServices;
 using Commands;
+using Components;
 using HECSFramework.Core;
 
 namespace HECSFramework.Core
 {
     public static class ComponentExtentions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetContainerIndex(this Entity entity) 
+        {
+            if (entity.TryGetComponent(out ActorContainerID actorContainerID))
+                return actorContainerID.ContainerIndex;
+
+            return 0;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddComponentReactLocal<T>(this T component) where T: IComponent
         {
