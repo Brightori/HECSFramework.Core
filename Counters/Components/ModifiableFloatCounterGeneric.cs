@@ -68,7 +68,7 @@ namespace Components
             var oldValue = currentValue;
             var oldCalculated = modifiersContainer.GetCalculatedValue();
 
-            modifiersContainer.AddModifier(owner, modifier);
+            modifiersContainer.AddUniqueModifier(owner, modifier);
 
             UpdatValueWithModifiers(oldValue, oldCalculated);
         }

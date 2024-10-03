@@ -92,7 +92,7 @@ namespace HECSFramework.Core
 
         public void AddUniqueModifier(Guid owner, IModifier<Data> modifier)
         {
-            if (modifiers[(int)modifier.GetCalculationType].Any(x => x.ModifiersOwner == owner || x.Modifier.ModifierGuid == modifier.ModifierGuid))
+            if (modifiers[(int)modifier.GetCalculationType].Any(x => x.Modifier.ModifierGuid == modifier.ModifierGuid))
                 return;
 
             AddModifier(owner, modifier);
