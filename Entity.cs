@@ -7,7 +7,7 @@ using Helpers;
 namespace HECSFramework.Core
 {
     [Serializable]
-    public sealed partial class Entity
+    public sealed partial class Entity : IEquatable<Entity>
     {
         public const string ClearEntity = "CEntity";
 
