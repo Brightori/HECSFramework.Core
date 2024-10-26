@@ -12,7 +12,7 @@ namespace Systems
 
         public override void InitSystem()
         {
-            Owner.World.GlobalUpdateSystem.FinishUpdate += React;
+            Owner.World.GlobalUpdateSystem.PreFinishUpdate += React;
         }
 
         private void React()
