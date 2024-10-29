@@ -28,6 +28,20 @@ namespace Components
             }
         }
 
+        public async UniTask ExecuteActionSequentialy(int Index, Entity to, Entity from = null)
+        {
+            for (int i = 0; i < Actions.Count; i++)
+            {
+                if (Actions[i].ID == Index)
+                {
+                    for (int x = 0; x < Actions[i].Actions.Count; x++)
+                    {
+                        await Actions[i].Actions[x].ActionAsync(to, from);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// if different action have same id, we wait all for each action, and run them sequentialy
         /// </summary>
@@ -49,7 +63,7 @@ namespace Components
                     }
 
                     await UniTask.WhenAll(subPool);
-                    ArrayPool<UniTask>.Shared.Return(subPool);
+                    ArrayPool<UniTask>.Shared.Return(subPool, true);
                 }
             }
         }
