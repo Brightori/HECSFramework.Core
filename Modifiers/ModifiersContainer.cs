@@ -143,7 +143,7 @@ namespace HECSFramework.Core
                         removedModifiers.Enqueue(new CleanModifier
                         {
                             OwnerModifier = currentmodifier,
-                            TypeOfModifier = (int)currentmodifier.Modifier.GetModifierType,
+                            TypeOfModifier = (int)currentmodifier.Modifier.GetCalculationType,
                         });
 
                         if (unique)
@@ -167,7 +167,7 @@ namespace HECSFramework.Core
                         removedModifiers.Enqueue(new CleanModifier
                         {
                             OwnerModifier = currentmodifier,
-                            TypeOfModifier = (int)currentmodifier.Modifier.GetModifierType,
+                            TypeOfModifier = (int)currentmodifier.Modifier.GetCalculationType,
                         });
 
                         if (unique)
