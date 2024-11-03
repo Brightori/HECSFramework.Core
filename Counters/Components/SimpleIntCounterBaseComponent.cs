@@ -8,12 +8,12 @@ namespace Components
         public abstract  int Value { get; protected set; }
         public abstract int Id { get; }
 
-        public void ChangeValue(int value)
+        public virtual void ChangeValue(int value)
         {
             Value += value;
         }
 
-        public void SetValue(int value)
+        public virtual void SetValue(int value)
         {
             Value = value;
         }
