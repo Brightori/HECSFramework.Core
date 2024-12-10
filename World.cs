@@ -22,6 +22,7 @@ namespace HECSFramework.Core
         private WaitingCommandsSystems waitingCommandsSystems;
 
         private Queue<Entity> waintingForInit = new Queue<Entity>();
+        private HashSet<IRequestProvider> requestProcessors = new HashSet<IRequestProvider>(32);
 
         public bool IsAlive { get; private set; } = true;
         public Guid WorldGuid { get; private set; } = Guid.NewGuid();
@@ -77,6 +78,68 @@ namespace HECSFramework.Core
             GlobalUpdateSystem.Register(registerUpdatable, add);
         }
 
+        #region Requests
+        public void AddRequestProvider<T, U>(IRequestProvider<T, U> requestProcessor) where U : struct, ICommand
+        {
+            RequestProviderService<T, U>.AddRequestProcessor(Index, requestProcessor);
+            requestProcessors.Add(requestProcessor);
+        }
+
+        public bool RemoveRequestProvider<T, U>(IRequestProvider<T, U> requestProcessor) where U : struct, ICommand
+        {
+            RequestProviderService<T, U>.RemoveRequestProcessor(Index);
+            return requestProcessors.Remove(requestProcessor);
+        }
+
+        public void AddRequestProvider<T>(IRequestProvider<T> requestProcessor) 
+        {
+            RequestProviderService<T>.AddRequestProcessor(Index, requestProcessor);
+            requestProcessors.Add(requestProcessor);
+        }
+
+        public bool RemoveRequestProvider<T>(IRequestProvider<T> requestProcessor) 
+        {
+            RequestProviderService<T>.RemoveRequestProcessor(Index);
+            return requestProcessors.Remove(requestProcessor);
+        }
+
+        public void RemoveRequestProvider<T, U>() where U : struct, ICommand
+        {
+            RequestProviderService<T, U>.RemoveRequestProcessor(Index);
+
+            foreach (var processor in requestProcessors)
+            {
+                if (processor is IRequestProvider<T, U>)
+                {
+                    requestProcessors.Remove(processor);
+                }
+            }
+        }
+
+        public void RemoveRequestProcessor<T>() 
+        {
+            RequestProviderService<T>.RemoveRequestProcessor(Index);
+
+            foreach (var processor in requestProcessors)
+            {
+                if (processor is IRequestProvider<T>)
+                {
+                    requestProcessors.Remove(processor);
+                }
+            }
+        }
+
+        public T Request<T, U>(U data) where U : struct, ICommand
+        {
+            return RequestProviderService<T, U>.Request(Index, data);
+        }
+
+        public T Request<T>() 
+        {
+            return RequestProviderService<T>.Request(Index);
+        }
+        #endregion
+
         /// <summary>
         /// we send command to all global command listeners in this world
         /// </summary>
@@ -88,6 +151,7 @@ namespace HECSFramework.Core
             if (index < GlobalCommandListener<T>.ListenersToWorld.Count)
                 GlobalCommandListener<T>.ListenersToWorld.Data[index]?.Invoke(command);
         }
+
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
         {
@@ -264,6 +328,12 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            foreach (var processor in requestProcessors)
+                processor.Dispose();
+
+            requestProcessors.Clear();
+
+
             for (int i = 0; i < Entities.Length; i++)
             {
                 if (Entities[i].IsAlive)
@@ -289,6 +359,9 @@ namespace HECSFramework.Core
             systemRegisterService = null;
             componentProvidersByTypeIndex.Clear();
             componentProviderRegistrators = null;
+
+
+
 
             foreach (var pool in systemsPool.Values)
                 pool.Clear();
