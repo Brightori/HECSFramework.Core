@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using HECSFramework.Core;
 
 namespace Helpers
 {
@@ -84,6 +85,18 @@ namespace Helpers
 
             return hecspool;
         }
+
+        public T FirstOrDefault(Func<T, bool> func)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                if (func(Items[i]))
+                    return Items[i];
+            }
+
+            return default;
+        }
+
 
         public void Dispose()
         {

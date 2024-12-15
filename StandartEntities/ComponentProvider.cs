@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Helpers;
 
 namespace HECSFramework.Core
 {
@@ -34,6 +35,20 @@ namespace HECSFramework.Core
         public void ChangePoolLimit(int limit)
         {
             poolLimit = limit;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HECSPooledArray<T> GetActiveComponents()
+        {
+            var pool = HECSPooledArray<T>.GetArray(Components.Length);
+
+            for (int i = 0; i < Components.Length; i++)
+            {
+                if (Components[i] != null && Components[i].IsAlive)
+                    pool.Add(Components[i]);
+            }  
+
+            return pool;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

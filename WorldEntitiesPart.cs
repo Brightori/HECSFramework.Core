@@ -468,6 +468,12 @@ namespace HECSFramework.Core
             return ComponentProvider<T>.ComponentsToWorld.Data[index].Components;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HECSPooledArray<T> GetActiveComponents<T>() where T : IComponent
+        {
+            return ComponentProvider<T>.ComponentsToWorld.Data[index].GetActiveComponents();
+        }
+
         public void AddEntityListener(IReactEntity reactEntity, bool add)
         {
             if (add)
