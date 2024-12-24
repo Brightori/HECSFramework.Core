@@ -13,6 +13,7 @@ namespace HECSFramework.Core
         private UpdateModuleDeltaTime deltaUpdateModule;
         private UpdateModuleGlobalStart startModule;
         private PriorityUpdateModule priorityUpdateModule;
+        private PriorityLateUpdateModule priorityLateUpdateModule;
         private ExecuteInUpdate executeInUpdate;
 
         public bool IsGlobalStarted => startModule.IsStarted;
@@ -28,6 +29,7 @@ namespace HECSFramework.Core
             deltaUpdateModule = new UpdateModuleDeltaTime();
             startModule = new UpdateModuleGlobalStart();
             priorityUpdateModule = new PriorityUpdateModule();
+            priorityLateUpdateModule = new PriorityLateUpdateModule();
             executeInUpdate = new ExecuteInUpdate();
         }
 
@@ -35,6 +37,9 @@ namespace HECSFramework.Core
         {
             if (registerUpdate is IPriorityUpdatable priorityUpdatable)
                 priorityUpdateModule.Register(priorityUpdatable, add);
+
+            if (registerUpdate is IPriorityLateUpdatable priorityLateUpdatable)
+                priorityLateUpdateModule.Register(priorityLateUpdatable, add);
 
             if (registerUpdate is IGlobalStart needGlobalStart)
                 startModule.Register(needGlobalStart, add);
@@ -70,7 +75,7 @@ namespace HECSFramework.Core
         public ValueTask ExecuteInUpdate(Action action) => executeInUpdate.ExecuteAction(action);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public HECSJobRun<T> RunJob<T>(T job) where T: struct, IHecsJob
+        public HECSJobRun<T> RunJob<T>(T job) where T : struct, IHecsJob
         {
             return executeInUpdate.ExecuteJob(job);
         }
@@ -79,7 +84,10 @@ namespace HECSFramework.Core
             => fixedModule.FixedUpdateLocal();
 
         public void LateUpdate()
-            => lateModule.UpdateLateLocal();
+        {
+            priorityLateUpdateModule.UpdateLocal();
+            lateModule.UpdateLateLocal();
+        }
 
         public void Update()
         {

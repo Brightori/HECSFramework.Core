@@ -28,4 +28,10 @@
         int Priority { get; }
         void PriorityUpdateLocal();
     }
+
+    public interface IPriorityLateUpdatable : IRegisterUpdatable
+    {
+        int Priority { get; }
+        void PriorityLateUpdateLocal();
+    }
 }
