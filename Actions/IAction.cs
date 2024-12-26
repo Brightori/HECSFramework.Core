@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Threading;
+using Cysharp.Threading.Tasks;
 
 namespace HECSFramework.Core
 {
@@ -15,6 +16,6 @@ namespace HECSFramework.Core
         /// <param name="to">target</param>
         /// <param name="from">owner</param>
         /// <returns></returns>
-        public UniTask ActionAsync(Entity to, Entity from = null);
+        public UniTask ActionAsync(Entity to, Entity from = null, CancellationToken cancellationToken = default);
     }
 }
