@@ -13,9 +13,6 @@ namespace Systems
 
         public void AfterEntityInit()
         {
-            foreach (var a in abilitiesHolderComponent.Abilities)
-                a.Init();
-
             Owner.Command(new AbilitiesReadyCommand());
         }
 

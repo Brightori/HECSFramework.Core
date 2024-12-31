@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
+using Helpers;
 
 namespace Components
 {
@@ -10,26 +11,73 @@ namespace Components
     public sealed partial class AbilitiesHolderComponent : BaseComponent, IDisposable
     {
         [HideInInspectorCrossPlatform]
-        public List<Entity> Abilities = new List<Entity>(8);
+        //this is collection of abilities what active and can be execute
+        public List<Entity> Abilities = new List<Entity>(2);
+
+        //this is abilities what we have, but they not used now, for example - we can have 20 abilities but active in slots only 4
+        public List<Entity> AvailableAbilities = new List<Entity>(2);
+
+        //this collection help us execute abilities by id
         public Dictionary<int, Entity> IndexToAbility = new Dictionary<int, Entity>();
+
+        public void AddAvailableAbility(Entity ability)
+        {
+            ability.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner;
+            AvailableAbilities.Add(ability);
+        }
 
         public void AddAbility(Entity ability, bool needInit = false)
         {
             ability.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner;
+
+            if (needInit && !ability.IsInited)
+                ability.Init();
+
             Abilities.Add(ability);
             IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
-
-            if (ability.ContainsMask<InitOnAddAbilityTagComponent>())
-                ability.Init();
 
             if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {
                 foreach (var i in component.AdditionalIndeces)
                     IndexToAbility.AddOrReplace(i, ability);
             }
+        }
 
-            if (needInit)
-                ability.Init();
+        public void ActivateAvailableAbility(Entity entity)
+        {
+            if (entity.IsPaused)
+                entity.UnPause();
+
+            AddAbility(entity, true);
+        }
+
+        public void RemoveToAvailableAbility(Entity ability)
+        {
+            AvailableAbilities.Add(ability);
+            Abilities.Remove(ability);
+
+            IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
+
+            if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
+            {
+                foreach (var i in component.AdditionalIndeces)
+                    IndexToAbility.Remove(i);
+            }
+
+            ability.Pause();
+        }
+
+        public HECSPooledArray<Entity> GetAllAbilities()
+        {
+            var pool = HECSPooledArray<Entity>.GetArray(AvailableAbilities.Count + Abilities.Count);
+
+            foreach (var a in AvailableAbilities)
+                pool.Add(a);
+
+            foreach (var a in Abilities)
+                pool.Add(a);
+
+            return pool;
         }
 
         public void RemoveAbility(Entity ability)
@@ -51,7 +99,11 @@ namespace Components
             foreach (var a in Abilities)
                 a.Dispose();
 
+            foreach (var ab in AvailableAbilities)
+                ab.Dispose();
+
             Abilities.Clear();
+            AvailableAbilities.Clear();
             IndexToAbility.Clear();
         }
     }
