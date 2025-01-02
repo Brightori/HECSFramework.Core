@@ -26,6 +26,8 @@ namespace HECSFramework.Core
         private ComponentProviderRegistrator[] componentProviderRegistrators;
 
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
+        public EntitiesFilter GetFilter<T, U>() where T : IComponent, new() where U : IComponent, new() => GetFilterFromCache(Filter.Get<T, U>(), new Filter());
+        public EntitiesFilter GetFilter<T, U, Z>() where T : IComponent, new() where U : IComponent, new() where Z : IComponent, new() => GetFilterFromCache(Filter.Get<T, U, Z>(), new Filter());
         public EntitiesFilter GetFilter(Filter include) => GetFilterFromCache(include, new Filter());
         public EntitiesFilter GetFilter(Filter include, Filter exclude) => GetFilterFromCache(include, exclude);
 
