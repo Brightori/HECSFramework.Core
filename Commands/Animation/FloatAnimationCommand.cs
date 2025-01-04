@@ -8,6 +8,7 @@ namespace Commands
     {
         public int Index;
         public float Value;
+        public float Damp;
         public bool ForceSet;
     }
 }
