@@ -184,8 +184,8 @@ namespace HECSFramework.Core
 
         public void HecsDestroy()
         {
-            UnityPart();
             Dispose();
+            UnityPart();
         }
 
         partial void UnityPart();
