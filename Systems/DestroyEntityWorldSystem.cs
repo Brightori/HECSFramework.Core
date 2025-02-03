@@ -22,14 +22,7 @@ namespace Systems
                 var entity = entitiesForDelete.Dequeue();
 
                 if (entity.IsAlive())
-                {
-                    if (entity.TryGetComponent(out ActorProviderComponent actorProviderComponent))
-                    {
-                        ProcessActor(entity);
-                        continue;
-                    }
-                    entity.Dispose();
-                }
+                    entity.HecsDestroy();
             }
         }
 
