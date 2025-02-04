@@ -13,6 +13,7 @@ namespace Systems
         public override void InitSystem()
         {
             Owner.World.GlobalUpdateSystem.PreFinishUpdate += React;
+            UnityInit();
         }
 
         private void React()
@@ -26,13 +27,15 @@ namespace Systems
             }
         }
 
-        partial void ProcessActor(Entity entity);
+        partial void UnityInit();
 
         public override void Dispose()
         {
             base.Dispose();
             Owner.World.GlobalUpdateSystem.FinishUpdate -= React;
         }
+
+        partial void UnityDispose();
 
         public void CommandGlobalReact(DestroyEntityWorldCommand command)
         {
