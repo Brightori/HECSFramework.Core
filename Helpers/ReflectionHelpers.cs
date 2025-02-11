@@ -43,5 +43,19 @@
             var field = objectWithValue.GetType().GetField(nameOfField, bindingFlags);
             field?.SetValue(objectWithValue, value);
         }
+
+        public static void SetPrivatePropertyValue(object objectWithValue, string nameOfField, object value)
+        {
+            // Set the flags so that private and public fields from instances will be found
+            var bindingFlags =
+                 System.Reflection.BindingFlags.NonPublic
+               | System.Reflection.BindingFlags.Public
+               | System.Reflection.BindingFlags.Instance
+               | System.Reflection.BindingFlags.Static
+               | System.Reflection.BindingFlags.FlattenHierarchy;
+
+            var field = objectWithValue.GetType().GetProperty(nameOfField, bindingFlags);
+            field?.SetValue(objectWithValue, value);
+        }
     }
 }
