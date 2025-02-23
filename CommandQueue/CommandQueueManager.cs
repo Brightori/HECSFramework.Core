@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace HECSFramework.Core
 {
@@ -35,10 +36,26 @@ namespace HECSFramework.Core
             }
             
             var neededQueueManager = GetCommandQueueManager(world);
-            neededQueueManager.AddToQueue(command);
+            neededQueueManager.AddToLocalQueue(command);
         }
 
-        public void AddToQueue(T command)
+        /// <summary>
+        /// we use default world in this realisation its more usable for client|standalone application
+        /// </summary>
+        /// <param name="command"></param>
+        public static void AddToQueue(T command)
+        {
+            if (!EntityManager.Default.IsAlive)
+            {
+                HECSDebug.LogError("[CommandQueueManager] we try send command to dead world");
+                return;
+            }
+
+            var neededQueueManager = GetCommandQueueManager(EntityManager.Default);
+            neededQueueManager.AddToLocalQueue(command);
+        }
+
+        public void AddToLocalQueue(T command)
         {
             queue.Enqueue(command);
         }
