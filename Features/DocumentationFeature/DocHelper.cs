@@ -98,4 +98,5 @@ public static partial class Doc
     public const string Brief = "Brief";
     public const string Layer = "Layer";
     public const string Request = "Request";
+    public const string Advertising = "Advertising";
 }
