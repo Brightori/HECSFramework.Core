@@ -5,6 +5,7 @@ public static partial class Doc
     public const string Camera = "Camera";
     public const string Quests = "Quests";
     public const string DailyQuests = "DailyQuests";
+    public const string DrawRule = "DrawRule";
     public const string NPC = "NPC";
     public const string Tag = "Tag";
     public const string GameLogic = "GameLogic";

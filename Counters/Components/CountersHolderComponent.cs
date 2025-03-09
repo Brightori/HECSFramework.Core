@@ -21,12 +21,32 @@ namespace Components
 
         public float GetFloatValue(int counterID)
         {
-            return (counters[counterID] as ICounter<float>).Value;
+            if (counters.TryGetValue(counterID, out var counter))
+            {
+                if (counter is ICounter<float> floatCounter)
+                {
+                    return floatCounter.Value;
+                }
+                else if (counter is ICounter<int> intCounter)
+                    return intCounter.Value;
+            }
+
+            return 0;
         }
 
         public int GetIntValue(int counterID)
         {
-            return (counters[counterID] as ICounter<int>).Value;
+            if (counters.TryGetValue(counterID, out var counter))
+            {
+                if (counter is ICounter<int> floatCounter)
+                {
+                    return floatCounter.Value;
+                }
+                else if (counter is ICounter<float> intCounter)
+                    return (int)intCounter.Value;
+            }
+                
+            return 0;
         }
 
         public T GetCounter<T>(int id) where T : ICounter
