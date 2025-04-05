@@ -6,7 +6,7 @@ namespace Systems
 {
     [Feature("BaseAbilities")]
     [Documentation(Doc.Abilities, Doc.HECS, "Main system for operating abilities")]
-    public sealed partial class AbilitiesSystem : BaseSystem, IAfterEntityInit, IReactCommand<ExecuteAbilityByIDCommand>
+    public sealed partial class AbilitiesSystem : BaseSystem, IAfterEntityInit, IReactCommand<ExecuteAbilityByIDCommand>, IReactCommand<AddAbilityCommand>
     {
         [Required]
         public AbilitiesHolderComponent abilitiesHolderComponent;
@@ -28,10 +28,18 @@ namespace Systems
             }
         }
 
+        public void CommandReact(AddAbilityCommand command)
+        {
+            abilitiesHolderComponent.AddAbility(command.Entity);
+            ProcessViewReady(command.Entity);
+        }
+
         public override void InitSystem()
         {
             ClientInit();
         }
+
+        partial void ProcessViewReady(Entity entity);
 
         partial void ClientInit();
     }
