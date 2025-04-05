@@ -3,6 +3,7 @@ public static partial class Doc
 {
     public const string Character = "Character";
     public const string Camera = "Camera";
+    public const string Resist = "Resist";
     public const string Quests = "Quests";
     public const string DailyQuests = "DailyQuests";
     public const string DrawRule = "DrawRule";
