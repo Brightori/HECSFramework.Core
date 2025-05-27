@@ -10,6 +10,8 @@ namespace HECSFramework.Core
         private Dictionary<int, BaseFSMState> states = new Dictionary<int, BaseFSMState>(8);
         private Dictionary<int, HECSList<ITransition>> transitions = new(2);
 
+        private HECSList<ITransition> commonTransitions = new(2);
+
         private Queue<int> changeState = new Queue<int>(1);
 
         private Entity owner;
@@ -66,12 +68,61 @@ namespace HECSFramework.Core
             }
         }
 
+        public void AddCommonTransition(ITransition transition)
+        {
+           commonTransitions.Add(transition);
+        }
+
+        /// <summary>
+        /// we can add transition to specific state
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="transition"></param>
         public void AddTransition(int state, ITransition transition)
         {
             if (transitions.ContainsKey(state))
                 transitions[state].Add(transition);
             else
                 transitions.Add(state, new HECSList<ITransition> { transition });
+        }
+
+        public bool TryToNextStateByTransition()
+        {
+            if (currentState == 0)
+                return false;
+
+            //we look into transitions, if we have special one we try to proceed by transition
+            if (this.transitions.TryGetValue(currentState, out var transitionsOfState))
+            {
+                foreach (var t in transitionsOfState)
+                {
+                    if (t.IsReady())
+                    {
+                        ChangeState(t.ToState);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryToNextStateByCommonTransition()
+        {
+            if (currentState == 0)
+                return false;
+
+            //we look into transitions, if we have special one we try to proceed by transition
+            for (int i = 0; i < commonTransitions.Count; i++)
+            {
+                if (commonTransitions[i].IsReady())
+                {
+                    ChangeState(commonTransitions[i].ToState);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void NextState()
