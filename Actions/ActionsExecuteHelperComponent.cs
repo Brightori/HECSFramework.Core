@@ -3,6 +3,7 @@ using HECSFramework.Core;
 
 namespace Components
 {
+    [Documentation(Doc.Action, Doc.HECS, "this component gather all kind of actions holder on this entity and help execute them")]
     public sealed class ActionsExecuteHelperComponent : BaseComponent
     {
         private IActionsHolderComponent[] actionsHolders;

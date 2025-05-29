@@ -5,7 +5,7 @@ using HECSFramework.Core;
 namespace Components
 {
     [Serializable]
-    [Documentation(Doc.HECS, Doc.Abilities, "this component holds actions with identifier, we can call visual actions or execite composite actions by this component")]
+    [Documentation(Doc.HECS, Doc.Abilities, Doc.Action, "this component holds actions with identifier, we can call visual actions or execite composite actions by this component")]
     public sealed partial class ActionsHolderComponent : BaseActionsHolderComponent
     {
     }
