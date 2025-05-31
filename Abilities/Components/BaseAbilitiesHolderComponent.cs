@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Commands;
 using HECSFramework.Core;
 using HECSFramework.Core.Helpers;
 using Helpers;
@@ -41,6 +42,17 @@ namespace Components
                 foreach (var i in component.AdditionalIndeces)
                     IndexToAbility.AddOrReplace(i, ability);
             }
+        }
+
+        public void AddPassiveAbility(Entity ability, Entity from, Entity to)
+        {
+            ability.GetOrAddComponent<AbilityOwnerComponent>().AbilityOwner = Owner;
+            Abilities.Add(ability);
+
+            if (!ability.IsInited)
+                ability.Init();
+
+            ability.Command(new ExecutePassiveAbilityCommand { Enabled = true, Owner = from, Target = to });
         }
 
         public void ActivateAvailableAbility(Entity entity)
