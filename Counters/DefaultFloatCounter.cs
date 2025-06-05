@@ -1,39 +1,49 @@
 ﻿using System;
+using Helpers;
 
 namespace HECSFramework.Core
 {
     [Serializable]
-    public class DefaultFloatCounter : ICounter<float>
+    public partial class DefaultFloatCounter : ICounter<float>
     {
-        public float Value { get; private set; }
+        private float value;
 
-        public int Id { get; set; }
+        [IdentifierDropDown("CounterIdentifierContainer")]
+        private int id;
+
+        public float Value => value;
+        public int Id => id;
 
         public void ChangeValue(float value)
         {
-            Value += value;
+            this.value += value;
         }
 
         public void SetValue(float value)
         {
-            Value = value;
+            this.value = value;
         }
     }
 
     [Serializable]
-    public class DefaultIntCounter : ICounter<int>
+    public partial class DefaultIntCounter : ICounter<int>
     {
-        public int Value { get; private set; }
-        public int Id { get; set; }
+        private int value;
+
+        [IdentifierDropDown("CounterIdentifierContainer")]
+        private int id;
+
+        public int Value => value;
+        public int Id => id;
 
         public void ChangeValue(int value)
         {
-            Value += value;
+            this.value += value;
         }
 
         public void SetValue(int value)
         {
-            Value = value;
+            this.value = value;
         }
     }
 }
