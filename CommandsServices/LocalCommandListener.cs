@@ -42,6 +42,20 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void RemoveListener(int index, IReactCommand<T> react)
+        {
+            if (index < ListenersToWorld.Count)
+            {
+                if (ListenersToWorld.Data[index] == null)
+                    ListenersToWorld.Data[index] = new LocalCommandListener<T>();
+            }
+            else
+                ListenersToWorld.AddToIndex(new LocalCommandListener<T>(), index);
+
+            ListenersToWorld.Data[index].RemoveReactListener(react);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invoke(int WorldIndex, int entityIndex, T command)
         {
             if (WorldIndex < ListenersToWorld.Count)
