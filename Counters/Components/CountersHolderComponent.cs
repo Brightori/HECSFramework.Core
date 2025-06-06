@@ -85,7 +85,7 @@ namespace Components
             if (TryGetCounter<ICounter<float>>( index, out var counter))
                 return counter;
 
-            var newCounter = new DefaultFloatCounter { Id = index };
+            var newCounter = new DefaultFloatCounter ( index );
 
             AddCounter(newCounter);
             return newCounter;
@@ -96,7 +96,7 @@ namespace Components
             if (TryGetCounter<ICounter<int>>(index, out var counter))
                 return counter;
 
-            var newCounter = new DefaultIntCounter { Id = index };
+            var newCounter = new DefaultIntCounter (index);
 
             AddCounter(newCounter);
             return newCounter;
