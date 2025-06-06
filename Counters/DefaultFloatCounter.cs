@@ -11,6 +11,21 @@ namespace HECSFramework.Core
         [IdentifierDropDown("CounterIdentifierContainer")]
         private int id;
 
+        public DefaultFloatCounter()
+        {
+        }
+
+        public DefaultFloatCounter(int id)
+        {
+            this.id = id;
+        }
+
+        public DefaultFloatCounter(float value, int id)
+        {
+            this.value = value;
+            this.id = id;
+        }
+
         public float Value => value;
         public int Id => id;
 
@@ -35,6 +50,21 @@ namespace HECSFramework.Core
 
         public int Value => value;
         public int Id => id;
+
+        public DefaultIntCounter()
+        {
+        }
+
+        public DefaultIntCounter(int id)
+        {
+            this.id = id;
+        }
+
+        public DefaultIntCounter(int value, int id)
+        {
+            this.value = value;
+            this.id = id;
+        }
 
         public void ChangeValue(int value)
         {
