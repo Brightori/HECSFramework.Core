@@ -20,6 +20,7 @@ namespace Components
 
         //this collection help us execute abilities by id
         public Dictionary<int, Entity> IndexToAbility = new Dictionary<int, Entity>();
+        public Dictionary<Guid, Entity> GuidToAbility = new Dictionary<Guid, Entity>();
 
         public void AddAvailableAbility(Entity ability)
         {
@@ -35,12 +36,20 @@ namespace Components
                 ability.Init();
 
             Abilities.Add(ability);
-            IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
-
-            if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
+            
+            if (ability.ContainsMask<AbilityByGuidTagComponent>())
             {
-                foreach (var i in component.AdditionalIndeces)
-                    IndexToAbility.AddOrReplace(i, ability);
+                GuidToAbility.Add(ability.GUID, ability);
+            }
+            else
+            {
+                IndexToAbility.Add(ability.GetComponent<ActorContainerID>().ContainerIndex, ability);
+
+                if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
+                {
+                    foreach (var i in component.AdditionalIndeces)
+                        IndexToAbility.AddOrReplace(i, ability);
+                }
             }
         }
 
@@ -69,6 +78,7 @@ namespace Components
             Abilities.Remove(ability);
 
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
+            GuidToAbility.Remove(ability.GUID);
 
             if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {
@@ -96,6 +106,7 @@ namespace Components
         {
             Abilities.Remove(ability);
             IndexToAbility.Remove(ability.GetComponent<ActorContainerID>().ContainerIndex);
+            GuidToAbility.Remove(ability.GUID);
 
             if (ability.TryGetComponent(out AdditionalAbilityIndexComponent component))
             {

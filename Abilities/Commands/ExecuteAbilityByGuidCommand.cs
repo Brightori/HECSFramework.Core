@@ -1,10 +1,11 @@
-﻿using HECSFramework.Core;
+﻿using System;
+using HECSFramework.Core;
 
 namespace Commands
 {
-    public struct ExecuteAbilityByIDCommand : ICommand
+    public struct ExecuteAbilityByGuidCommand : ICommand
     {
-        public int AbilityIndex;
+        public Guid AbilityGuid;
         public Entity Target;
         public Entity Owner;
         public bool Enable;

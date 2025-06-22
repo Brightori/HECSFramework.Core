@@ -6,7 +6,7 @@ namespace Systems
 {
     [Feature("BaseAbilities")]
     [Documentation(Doc.Abilities, Doc.HECS, "Main system for operating abilities")]
-    public sealed partial class AbilitiesSystem : BaseSystem, IAfterEntityInit, IReactCommand<ExecuteAbilityByIDCommand>, IReactCommand<AddAbilityCommand>
+    public sealed partial class AbilitiesSystem : BaseSystem, IAfterEntityInit, IReactCommand<ExecuteAbilityByIDCommand>, IReactCommand<AddAbilityCommand>, IReactCommand<ExecuteAbilityByGuidCommand>
     {
         [Required]
         public AbilitiesHolderComponent abilitiesHolderComponent;
@@ -25,6 +25,18 @@ namespace Systems
             else
             {
                 HECSDebug.LogWarning($"{Owner.ID} doesnt have ability with index {command.AbilityIndex}");
+            }
+        }
+
+        public void CommandReact(ExecuteAbilityByGuidCommand command)
+        {
+            if (abilitiesHolderComponent.GuidToAbility.TryGetValue(command.AbilityGuid, out var ability))
+            {
+                ability.Command(new ExecuteAbilityCommand { Enabled = command.Enable, IgnorePredicates = command.IgnorePredicates, Owner = command.Owner, Target = command.Target });
+            }
+            else
+            {
+                HECSDebug.LogWarning($"{Owner.ID} doesnt have ability with index {command.AbilityGuid}");
             }
         }
 
