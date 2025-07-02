@@ -21,6 +21,7 @@ public static partial class Doc
     public const string Input = "Input";
     public const string Sound = "Sound";
     public const string Abilities = "Abilities";
+    public const string PassiveAbilities = "PassiveAbilities";
     public const string UI = "UI";
     public const string AI = "AI";
     public const string NONE = "NONE";
