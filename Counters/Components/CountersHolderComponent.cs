@@ -72,6 +72,30 @@ namespace Components
             return default;
         }
 
+        public bool TryGetIntCounter(int id, out ICounter<int> getCounter)
+        {
+            if (counters.TryGetValue(id, out var counter))
+            {
+                getCounter = (ICounter<int>)counter;
+                return getCounter != null;
+            }
+
+            getCounter = default;
+            return default;
+        }
+
+        public bool TryGetFloatCounter(int id, out ICounter<float> getCounter)
+        {
+            if (counters.TryGetValue(id, out var counter))
+            {
+                getCounter = (ICounter<float>)counter;
+                return getCounter != null;
+            }
+
+            getCounter = default;
+            return default;
+        }
+
         public void SetOrAddCounter<T>(ICounter<T> counter) where T: struct
         {
             if (TryGetCounter<ICounter<T>>(counter.Id, out var currentCounter))
