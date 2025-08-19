@@ -430,7 +430,7 @@ namespace HECSFramework.Core
 
         public bool Equals(AliveEntity other)
         {
-            return other.Entity == Entity;
+            return other.Entity == Entity && other.Generation == Generation;
         }
 
         public override int GetHashCode()
