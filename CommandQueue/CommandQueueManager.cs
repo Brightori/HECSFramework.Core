@@ -1,9 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace HECSFramework.Core
 {
-    public class CommandQueueManager<T> : IDisposable where T : struct, IGlobalCommand
+    public interface ICommandQueue
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ProcessQueue();
+    }
+
+    public class CommandQueueManager<T> : ICommandQueue, IDisposable where T : struct, IGlobalCommand
     {
         private static HECSList<CommandQueueManager<T>> queueToWorld = new HECSList<CommandQueueManager<T>>(4);
         private World world;
@@ -13,18 +20,6 @@ namespace HECSFramework.Core
         public CommandQueueManager(World world)
         {
             this.world = world;
-            world.GlobalUpdateSystem.PreFinishUpdate += ProcessQueue;
-        }
-
-        private void ProcessQueue()
-        {
-            var currentCount = queue.Count;
-
-            for (var i = 0; i < currentCount; i++)
-            {
-                queue.TryDequeue(out var item);
-                world.Command(item);
-            }
         }
 
         public static void AddToQueue(World world, T command)
@@ -34,9 +29,10 @@ namespace HECSFramework.Core
                 HECSDebug.LogError("[CommandQueueManager] we try send command to dead world");
                 return;
             }
-            
+
             var neededQueueManager = GetCommandQueueManager(world);
             neededQueueManager.AddToLocalQueue(command);
+            world.AddToProccessQueueCommand(neededQueueManager);
         }
 
         /// <summary>
@@ -53,6 +49,7 @@ namespace HECSFramework.Core
 
             var neededQueueManager = GetCommandQueueManager(EntityManager.Default);
             neededQueueManager.AddToLocalQueue(command);
+            EntityManager.Default.AddToProccessQueueCommand(neededQueueManager);
         }
 
         public void AddToLocalQueue(T command)
@@ -69,17 +66,30 @@ namespace HECSFramework.Core
                 else
                 {
                     queueToWorld.AddToIndex(new CommandQueueManager<T>(world), world.Index);
+
+                    world.OnWorldDispose += queueToWorld[world.Index].Dispose;
                     return queueToWorld[world.Index];
                 }
             }
 
             queueToWorld.AddToIndex(new CommandQueueManager<T>(world), world.Index);
+            world.OnWorldDispose += queueToWorld[world.Index].Dispose;
             return queueToWorld[world.Index];
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            queueToWorld[world.Index] = null;
+            world.OnWorldDispose -= Dispose;
+            queue.Clear();
+            world = null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ICommandQueue.ProcessQueue()
+        {
+            if (queue.TryDequeue(out var item))
+                world.Command(item);
         }
     }
 }

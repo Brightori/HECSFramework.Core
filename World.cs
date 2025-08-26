@@ -24,9 +24,13 @@ namespace HECSFramework.Core
         private Queue<Entity> waintingForInit = new Queue<Entity>();
         private HashSet<IRequestProvider> requestProcessors = new HashSet<IRequestProvider>(32);
 
+        private Queue<ICommandQueue> commandQueues = new Queue<ICommandQueue>(16);
+
         public bool IsAlive { get; private set; } = true;
         public Guid WorldGuid { get; private set; } = Guid.NewGuid();
         public bool IsInited { get; private set; }
+
+        public event Action OnWorldDispose; 
 
         public World(int index)
         {
@@ -62,7 +66,23 @@ namespace HECSFramework.Core
             while (waintingForInit.Count > 0)
                 waintingForInit.Dequeue().Init();
 
+            GlobalUpdateSystem.PreFinishUpdate += ProcessCommandQueue;
             IsInited = true;
+        }
+
+        private void ProcessCommandQueue()
+        {
+            var currentCount = commandQueues.Count;
+            for (var i = 0; i < currentCount; i++)
+            {
+                if (commandQueues.TryDequeue(out var queue))
+                    queue.ProcessQueue();
+            }
+        }
+
+        public void AddToProccessQueueCommand(ICommandQueue commandQueue)
+        {
+            commandQueues.Enqueue(commandQueue);
         }
 
         partial void AddUnityWorldPart(Entity worldService);
@@ -152,6 +172,10 @@ namespace HECSFramework.Core
                 GlobalCommandListener<T>.ListenersToWorld.Data[index]?.Invoke(command);
         }
 
+        public void CommandQueue<T>(T command) where T : struct, ICommand, IGlobalCommand
+        {
+            CommandQueueManager<T>.AddToQueue(this, command);
+        }
 
         public void AddGlobalReactCommand<T>(ISystem system, IReactGlobalCommand<T> react) where T : struct, IGlobalCommand
         {
@@ -356,6 +380,8 @@ namespace HECSFramework.Core
             reactEntities.Clear();
             entitiesFilters.Clear();
 
+            commandQueues.Clear();
+
             systemRegisterService = null;
             componentProvidersByTypeIndex.Clear();
             componentProviderRegistrators = null;
@@ -370,6 +396,9 @@ namespace HECSFramework.Core
 
             Array.Clear(Entities, 0, Entities.Length);
             IsAlive = false;
+
+            OnWorldDispose?.Invoke();
+            OnWorldDispose = null;
         }
 
         partial void FastWorldDispose();
