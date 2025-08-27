@@ -102,4 +102,6 @@ public static partial class Doc
     public const string Layer = "Layer";
     public const string Request = "Request";
     public const string Advertising = "Advertising";
+    public const string Local = "Local";
+    public const string View = "View";
 }
