@@ -63,6 +63,18 @@ namespace HECSFramework.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public HECSList(T[] data)
+        {
+            this.capacity = data.Length;
+            this.Data = data;
+            this.length = 0;
+
+            this.Comparer = EqualityComparer<T>.Default;
+            this.sortComparer = new SortComparer();
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HECSList(HECSList<T> other)
         {
             this.capacity = other.capacity;
