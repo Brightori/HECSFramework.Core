@@ -50,7 +50,7 @@ namespace HECSFramework.Core
 }
 
 //заглушка 
-public class NullDebug : IDebugDispatcher
+public partial class NullDebug : IDebugDispatcher
 {
     public void Log(string info)
     {
@@ -73,7 +73,7 @@ public class NullDebug : IDebugDispatcher
     }
 }
 
-public interface IDebugDispatcher
+public partial interface IDebugDispatcher
 {
     void LogDebug(string info, object context);
     void Log(string info);
