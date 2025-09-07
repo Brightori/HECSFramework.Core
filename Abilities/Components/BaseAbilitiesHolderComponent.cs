@@ -117,6 +117,22 @@ namespace Components
             ability.Dispose();
         }
 
+        public void SendCommandToAbility<T>(int index, T command) where T : struct, ICommand
+        {
+            if (IndexToAbility.TryGetValue(index, out var ability))
+            {
+                ability.Command(command);
+            }
+        }
+
+        public void SendCommandToAbility<T>(Guid index, T command) where T : struct, ICommand
+        {
+            if (GuidToAbility.TryGetValue(index, out var ability))
+            {
+                ability.Command(command);
+            }
+        }
+
         public void Dispose()
         {
             foreach (var a in Abilities)

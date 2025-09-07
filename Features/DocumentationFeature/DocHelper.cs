@@ -104,4 +104,5 @@ public static partial class Doc
     public const string Advertising = "Advertising";
     public const string Local = "Local";
     public const string View = "View";
+    public const string Render = "Render";
 }
