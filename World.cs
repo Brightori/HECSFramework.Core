@@ -352,6 +352,8 @@ namespace HECSFramework.Core
 
         public void Dispose()
         {
+            IsAlive = false;
+
             foreach (var processor in requestProcessors)
                 processor.Dispose();
 
@@ -386,16 +388,12 @@ namespace HECSFramework.Core
             componentProvidersByTypeIndex.Clear();
             componentProviderRegistrators = null;
 
-
-
-
             foreach (var pool in systemsPool.Values)
                 pool.Clear();
 
             systemsPool.Clear();
 
             Array.Clear(Entities, 0, Entities.Length);
-            IsAlive = false;
 
             OnWorldDispose?.Invoke();
             OnWorldDispose = null;
