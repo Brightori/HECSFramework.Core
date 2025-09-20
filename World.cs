@@ -283,6 +283,19 @@ namespace HECSFramework.Core
             return singleComponents[ComponentProvider<T>.TypeIndex].Owner;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetEntityBySingleComponent<T>(out Entity entity) where T : IComponent, IWorldSingleComponent
+        {
+            if (singleComponents.TryGetValue(ComponentProvider<T>.TypeIndex, out var component))
+            {
+                entity = component.Owner;
+                return true;
+            }
+
+            entity = null;
+            return false;
+        }
+
         public U GetComponentFromSingleTag<T, U>() where T : IComponent, IWorldSingleComponent where U : IComponent, new()
         {
             return singleComponents[ComponentProvider<T>.TypeIndex].Owner.GetComponent<U>();
