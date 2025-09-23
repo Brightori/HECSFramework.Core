@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using HECSFramework.Core;
 
 namespace Helpers
@@ -8,6 +9,7 @@ namespace Helpers
     /// u should return it on pool by calling release, or use it through using scope(auto disposable)
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Documentation(Doc.HECS, Doc.Helpers, "this is helper for operating pooled arrays, read summary and use special struct snapshot if u use this in async")]
     public ref struct HECSPooledArray<T>
     {
         public T[] Items;
@@ -16,7 +18,7 @@ namespace Helpers
 
         public static HECSPooledArray<T> GetArray(int count = 64)
         {
-            var hecsPool = new HECSPooledArray<T>(); 
+            var hecsPool = new HECSPooledArray<T>();
             int lenght = 64;
 
             if (count > 64)
@@ -35,7 +37,7 @@ namespace Helpers
             {
                 if (Items[i].Equals(element))
                     return true;
-            } 
+            }
 
             return false;
         }
@@ -79,7 +81,7 @@ namespace Helpers
         {
             var hecspool = GetArray(copyFrom.Length);
             var currentCount = copyFrom.Length;
-            
+
             for (var i = 0; i < currentCount; i++)
                 hecspool.Add(copyFrom[i]);
 
@@ -97,10 +99,75 @@ namespace Helpers
             return default;
         }
 
+        public HECSPooledArraySnap<T> GetSnapShot()
+        {
+            return new HECSPooledArraySnap<T>(Items, count);
+        }
 
         public void Dispose()
         {
             Release();
         }
+    }
+}
+
+public struct HECSPooledArraySnap<T> : IEquatable<HECSPooledArraySnap<T>>
+{
+    public T[] Items;
+    private int count;
+
+    public HECSPooledArraySnap(T[] items, int count)
+    {
+        Items = items;
+        this.count = count;
+    }
+
+    public int Count => count;
+
+    public void Add(T element)
+    {
+        if (count + 1 > Items.Length)
+            throw new OverflowException("pooled array not so big");
+
+        Items[count] = element;
+        count++;
+    }
+
+    public bool Contains(T element)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (Items[i].Equals(element))
+                return true;
+        }
+
+        return false;
+    }
+
+    public void Release()
+    {
+        ArrayPool<T>.Shared.Return(Items, true);
+        Items = null;
+    }
+
+    public void Dispose()
+    {
+        Release();
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is HECSPooledArraySnap<T> snap &&
+               EqualityComparer<T[]>.Default.Equals(Items, snap.Items);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Items);
+    }
+
+    public bool Equals(HECSPooledArraySnap<T> other)
+    {
+        return EqualityComparer<T[]>.Default.Equals(Items, other.Items);
     }
 }

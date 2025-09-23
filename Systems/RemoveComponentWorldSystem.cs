@@ -5,7 +5,7 @@ using HECSFramework.Core;
 namespace Systems
 {
     [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
-    public sealed class RemoveComponentWorldSystem : BaseSystem, IReactGlobalCommand<RemoveHecsComponentWorldCommand>, IReactGlobalCommand<AddHecsComponentWorldCommand>
+    public sealed class RemoveComponentWorldSystem : BaseSystem, IReactCommand<RemoveComponentByIDGlobalCommand>, IReactGlobalCommand<RemoveHecsComponentWorldCommand>, IReactGlobalCommand<AddHecsComponentWorldCommand>
     {
         private Queue<IComponent> componentsForRemove = new Queue<IComponent>(8);
         private Queue<AddHecsComponentWorldCommand> componentsToAdd = new Queue<AddHecsComponentWorldCommand>(8);
@@ -51,11 +51,25 @@ namespace Systems
         {
             componentsToAdd.Enqueue(command);
         }
+
+        public void CommandReact(RemoveComponentByIDGlobalCommand command)
+        {
+            if (command.AliveEntity.IsAlive)
+            {
+                command.AliveEntity.Entity.RemoveComponent(command.ComponentIndex);
+            }
+        }
     }
 }
 
 namespace Commands
 {
+    public struct RemoveComponentByIDGlobalCommand : IGlobalCommand
+    {
+        public int ComponentIndex;
+        public AliveEntity AliveEntity;
+    }
+
     public struct RemoveHecsComponentWorldCommand : IGlobalCommand
     {
         public IComponent Component;
