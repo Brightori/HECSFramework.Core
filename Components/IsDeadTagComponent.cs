@@ -9,6 +9,14 @@ namespace Components
     [Serializable][Documentation(Doc.Character, Doc.Tag, "We mark dead characters")]
     public sealed class IsDeadTagComponent : BaseComponent 
     {
+        public static bool IsReactive = false;
+
+        public override void Init()
+        {
+            if (IsReactive)
+                this.AddComponentReactGlobal();
+        }
+
         public int FrameToDeath = 3;
 
         /// <summary>

@@ -5,7 +5,7 @@ using HECSFramework.Core;
 namespace Systems
 {
     [Documentation(Doc.GameLogic, "Эта система живет в самом мире, отвечает за то что после всех апдейтов вызовется эта система, и почистит ентити которые мы просим удалить")]
-    public sealed class RemoveComponentWorldSystem : BaseSystem, IReactCommand<RemoveComponentByIDGlobalCommand>, IReactGlobalCommand<RemoveHecsComponentWorldCommand>, IReactGlobalCommand<AddHecsComponentWorldCommand>
+    public sealed class RemoveComponentWorldSystem : BaseSystem, IReactGlobalCommand<RemoveComponentByIDGlobalCommand>, IReactGlobalCommand<RemoveHecsComponentWorldCommand>, IReactGlobalCommand<AddHecsComponentWorldCommand>
     {
         private Queue<IComponent> componentsForRemove = new Queue<IComponent>(8);
         private Queue<AddHecsComponentWorldCommand> componentsToAdd = new Queue<AddHecsComponentWorldCommand>(8);
@@ -39,7 +39,7 @@ namespace Systems
             base.Dispose();
             componentsForRemove.Clear();
             componentsToAdd.Clear();
-            Owner.World.GlobalUpdateSystem.FinishUpdate -= React;
+            Owner.World.GlobalUpdateSystem.PreFinishUpdate -= React;
         }
 
         public void CommandGlobalReact(RemoveHecsComponentWorldCommand command)
@@ -52,7 +52,7 @@ namespace Systems
             componentsToAdd.Enqueue(command);
         }
 
-        public void CommandReact(RemoveComponentByIDGlobalCommand command)
+        public void CommandGlobalReact(RemoveComponentByIDGlobalCommand command)
         {
             if (command.AliveEntity.IsAlive)
             {
@@ -68,6 +68,13 @@ namespace Commands
     {
         public int ComponentIndex;
         public AliveEntity AliveEntity;
+
+        public RemoveComponentByIDGlobalCommand SetData<T>(Entity entity) where T : IComponent
+        {
+            AliveEntity = entity.GetAliveEntity();
+            ComponentIndex = ComponentProvider<T>.TypeIndex;
+            return this;
+        }
     }
 
     public struct RemoveHecsComponentWorldCommand : IGlobalCommand
