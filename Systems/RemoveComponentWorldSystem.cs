@@ -9,6 +9,7 @@ namespace Systems
     {
         private Queue<IComponent> componentsForRemove = new Queue<IComponent>(8);
         private Queue<AddHecsComponentWorldCommand> componentsToAdd = new Queue<AddHecsComponentWorldCommand>(8);
+        private Queue<RemoveComponentByIDGlobalCommand> removeComponentByIDGlobalCommands = new Queue<RemoveComponentByIDGlobalCommand>(8);
 
         public override void InitSystem()
         {
@@ -32,6 +33,14 @@ namespace Systems
                 if (command.Component != null)
                     command.Entity.AddComponent(command.Component);
             }
+
+            while (removeComponentByIDGlobalCommands.TryDequeue(out var command))
+            {
+                if (command.AliveEntity.IsAlive)
+                {
+                    command.AliveEntity.Entity.RemoveComponent(command.ComponentIndex);
+                }
+            }
         }
 
         public override void Dispose()
@@ -54,10 +63,7 @@ namespace Systems
 
         public void CommandGlobalReact(RemoveComponentByIDGlobalCommand command)
         {
-            if (command.AliveEntity.IsAlive)
-            {
-                command.AliveEntity.Entity.RemoveComponent(command.ComponentIndex);
-            }
+           removeComponentByIDGlobalCommands.Enqueue(command);
         }
     }
 }
