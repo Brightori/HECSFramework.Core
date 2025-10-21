@@ -39,7 +39,7 @@ namespace Systems
 
         public void CommandReact(ResetCountersCommand command)
         {
-            countersHolder.ResetCounters();
+            countersHolder.ResetCountersModifiers();
         }
 
         public void CommandReact(AddCounterModifierBySubIDCommand<float> command)

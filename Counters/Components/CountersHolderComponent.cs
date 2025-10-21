@@ -74,9 +74,9 @@ namespace Components
 
         public bool TryGetIntCounter(int id, out ICounter<int> getCounter)
         {
-            if (counters.TryGetValue(id, out var counter))
+            if (counters.TryGetValue(id, out var counter) && counter is ICounter<int> intCounter)
             {
-                getCounter = (ICounter<int>)counter;
+                getCounter = intCounter;
                 return getCounter != null;
             }
 
@@ -86,9 +86,9 @@ namespace Components
 
         public bool TryGetFloatCounter(int id, out ICounter<float> getCounter)
         {
-            if (counters.TryGetValue(id, out var counter))
+            if (counters.TryGetValue(id, out var counter) && counter is ICounter<float> floatCounter)
             {
-                getCounter = (ICounter<float>)counter;
+                getCounter = floatCounter;
                 return getCounter != null;
             }
 
@@ -172,7 +172,35 @@ namespace Components
             return false;
         }
 
-        public void ResetCounters()
+        public void ResetCounterToZero(int id)
+        {
+            if (counters.TryGetValue(id, out ICounter counter)) 
+            {
+                SetCounterToZero(counter);
+            }
+        }
+
+        public void ResetCountersToZero()
+        {
+            foreach (var counter in counters)
+            {
+                SetCounterToZero(counter.Value);
+            }
+        }
+
+        private void SetCounterToZero(ICounter counter)
+        {
+            if (counter is ICounter<int> counterInt)
+            {
+                counterInt.SetValue(0);
+            }
+            else if (counter is ICounter<float> counterFloat)
+            {
+                counterFloat.SetValue(0);
+            }
+        }
+      
+        public void ResetCountersModifiers()
         {
             foreach (var c in counters)
             {
