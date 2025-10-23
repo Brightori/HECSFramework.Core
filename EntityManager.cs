@@ -20,11 +20,12 @@ namespace HECSFramework.Core
 
         private static Queue<int> worldsFreeIndeces;
 
-        public EntityManager(int worldsCount = 1)
+        public EntityManager(int worldsCount = 1, int entitiesStartingCount = 32)
         {
             worlds = new World[worldsCount * 2];
             Instance = this;
             worldsFreeIndeces = new Queue<int>(8);
+            World.SetDefaultCount(entitiesStartingCount);
 
             for (int i = 0; i < worlds.Length; i++)
             {
@@ -33,7 +34,7 @@ namespace HECSFramework.Core
 
             for (int i = 0; i < worldsCount; i++)
             {
-                AddWorld();
+                var world = AddWorld(i);
             }
 
             foreach (var world in worlds)

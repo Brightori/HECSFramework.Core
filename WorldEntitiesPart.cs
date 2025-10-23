@@ -7,7 +7,7 @@ namespace HECSFramework.Core
 {
     public partial class World
     {
-        public const int StartEntitiesCount = 32;
+        public static int StartEntitiesCount { get; private set; } = 32;
 
         public Entity[] Entities;
         private HECSList<IReactEntity> reactEntities = new HECSList<IReactEntity>(32);
@@ -35,6 +35,11 @@ namespace HECSFramework.Core
 
         private SystemRegisterService systemRegisterService = new SystemRegisterService();
         private Dictionary<int, Stack<ISystem>> systemsPool = new Dictionary<int, Stack<ISystem>>(32);
+
+        public static void SetDefaultCount(int count)
+        {
+            StartEntitiesCount = count;
+        }
 
         private EntitiesFilter GetFilterFromCache(Filter include, Filter exclude)
         {
