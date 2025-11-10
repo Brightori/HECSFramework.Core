@@ -5,7 +5,7 @@ namespace HECSFramework.Core
 {
     public interface IAction
     {
-        public void Action(Entity entity);
+        public void Action(Entity owner, Entity target = null);
     }
 
     public interface IAsyncAction
