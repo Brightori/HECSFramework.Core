@@ -1,4 +1,7 @@
-﻿namespace HECSFramework.Core.Helpers
+﻿using System;
+using System.Reflection;
+
+namespace HECSFramework.Core.Helpers
 {
     [Documentation(Doc.Helpers, Doc.HECS, "this component provide helpers to reflection functionality like set private member or call method")]
     public static class ReflectionHelpers
@@ -26,7 +29,7 @@
                | System.Reflection.BindingFlags.Static
                | System.Reflection.BindingFlags.FlattenHierarchy;
 
-            var field = objectWithValue.GetType().GetField(nameOfField, bindingFlags);
+            var field = GetFieldRecursive(objectWithValue.GetType(), nameOfField, bindingFlags);
             return (T)field?.GetValue(objectWithValue);
         }
 
@@ -40,8 +43,24 @@
                | System.Reflection.BindingFlags.Static
                | System.Reflection.BindingFlags.FlattenHierarchy;
 
-            var field = objectWithValue.GetType().GetField(nameOfField, bindingFlags);
+            var field = GetFieldRecursive(objectWithValue.GetType(), nameOfField, bindingFlags);
             field?.SetValue(objectWithValue, value);
+        }
+
+        public static FieldInfo GetFieldRecursive(Type type, string fieldName, BindingFlags flags)
+        {
+            FieldInfo field = null;
+
+            while (type != null)
+            {
+                field = type.GetField(fieldName, flags);
+                if (field != null)
+                    return field;
+
+                type = type.BaseType;
+            }
+
+            return null;
         }
 
         public static void SetPrivatePropertyValue(object objectWithValue, string nameOfField, object value)
