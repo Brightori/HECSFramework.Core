@@ -5,10 +5,15 @@ namespace HECSFramework.Core
     public interface IModifier
     {
         /// <summary>
-        /// we should take it from identifier
+        /// we should save here counter id. for saving purpose and associate modifier to counter
         /// </summary>
-        int ModifierID { get; set; }
+        int ModifierCounterID { get; set; }
         
+        /// <summary>
+        /// this parameter should be use for saving puropose, we provide here ModifierTypeIdentifier
+        /// </summary>
+        int ModifierType { get; set; }
+
         /// <summary>
         /// we can separate instances of modifiers by guid
         /// </summary>

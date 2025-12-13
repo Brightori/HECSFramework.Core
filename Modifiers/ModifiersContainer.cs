@@ -162,7 +162,7 @@ namespace HECSFramework.Core
             {
                 foreach (var currentmodifier in collection.Value)
                 {
-                    if (currentmodifier.Modifier.ModifierID == modifierID)
+                    if (currentmodifier.Modifier.ModifierCounterID == modifierID)
                     {
                         removedModifiers.Enqueue(new CleanModifier
                         {

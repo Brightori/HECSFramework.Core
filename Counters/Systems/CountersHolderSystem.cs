@@ -2,6 +2,7 @@
 using Commands;
 using Components;
 using HECSFramework.Core;
+using HECSFramework.Core.Helpers;
 
 namespace Systems
 {
@@ -10,41 +11,53 @@ namespace Systems
     public sealed partial class CountersHolderSystem : BaseSystem, ICountersHolderSystem 
     {
         [Required]
-        public CountersHolderComponent countersHolder;
+        public CountersHolderComponent CountersHolder;
+
+        [Required]
+        public ModifiersHolderComponent ModifiersHolderComponent;
 
         public Guid ListenerGuid { get; } = Guid.NewGuid();
 
         public override void InitSystem()
         {
             foreach (var c in Owner.GetComponentsByType<ICounter>())
-                countersHolder.AddCounter(c);
+                CountersHolder.AddCounter(c);
         }
 
         public void CommandReact(AddCounterModifierCommand<float> command)
         {
-            if (countersHolder.TryGetCounter<ICounterModifiable<float>>(command.Id, out var counter))
+            if (CountersHolder.TryGetCounter<ICounterModifiable<float>>(command.Id, out var counter))
             {
                 if (command.IsUnique)
+                {
+                    ModifiersHolderComponent.FloatModifiers.AddUniqueElement(command.Modifier);
                     counter.AddUniqueModifier(command.Owner, command.Modifier);
+                }
                 else
+                {
                     counter.AddModifier(command.Owner, command.Modifier);
+                    ModifiersHolderComponent.FloatModifiers.Add(command.Modifier);
+                }
             }
         }
 
         public void CommandReact(RemoveCounterModifierCommand<float> command)
         {
-            if (countersHolder.TryGetCounter<ICounterModifiable<float>>(command.Id, out var counter))
+            if (CountersHolder.TryGetCounter<ICounterModifiable<float>>(command.Id, out var counter))
+            {
                 counter.RemoveModifier(command.Owner, command.Modifier);
+                ModifiersHolderComponent.FloatModifiers.Remove(command.Modifier);
+            }
         }
 
         public void CommandReact(ResetCountersCommand command)
         {
-            countersHolder.ResetCountersModifiers();
+            CountersHolder.ResetCountersModifiers();
         }
 
         public void CommandReact(AddCounterModifierBySubIDCommand<float> command)
         {
-            foreach (var c in countersHolder.Counters)
+            foreach (var c in CountersHolder.Counters)
             {
                 if (c.Value is ISubCounter subCounter && c.Value is ICounterModifiable<float> modifiable)
                 {
@@ -61,27 +74,36 @@ namespace Systems
 
         public void CommandReact(AddCounterModifierCommand<int> command)
         {
-            if (countersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
+            if (CountersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
             {
                 if (command.IsUnique)
+                {
+                    ModifiersHolderComponent.IntModifiers.AddUniqueElement(command.Modifier);
                     counter.AddUniqueModifier(command.Owner, command.Modifier);
+                }
                 else
+                {
+                    ModifiersHolderComponent.IntModifiers.Add(command.Modifier);
                     counter.AddModifier(command.Owner, command.Modifier);
+                }
             }
         }
 
         public void CommandReact(RemoveCounterModifierCommand<int> command)
         {
-            if (countersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
+            if (CountersHolder.TryGetCounter<ICounterModifiable<int>>(command.Id, out var counter))
+            {
                 counter.RemoveModifier(command.Owner, command.Modifier);
+                ModifiersHolderComponent.IntModifiers.Remove(command.Modifier);
+            }
         }
 
         public void ComponentReactLocal(ICounter component, bool isAdded)
         {
             if (isAdded)
-                countersHolder.AddCounter(component);
+                CountersHolder.AddCounter(component);
             else
-                countersHolder.RemoveCounter(component);
+                CountersHolder.RemoveCounter(component);
         }
 
         public void CommandReact(ComponentReactByTypeCommand<ICounter> command)
