@@ -27,7 +27,7 @@ namespace HECSFramework.Core
             worldsFreeIndeces = new Queue<int>(8);
             World.SetDefaultCount(entitiesStartingCount);
 
-            for (int i = 0; i < worlds.Length; i++)
+            for (int i = worldsCount; i < worlds.Length; i++)
             {
                 worldsFreeIndeces.Enqueue(i);
             }
