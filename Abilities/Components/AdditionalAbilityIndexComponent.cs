@@ -10,5 +10,10 @@ namespace Components
     {
         [NonSerialized]
         public List<int> AdditionalIndeces = new List<int>();
+
+        public override void BeforeDispose()
+        {
+            AdditionalIndeces.Clear();
+        }
     }
 }
