@@ -6,13 +6,13 @@ namespace HECSFramework.Core
     [Serializable]
     public partial class DefaultFloatCounter : ICounter<float>
     {
-#if UNITY_EDITOR
+#if UNITY_2017_1_OR_NEWER
         [UnityEngine.SerializeField]
 #endif
         private float value;
 
         [IdentifierDropDown("CounterIdentifierContainer")]
-#if UNITY_EDITOR
+#if UNITY_2017_1_OR_NEWER
         [UnityEngine.SerializeField]
 #endif
         private int id;
@@ -49,13 +49,13 @@ namespace HECSFramework.Core
     [Serializable]
     public partial class DefaultIntCounter : ICounter<int>
     {
-#if UNITY_EDITOR
+#if UNITY_2017_1_OR_NEWER
         [UnityEngine.SerializeField]
 #endif
         private int value;
 
         [IdentifierDropDown("CounterIdentifierContainer")]
-#if UNITY_EDITOR
+#if UNITY_2017_1_OR_NEWER
         [UnityEngine.SerializeField]
 #endif
         private int id;
