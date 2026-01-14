@@ -16,15 +16,12 @@ namespace Components
 
         public void ExecuteAction(int Index, Entity entity = null)
         {
-            if (entity == null)
-                entity = Owner;
-
             foreach (var a in Actions)
             {
                 if (a.ID == Index)
                 {
                     foreach (var action in a.Actions)
-                        action.Action(entity);
+                        action.Action(Owner, entity);
                 }
             }
         }
