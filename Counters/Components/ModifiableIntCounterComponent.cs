@@ -9,7 +9,7 @@ namespace Components
     public abstract partial class ModifiableIntCounterComponent : BaseComponent, IBaseValue<int>, ICounterModifiable<int>, IDisposable
     {
         public int Value => modifiableIntCounter.Value;
-        public int CalculatedMaxValue => modifiableIntCounter.CalculatedMaxValue;
+        public int MaxValue => modifiableIntCounter.MaxValue;
         public abstract int Id { get; }
         public abstract int SetupValue { get; }
         public int GetBaseValue => SetupValue;
@@ -77,7 +77,7 @@ namespace Components
                 Id = this.Id,
                 Value = modifiableIntCounter.Value,
                 PreviousValue = oldValue,
-                MaxValue = modifiableIntCounter.CalculatedMaxValue
+                MaxValue = modifiableIntCounter.MaxValue
             };
         }
 
@@ -109,7 +109,7 @@ namespace Components
         {
             if (oldValue != Value)
             {
-                result = new DiffCounterCommand<int> { Id = this.Id, Value = modifiableIntCounter.Value, PreviousValue = oldValue, MaxValue = modifiableIntCounter.CalculatedMaxValue };
+                result = new DiffCounterCommand<int> { Id = this.Id, Value = modifiableIntCounter.Value, PreviousValue = oldValue, MaxValue = modifiableIntCounter.MaxValue };
                 return true;
             }
 

@@ -9,7 +9,7 @@ namespace Components
     public abstract partial class ModifiableFloatOnBaseValueCounterComponent : BaseComponent, IPoolableComponent, ICounterModifiable<float>, IDisposable
     {
         public float Value => modifiableFloatCounter.Value;
-        public float CalculatedMaxValue => modifiableFloatCounter.CalculatedMaxValue;
+        public float MaxValue => modifiableFloatCounter.MaxValue;
         public abstract int Id { get; }
         public abstract float SetupValue { get; }
 
@@ -76,7 +76,7 @@ namespace Components
                 Id = this.Id,
                 Value = modifiableFloatCounter.Value,
                 PreviousValue = oldValue,
-                MaxValue = modifiableFloatCounter.CalculatedMaxValue
+                MaxValue = modifiableFloatCounter.MaxValue
             };
         }
 
@@ -108,7 +108,7 @@ namespace Components
         {
             if (oldValue != Value)
             {
-                result = new DiffCounterCommand<float> { Id = this.Id, Value = modifiableFloatCounter.Value, PreviousValue = oldValue, MaxValue = modifiableFloatCounter.CalculatedMaxValue };
+                result = new DiffCounterCommand<float> { Id = this.Id, Value = modifiableFloatCounter.Value, PreviousValue = oldValue, MaxValue = modifiableFloatCounter.MaxValue };
                 return true;
             }
 

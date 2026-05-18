@@ -8,13 +8,14 @@ namespace Components
     {
         private float currentValue;
         public float Value { get => currentValue; private set => currentValue = value; }
-        public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
         public float GetForceCalculatedValue => modifiersContainer.GetForceCalculatedValue();
 
         public float SetupValue => currentValue;
 
         protected ModifiersFloatContainer modifiersContainer = new ModifiersFloatContainer();
+
+        public float MaxValue => modifiersContainer.GetCalculatedValue();
 
         public void Setup (int key, float baseValue)
         {

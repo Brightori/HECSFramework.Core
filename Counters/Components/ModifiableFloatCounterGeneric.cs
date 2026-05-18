@@ -9,7 +9,7 @@ namespace Components
     {
         private float currentValue;
         public float Value { get => currentValue; private set => currentValue = value; }
-        public float CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
+        public float MaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
         public float GetForceCalculatedValue => modifiersContainer.GetForceCalculatedValue();
 

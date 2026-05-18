@@ -8,7 +8,7 @@ namespace Components
     {
         private int currentValue;
         public int Value => currentValue;
-        public int CalculatedMaxValue => modifiersContainer.GetCalculatedValue();
+        public int MaxValue => modifiersContainer.GetCalculatedValue();
         public int Id { get; private set; }
         public int GetForceCalculatedValue => modifiersContainer.GetCalculatedValue();
 

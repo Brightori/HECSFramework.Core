@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HECSFramework.Core
 {
-    public interface IMofifiersProcessor<T> : IResetModifiers where T : struct
+    public interface IMofifiersProcessor<T> : IMaxValue<T>, IResetModifiers where T : struct
     {
         void AddModifier(Guid owner, IModifier<T> modifier);
         void AddUniqueModifier(Guid owner, IModifier<T> modifier);
