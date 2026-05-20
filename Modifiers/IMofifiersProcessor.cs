@@ -16,7 +16,7 @@ namespace HECSFramework.Core
         T GetForceCalculatedValue { get; }
     }
 
-    public interface IMofifiersCompositeProcessor<T> : IResetModifiers where T : struct
+    public interface IModifiersCompositeProcessor<T> : IResetModifiers where T : struct
     {
         void AddModifier(int key, Guid owner, IModifier<T> modifier);
         void AddUniqueModifier(int key, Guid owner, IModifier<T> modifier);
@@ -28,7 +28,7 @@ namespace HECSFramework.Core
         void Reset();
     }
 
-    public interface IOutCompositeModifier<T> : IMofifiersCompositeProcessor<T> where T : struct
+    public interface IOutCompositeModifier<T> : IModifiersCompositeProcessor<T> where T : struct
     {
         void Calculate(int key, ref T value);
     }

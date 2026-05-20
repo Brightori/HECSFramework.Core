@@ -62,7 +62,7 @@ namespace HECSFramework.Core
         public T SetupValue { get; }
     }
 
-    public interface ICompositeCounterModifiable<T> : ICompositeCounter<T>, IMofifiersCompositeProcessor<T> where T: struct
+    public interface ICompositeCounterModifiable<T> : ICompositeCounter<T>, IModifiersCompositeProcessor<T> where T: struct
     {
         ICompositeGetValue<T> GetCompositeValue { get; }
         bool ContainsId(int id);

@@ -31,7 +31,7 @@ namespace Components
             modifiersContainer.AddModifier(owner, modifier);
             modifiersContainer.GetCalculatedValue();
 
-            UpdatValueWithModifiers(oldValue, oldCalculated);
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
 
         public void RemoveModifier(Guid owner, IModifier<int> modifier, bool unique = false)
@@ -41,7 +41,7 @@ namespace Components
 
             modifiersContainer.RemoveModifier(owner, modifier, unique);
 
-            UpdatValueWithModifiers(oldValue, oldCalculated);
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
 
         public void RemoveModifier(Guid modifierGUID, bool unique = false)
@@ -51,7 +51,7 @@ namespace Components
 
             modifiersContainer.RemoveModifier(modifierGUID, unique);
 
-            UpdatValueWithModifiers(oldValue, oldCalculated);
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
 
         public void RemoveModifier(int modifierID, bool unique = false)
@@ -61,7 +61,7 @@ namespace Components
 
             modifiersContainer.RemoveModifier(modifierID, unique);
 
-            UpdatValueWithModifiers(oldValue, oldCalculated);
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
 
         public void AddUniqueModifier(Guid owner, IModifier<int> modifier)
@@ -71,7 +71,7 @@ namespace Components
 
             modifiersContainer.AddUniqueModifier(owner, modifier);
 
-            UpdatValueWithModifiers(oldValue, oldCalculated);
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
 
         public void SetValue(int value)
@@ -90,7 +90,7 @@ namespace Components
                 currentValue = upd;
         }
 
-        private void UpdatValueWithModifiers(int oldValue, int oldCalculated)
+        private void UpdateValueWithModifiers(int oldValue, int oldCalculated)
         {
             var percent = oldCalculated > 0 ? oldValue / oldCalculated : 1;
             currentValue = (modifiersContainer.GetCalculatedValue() * percent);
