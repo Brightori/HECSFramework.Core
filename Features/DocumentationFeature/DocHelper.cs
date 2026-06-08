@@ -91,6 +91,7 @@ public static partial class Doc
     public const string FSM = "FSM";
     public const string Death = "Death";
     public const string Proxy = "Proxy";
+    public const string Listener = "Listener";
     public const string VisualQueue = "VisualQueue";
     public const string Rig = "Rig";
     public const string Faction = "Faction";
@@ -105,4 +106,5 @@ public static partial class Doc
     public const string Local = "Local";
     public const string View = "View";
     public const string Render = "Render";
+    public const string Chest = "Chest";
 }
