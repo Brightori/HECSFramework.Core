@@ -10,6 +10,10 @@ namespace Systems
         private IProxyListener<T> proxyListener;
         private AliveEntity listener;
 
+        public override void InitSystem()
+        {
+        }
+
         public void CommandReact(T command)
         {
             if (listener.IsAlive)
@@ -28,8 +32,10 @@ namespace Systems
             listener = proxyListener.Owner;
         }
 
-        public override void InitSystem()
+        public override void Dispose()
         {
+            proxyListener = null;
+            listener = new AliveEntity();
         }
     }
 
