@@ -39,6 +39,13 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Request(int worldIndex, U data)
         {
+#if UNITY_EDITOR
+            if (ProcessorsToWorld.Data[worldIndex] == null)
+            {
+                UnityEngine.Debug.LogError($"we dont have request processor for {typeof(T).Name}");
+                return default;
+            }
+#endif
             return ProcessorsToWorld.Data[worldIndex].Request(data);
         }
 
@@ -53,6 +60,14 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Request(U data)
         {
+#if UNITY_EDITOR
+            if (requestProcessor == null)
+            {
+                UnityEngine.Debug.LogError($"we dont have request processor for {typeof(T).Name}");
+                return default;
+            }
+#endif
+
             return requestProcessor.Request(data);
         }
 
@@ -93,6 +108,14 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Request(int worldIndex)
         {
+#if UNITY_EDITOR
+            if (ProcessorsToWorld.Data[worldIndex] == null)
+            {
+                UnityEngine.Debug.LogError($"we dont have request processor for {typeof(T).Name}");
+                return default;
+            }
+#endif
+
             return ProcessorsToWorld.Data[worldIndex].Request();
         }
 
@@ -107,6 +130,14 @@ namespace HECSFramework.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Request()
         {
+#if UNITY_EDITOR
+           if (requestProcessor == null)
+            {
+                UnityEngine.Debug.LogError($"we dont have request processor for {typeof(T).Name}");
+                return default;
+            } 
+#endif
+
             return requestProcessor.Request();
         }
 
