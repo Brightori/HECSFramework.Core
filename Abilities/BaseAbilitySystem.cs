@@ -1,8 +1,10 @@
-﻿using Commands;
+﻿using System;
+using Commands;
 using Components;
 
 namespace HECSFramework.Core
 {
+    [Serializable]
     [RequiredAtContainer(typeof(AbilityOwnerComponent))]
     [Documentation(Doc.Abilities, "Basic system for active abilities, which are launched every time on demand, through receiving a command")]
     public abstract class BaseAbilitySystem : BaseSystem, IActiveAbilitySystem

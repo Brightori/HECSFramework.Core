@@ -2,6 +2,7 @@
 
 namespace HECSFramework.Core 
 {
+    [Serializable]
     public abstract partial class BaseSystem : ISystem
     {
         private int typeHashCode = -1;
