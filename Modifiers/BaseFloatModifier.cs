@@ -32,6 +32,7 @@ namespace HECSFramework.Core
         }
     }
 
+    [Serializable]
     public abstract class BaseModifier<T> : IModifier<T> where T: struct
     {
         public abstract T GetValue { get; set; }

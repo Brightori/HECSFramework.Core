@@ -1,8 +1,10 @@
-﻿using Commands;
+﻿using System;
+using Commands;
 using Components;
 
 namespace HECSFramework.Core
 {
+    [Serializable]
     public abstract class BaseAbilityNoPredicatesSystem : BaseSystem, IActiveAbilitySystem, IReactCommand<ExecuteAbilityCommand>
     {
         public void CommandReact(ExecuteAbilityCommand command)

@@ -5,6 +5,7 @@ using HECSFramework.Core;
 
 namespace Components
 {
+    [Serializable]
     [Documentation(Doc.HECS, Doc.Counters, "this component is base for all counters components with modifiable values. this component holds modifier container")]
     public abstract partial class ModifiableFloatCounterComponent : BaseComponent, IPoolableComponent, ICounterModifiable<float>, IDisposable
     {
