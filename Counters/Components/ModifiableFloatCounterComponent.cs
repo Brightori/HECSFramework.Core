@@ -135,7 +135,11 @@ namespace Components
 
         public void SetIsDirty()
         {
-            this.modifiableFloatCounter.SetIsDirty();
+            var oldValue = Value;
+            modifiableFloatCounter.SetIsDirty();
+
+            if (isReactive)
+                Owner.Command(GetDiffCommand(oldValue));
         }
 
         public void Setup(int key, float baseValue)

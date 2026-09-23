@@ -63,6 +63,7 @@ namespace HECSFramework.Core
         {
             baseValue = data;
             isDirty = true;
+            GetCalculatedValue();
         }
 
         public IReadOnlyDictionary<int, List<OwnerModifier>> Modifiers => modifiers;

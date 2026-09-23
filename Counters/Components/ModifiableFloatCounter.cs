@@ -21,7 +21,7 @@ namespace Components
         {
             Id = key;
             modifiersContainer.SetBaseValue(baseValue);
-            currentValue = baseValue;
+            currentValue = modifiersContainer.GetCalculatedValue();
         }
 
         public void AddModifier(Guid owner, IModifier<float> modifier)
@@ -109,7 +109,10 @@ namespace Components
 
         public void SetIsDirty()
         {
+            var oldValue = currentValue;
+            var oldCalculated = modifiersContainer.GetCalculatedValue();
             modifiersContainer.SetDirty();
+            UpdateValueWithModifiers(oldValue, oldCalculated);
         }
     }
 }
