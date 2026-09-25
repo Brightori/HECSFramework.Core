@@ -26,12 +26,10 @@ namespace HECSFramework.Core
             factory = typeProvider.HECSFactory;
             TypeToHash = typeProvider.TypeToHash;
             componentHashToType = typeProvider.HashToType;
-            SetComponentsSetters();
-            SetSystemSetters();
-        }
 
-        static partial void SetComponentsSetters();
-        static partial void SetSystemSetters();
+            //биндинги систем приходят из контейнеров, собранных TypesProvider
+            systemsSetters = typeProvider.GetSystemContainers();
+        }
 
         public static void BindSystem<T>(in T system) where T: ISystem
         {
