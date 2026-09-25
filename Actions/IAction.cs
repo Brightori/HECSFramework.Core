@@ -1,5 +1,7 @@
 ﻿using System.Threading;
+#if UNITY_2017_1_OR_NEWER
 using Cysharp.Threading.Tasks;
+#endif
 
 namespace HECSFramework.Core
 {
@@ -8,6 +10,7 @@ namespace HECSFramework.Core
         public void Action(Entity owner, Entity target = null);
     }
 
+#if UNITY_2017_1_OR_NEWER
     public interface IAsyncAction
     {
         /// <summary>
@@ -18,4 +21,5 @@ namespace HECSFramework.Core
         /// <returns></returns>
         public UniTask ActionAsync(Entity to, Entity from = null, CancellationToken cancellationToken = default);
     }
+#endif
 }

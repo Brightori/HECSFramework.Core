@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+#if UNITY_2017_1_OR_NEWER
 using Cysharp.Threading.Tasks;
+#endif
 using HECSFramework.Core;
 
 namespace Components
@@ -12,12 +14,16 @@ namespace Components
     {
     }
 
-    public abstract partial class AsyncBaseActionsHolderComponent : BaseComponent, IDisposable, IAsyncActionsHolderComponent
+    public abstract partial class AsyncBaseActionsHolderComponent : BaseComponent, IDisposable
+#if UNITY_2017_1_OR_NEWER
+        , IAsyncActionsHolderComponent
+#endif
     {
         protected HECSList<AsyncActionsToIdentifier> Actions = new HECSList<AsyncActionsToIdentifier>(4);
 
         public void Dispose()
         {
+#if UNITY_2017_1_OR_NEWER
             foreach (var a in Actions)
             {
                 foreach (var action in a.Actions)
@@ -26,8 +32,10 @@ namespace Components
                         disposable.Dispose();
                 }
             }
+#endif
         }
 
+#if UNITY_2017_1_OR_NEWER
         public async UniTask ExecuteActionSequentialy(int Index, Entity to, Entity from = null)
         {
             for (int i = 0; i < Actions.Count; i++)
@@ -67,16 +75,21 @@ namespace Components
                 }
             }
         }
+#endif
     }
 
+#if UNITY_2017_1_OR_NEWER
     public interface IAsyncActionsHolderComponent
     {
         UniTask ExecuteAction(int Index, Entity to, Entity from = null);
     }
+#endif
 
     public struct AsyncActionsToIdentifier
     {
         public int ID;
+#if UNITY_2017_1_OR_NEWER
         public List<IAsyncAction> Actions;
+#endif
     }
 }

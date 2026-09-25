@@ -3,7 +3,9 @@ namespace HECSFramework.Core
 {
     using System;
     using System.Runtime.CompilerServices;
+#if UNITY_2017_1_OR_NEWER
     using JetBrains.Annotations;
+#endif
 
     public static partial class IntHashMapExtensions 
     {

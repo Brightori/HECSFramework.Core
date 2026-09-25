@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text.RegularExpressions;
+#if UNITY_2017_1_OR_NEWER
 using UnityEngine;
+#endif
 
 public static class BigNumberSymbol
 {
@@ -55,7 +57,9 @@ public struct BigNumber : IComparable<BigNumber>, IEquatable<BigNumber>
             BigNumberSymbol.EEe
         };
 
+#if UNITY_2017_1_OR_NEWER
     [SerializeField]
+#endif
     private BigInteger value;
 
     public BigNumber(decimal number, string digit = "")
