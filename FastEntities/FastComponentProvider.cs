@@ -21,6 +21,12 @@ namespace HECSFramework.Core
             world.RegisterProvider(this);
         }
 
+        public static void RegisterWorld(World world)
+            => ComponentsToWorld.AddToIndex(new FastComponentProvider<T>(world), world.Index);
+
+        public static void UnRegisterWorld(World world)
+            => ComponentsToWorld.Data[world.Index].Dispose();
+
         internal override int TypeIndexProvider => TypeIndex;
 
 

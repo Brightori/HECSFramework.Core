@@ -6,7 +6,6 @@ namespace HECSFramework.Core
     public static partial class TypesMap
     {
         public static readonly int SizeOfComponents = 64;
-        public static IMaskProvider MaskProvider;
 
         private static readonly Dictionary<int, ComponentMaskAndIndex> MapIndexes;
         private static readonly Dictionary<Type, int> TypeToComponentIndex;
@@ -15,10 +14,16 @@ namespace HECSFramework.Core
         private static Dictionary<int, IComponentContextSetter> componentsSetters;
         private static Dictionary<Type, ISystemSetter> systemsSetters;
         private static IHECSFactory factory;
+        private static readonly IReadOnlyList<ITypeContainer> containers;
+
+        public static IReadOnlyList<IComponentContainer> ComponentContainers { get; }
+        public static IReadOnlyList<IFastComponentContainer> FastComponentContainers { get; }
+        public static IReadOnlyDictionary<int, ComponentMaskAndIndex> ComponentsInfo => MapIndexes;
+        public static IReadOnlyCollection<Type> ComponentTypes => TypeToComponentIndex.Keys;
+        public static IReadOnlyCollection<Type> SystemTypes => systemsSetters.Keys;
 
         static TypesMap()
         {
-            MaskProvider = new MaskProvider();
             var typeProvider = new TypesProvider();
             MapIndexes = typeProvider.MapIndexes;
             TypeToComponentIndex = typeProvider.TypeToComponentIndex;
@@ -26,9 +31,21 @@ namespace HECSFramework.Core
             factory = typeProvider.HECSFactory;
             TypeToHash = typeProvider.TypeToHash;
             componentHashToType = typeProvider.HashToType;
+            containers = typeProvider.Containers;
+            ComponentContainers = typeProvider.ComponentContainers;
+            FastComponentContainers = typeProvider.FastComponentContainers;
 
             //биндинги систем приходят из контейнеров, собранных TypesProvider
             systemsSetters = typeProvider.GetSystemContainers();
+        }
+
+        public static IEnumerable<T> GetContainers<T>() where T : ITypeContainer
+        {
+            foreach (var container in containers)
+            {
+                if (container is T needed)
+                    yield return needed;
+            }
         }
 
         public static void BindSystem<T>(in T system) where T: ISystem

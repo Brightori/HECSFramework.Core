@@ -35,10 +35,9 @@ namespace HECSFramework.Core
         public World(int index)
         {
             Index = index;
-            FillRegistrators();
 
-            foreach (var tr in componentProviderRegistrators)
-                tr.RegisterWorld(this);
+            foreach (var container in TypesMap.ComponentContainers)
+                container.RegisterWorld(this);
 
             InitStandartEntities();
             InitFastWorld();
@@ -399,7 +398,6 @@ namespace HECSFramework.Core
 
             systemRegisterService = null;
             componentProvidersByTypeIndex.Clear();
-            componentProviderRegistrators = null;
 
             foreach (var pool in systemsPool.Values)
                 pool.Clear();

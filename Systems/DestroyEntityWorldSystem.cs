@@ -32,7 +32,8 @@ namespace Systems
         public override void Dispose()
         {
             base.Dispose();
-            Owner.World.GlobalUpdateSystem.FinishUpdate -= React;
+            Owner.World.GlobalUpdateSystem.PreFinishUpdate -= React;
+            UnityDispose();
         }
 
         partial void UnityDispose();

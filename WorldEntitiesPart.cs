@@ -23,8 +23,6 @@ namespace HECSFramework.Core
         private Dictionary<int, ComponentProvider> componentProvidersByTypeIndex = new Dictionary<int, ComponentProvider>(128);
         private Dictionary<int, List<EntitiesFilter>> entitiesFilters = new Dictionary<int, List<EntitiesFilter>>(8);
 
-        private ComponentProviderRegistrator[] componentProviderRegistrators;
-
         public EntitiesFilter GetFilter<T>() where T : IComponent, new() => GetFilterFromCache(Filter.Get<T>(), new Filter());
         public EntitiesFilter GetFilter<T, U>() where T : IComponent, new() where U : IComponent, new() => GetFilterFromCache(Filter.Get<T, U>(), new Filter());
         public EntitiesFilter GetFilter<T, U, Z>() where T : IComponent, new() where U : IComponent, new() where Z : IComponent, new() => GetFilterFromCache(Filter.Get<T, U, Z>(), new Filter());
@@ -61,8 +59,6 @@ namespace HECSFramework.Core
 
             return new EntitiesFilter(this, include, exclude);
         }
-
-        partial void FillRegistrators();
 
         public void RegisterEntityFilter(EntitiesFilter filter)
         {

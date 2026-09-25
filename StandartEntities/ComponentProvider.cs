@@ -28,6 +28,9 @@ namespace HECSFramework.Core
             check = (T)TypesMap.GetComponentFromFactory(TypeIndex);
         }
 
+        public static void RegisterWorld(World world)
+            => ComponentsToWorld.AddToIndex(new ComponentProvider<T>(world), world.Index);
+
         internal override int TypeIndexProvider => TypeIndex;
 
         public int Priority { get; } = -2;

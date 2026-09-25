@@ -17,19 +17,15 @@ namespace HECSFramework.Core
         public FastEntity[] FastEntities = new FastEntity[32];
         private Queue<ushort> freeEntities = new Queue<ushort>(32);
 
-        private TypeRegistrator[] typeRegistrators = new TypeRegistrator[0];
-
         partial void InitFastWorld()
         {
-            FillTypeRegistrators();
-
             for (int i = 1; i < FastEntities.Length; i++)
             {
                 CreateNewEntity(i);
             }
 
-            foreach (var t in typeRegistrators)
-                t.RegisterWorld(this);
+            foreach (var container in TypesMap.FastComponentContainers)
+                container.RegisterWorld(this);
 
             GlobalUpdateSystem.FinishUpdate += UpdateFilters;
         }
@@ -42,8 +38,6 @@ namespace HECSFramework.Core
             fast.Index = (ushort)i;
             freeEntities.Enqueue((ushort)i);
         }
-
-        partial void FillTypeRegistrators();
 
         public ref FastEntity GetFastEntity()
         {
@@ -151,8 +145,8 @@ namespace HECSFramework.Core
         {
             GlobalUpdateSystem.FinishUpdate -= UpdateFilters;
 
-            foreach (var t in typeRegistrators)
-                t.UnRegisterWorld(this);
+            foreach (var container in TypesMap.FastComponentContainers)
+                container.UnRegisterWorld(this);
 
             fastComponentProvidersByTypeIndex.Clear();
         }

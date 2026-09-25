@@ -1,54 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace HECSFramework.Core
 {
     /// <summary>
-    /// Рукописное ядро регистрации типов. Кодоген больше не генерирует конструктор
-    /// TypesProvider — вместо этого каждый тип приносит свой контейнер через метод
-    /// Register_<TypeName>() в partial-части этого класса (файл на тип в Containers/).
-    /// Методы собираются рефлексией по префиксу; всё глобальное (индексы, маски,
-    /// словари) вычисляется в Build() по порядку регистрации.
-    /// Префикс "Register_" зарезервирован: рукописные методы не должны его использовать.
+    /// Рукописное ядро регистрации типов. Каждый тип приносит свой контейнер строкой
+    /// в TypeContainersRegistry (файл на тип в Containers/); всё глобальное
+    /// (индексы, маски, словари) вычисляется в Build().
     /// </summary>
     public partial class TypesProvider : IHECSFactory
     {
-        public const string RegistrationMethodPrefix = "Register_";
-
         private readonly List<IComponentContainer> componentContainers = new List<IComponentContainer>(512);
         private readonly List<ISystemContainer> systemContainers = new List<ISystemContainer>(256);
+        private readonly List<IFastComponentContainer> fastComponentContainers = new List<IFastComponentContainer>(16);
 
         private readonly Dictionary<int, IComponentContainer> componentsByHash = new Dictionary<int, IComponentContainer>(512);
         private readonly Dictionary<int, ISystemContainer> systemsByHash = new Dictionary<int, ISystemContainer>(256);
 
+        public IReadOnlyList<ITypeContainer> Containers => TypeContainersRegistry.All;
+        public IReadOnlyList<IComponentContainer> ComponentContainers => componentContainers;
+        public IReadOnlyList<ISystemContainer> SystemContainers => systemContainers;
+        public IReadOnlyList<IFastComponentContainer> FastComponentContainers => fastComponentContainers;
+
         public TypesProvider()
         {
-            CollectRegistrations();
-            Build();
-        }
-
-        public void RegisterComponent(IComponentContainer container) => componentContainers.Add(container);
-        public void RegisterSystem(ISystemContainer container) => systemContainers.Add(container);
-
-        private void CollectRegistrations()
-        {
-            var methods = typeof(TypesProvider).GetMethods(
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
-
-            foreach (var method in methods)
+            foreach (var container in TypeContainersRegistry.All)
             {
-                if (!method.Name.StartsWith(RegistrationMethodPrefix, StringComparison.Ordinal))
-                    continue;
+                if (container is IComponentContainer component)
+                    componentContainers.Add(component);
 
-                if (method.GetParameters().Length != 0 || method.ReturnType != typeof(void))
-                {
-                    HECSDebug.LogWarning($"TypesProvider: метод {method.Name} совпал с префиксом регистрации, но имеет неподходящую сигнатуру, пропущен");
-                    continue;
-                }
+                if (container is ISystemContainer system)
+                    systemContainers.Add(system);
 
-                method.Invoke(this, null);
+                if (container is IFastComponentContainer fastComponent)
+                    fastComponentContainers.Add(fastComponent);
             }
+
+            Build();
         }
 
         /// <summary>
@@ -73,6 +61,9 @@ namespace HECSFramework.Core
             {
                 var container = componentContainers[i];
 
+                if (componentsByHash.TryGetValue(container.TypeHashCode, out var registered))
+                    throw SameTypeHashCode(registered.ComponentType, container.ComponentType, container.TypeHashCode);
+
                 //индекс типа совпадает с индексом маски, как в монолитном TypesProvider: 0 занят DefaultEmpty
                 var index = i + 1;
                 var mask = new HECSMask { Index = index, TypeHashCode = container.TypeHashCode };
@@ -87,15 +78,21 @@ namespace HECSFramework.Core
                 TypeToHash.Add(container.ComponentType, container.TypeHashCode);
                 HashToType.Add(container.TypeHashCode, container.ComponentType);
                 componentsByHash.Add(container.TypeHashCode, container);
-
-                container.AfterBuild(mask, index);
             }
 
             foreach (var system in systemContainers)
+            {
+                if (systemsByHash.TryGetValue(system.TypeHashCode, out var registered))
+                    throw SameTypeHashCode(registered.SystemType, system.SystemType, system.TypeHashCode);
+
                 systemsByHash.Add(system.TypeHashCode, system);
+            }
 
             HECSFactory = this;
         }
+
+        private static InvalidOperationException SameTypeHashCode(Type registered, Type added, int hash)
+            => new InvalidOperationException($"TypesProvider: {registered.FullName} and {added.FullName} have the same TypeHashCode {hash}, rename one of them");
 
         /// <summary>
         /// Контейнеры систем в виде словаря для TypesMap (контейнер и есть ISystemSetter).

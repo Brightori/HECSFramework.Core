@@ -9,7 +9,6 @@ namespace Systems
     [Documentation(Doc.Abilities, Doc.HECS, "This system execute all abilities on ability holder, its usable if we have composite ability concept - ability what use damage and freeze effect same time, then we need create ability for each effect and run them through this system")]
     public sealed partial class CompositeAbilitiesSystem : BaseAbilityNoPredicatesSystem, ICompositeAbilitiesSystem, IReactCommand<ExecutePassiveAbilityCommand>
     {
-        private HECSMask passiveAbilMask = HMasks.GetMask<PassiveAbilityTag>();
         public AbilitiesHolderComponent abilitiesHolder;
 
         public override void InitSystem()
