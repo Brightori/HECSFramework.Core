@@ -11,7 +11,7 @@ namespace HECSFramework.Core.Generator
         public const string Private = "private";
         public const string Static = "static";
         public const string Namespace = "namespace";
-        public const string Paragraph = "\r";
+        public const string Paragraph = "\n";
         public const string Space = " ";
         public const string LeftScope = "{";
         public const string RightScope = "}";
